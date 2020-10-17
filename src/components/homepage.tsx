@@ -6,13 +6,13 @@ const Homepage = () => {
   return (
     <>
       <Row>
-        <Col span={6}>
+        <Col xs={{span: 0}} xl={{span: 4, offset: 0}}   span={6}>
           {/* <div style={{border: 'black solid', height: '300px',width: '100%'}}></div> */}
         </Col>
-        <Col span={12}>
+        <Col xs={{span: 22, offset: 1}} lg={{span: 16, offset: 2}} xl={{span: 10, offset: 4}} span={12}>
           <Cards />
         </Col>
-        <Col span={6}>
+        <Col xs={{span: 0}} lg={{span: 5, offset: 1}} xl={{span: 6, offset: 0}} >
           {/* <div style={{border: 'black solid', height: '300px',width: '100%'}}></div> */}
         </Col>
       </Row>
