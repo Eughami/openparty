@@ -1,38 +1,60 @@
-.App {
-  text-align: center;
+.App{
+  background-color: rgba(var(--b3f,250,250,250),1);
+  
+}
+.top__navbar__elements{
+  border: black solid;
+  width: 100%;
+  height: 40px;
+}
+.posts__container > *{
+  margin: 30px 0;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+.post__container{
+  /* border: black solid; */
+  background-color: white;
+  border-radius: 10px;
+  width: 100%;
+  height: 60vh;
 }
-
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
-}
-
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
+.post__header{
+  /* border: black solid; */
+  height: 10%;  
   display: flex;
-  flex-direction: column;
   align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
 }
-
-.App-link {
-  color: #61dafb;
+.post__header img{
+  height: 50%;
 }
-
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.post__header > *{
+  padding-left: 10px;
+}
+.post__image{
+  /* border: black solid; */
+  height: 60%;  
+}
+.post__image img{
+  /* width: 100%; */
+  height: 100%;
+  margin: auto;
+}
+.post__clikes__and__comments{
+  /* border: black solid; */
+  height: 10%;  
+}
+.post__clikes__and__comments > * {
+  
+  padding-left: 18px;
+}
+.post__clikes__and__comments > *:hover {
+  cursor: pointer;
+}
+.post__captions{
+  /* border: black solid; */
+  height: 10%;
+}
+.post__add__comment{
+  /* border: black solid; */
+  height: 10%;
 }
