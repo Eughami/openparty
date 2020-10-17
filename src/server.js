@@ -1,7 +1,18 @@
 const express = require('express')
 const app = express()
 const port = 7896
+const firebase = require( "firebase");
 
+firebase.initializeApp({
+  apiKey: "AIzaSyAqmmh2U3EF0D5H7cU_gtUDGua6J-pJmT8",
+  authDomain: "openpaarty.firebaseapp.com",
+  databaseURL: "https://openpaarty.firebaseio.com",
+  projectId: "openpaarty",
+  storageBucket: "openpaarty.appspot.com",
+  messagingSenderId: "1068571012809",
+  appId: "1:1068571012809:web:fe037ded9b36d40fdfe718",
+  measurementId: "G-1GCM1NG8CM"
+});
 
 // const Post = {
 //   user_id: string, //ID of the user owning the post
@@ -48,6 +59,9 @@ for(var i =0; i<10; i++){
     }
   })
 }
+
+firebase.database().ref("Posts").set(posts);
+
 
 // var users = []
 // for(var i =0 ; i< 10; i++){

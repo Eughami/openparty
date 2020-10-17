@@ -11,6 +11,7 @@
     "@types/react": "^16.9.0",
     "@types/react-dom": "^16.9.0",
     "antd": "^4.7.0",
+    "firebase": "^7.24.0",
     "firebase-tools": "^8.12.1",
     "global": "^4.4.0",
     "react": "^16.14.0",

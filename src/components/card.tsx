@@ -5,7 +5,9 @@ import { ShareAltOutlined , HeartTwoTone, CommentOutlined  } from '@ant-design/i
 
 type Comment = {
   user_id: string,
-  comment: string
+  comment: string,
+  likes: number,
+  id: string,
 }
 
 enum IAgeRatingEnum {
@@ -41,6 +43,8 @@ type CardsProps = {
 
 
 const MyCard = (CardProp: CardsProps) => {
+
+  
 
   const {user_id,likes,image_url,caption,comments,users_showing_up,date_of_event,date_of_post} = CardProp.Post
 
