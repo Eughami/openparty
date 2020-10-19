@@ -1,10 +1,13 @@
 import { Col, Row } from 'antd';
 import React from 'react';
 import Cards from './cards';
+import Navbar from '../components/navbar';
+
 
 const Homepage = () => {
   return (
     <>
+      <Navbar />
       <Row>
         <Col xs={{span: 0}} xl={{span: 4, offset: 0}}   span={6}>
           {/* <div style={{border: 'black solid', height: '300px',width: '100%'}}></div> */}

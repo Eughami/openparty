@@ -43,7 +43,7 @@
   align-items: center;
 }
 .post__header img{
-  height: 50%;
+  /* height: 100%; */
 }
 .post__header > *{
   padding-left: 10px;
