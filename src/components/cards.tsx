@@ -15,15 +15,13 @@ const Cards = () => {
   useEffect( () => {
     
     firebase.database().ref("Posts").on("value", (snapshot)=>{
-      if (snapshot.exists()) {
-        console.log("SNAP ", snapshot.val());
+      if (snapshot.exists()) { 
         
         let temp: any = [];
         snapshot.forEach(post => {
           temp.push(post.val())
         })
-        setPosts(temp);
-        console.log(temp);
+        setPosts(temp); 
         
         temp = [];
       }

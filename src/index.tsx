@@ -2,6 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
 import App from './App';
+import { BrowserRouter } from "react-router-dom";
 import * as serviceWorker from './serviceWorker';
 import firebase from "firebase";
 
@@ -16,10 +17,19 @@ firebase.initializeApp({
   measurementId: "G-1GCM1NG8CM"
 });
 
-ReactDOM.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>,
+export interface User {
+  username: string,
+  id: string,
+  followers_count: number,
+  following_count: number,
+  image_url: string,
+  posts_count: number,
+}
+
+ReactDOM.render( 
+  <BrowserRouter>
+      <App />
+  </BrowserRouter> ,
   document.getElementById('root')
 );
 
