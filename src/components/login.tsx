@@ -1,8 +1,10 @@
 import React from 'react';
 import { Form, Input, Button, Checkbox } from 'antd';
 
+import {emailSignInStart, googleSignInStart} from '../redux/user/user.actions'
+import { connect } from 'react-redux';
 
-const Login = () => {
+const Login = ({emailSignInStart, googleSignInStart}:any) => {
 
   const layout = {
     labelCol: { span: 8 },
@@ -13,7 +15,9 @@ const Login = () => {
   };
   
   const onFinish = (values:any) => {
+    const {username, password} = values
     console.log('Success:', values);
+    emailSignInStart(username, password)
   };
 
   const onFinishFailed = (errorInfo: any) => {
@@ -53,8 +57,18 @@ const Login = () => {
           Submit
         </Button>
       </Form.Item>
+      <Form.Item {...tailLayout}>
+        <Button type="primary" onClick={() => googleSignInStart()}>
+          Login With Google
+        </Button>
+      </Form.Item>
     </Form>
   );
 };
 
-export default Login
+const mapDispatchToProps = (dispatch: any )=>({
+  emailSignInStart: (email:any, password:any) =>dispatch(emailSignInStart({email,password})),
+  googleSignInStart: () => dispatch(googleSignInStart())
+})
+
+export default connect(null, mapDispatchToProps)(Login)

@@ -4,30 +4,23 @@ import { connect } from 'react-redux';
 import { createStructuredSelector } from 'reselect';
 import { selectCurrentUser } from './redux/user/user.selectors';
 
-import {
-  googleSignInStart,
-  emailSignInStart
-} from './redux/user/user.actions';
-
-
-
-
 import './App.css';
 import Homepage from './components/homepage';
 
 import 'antd/dist/antd.css';
 import Login from './components/login';
 
-// const currentUser = false
+// const currentUser = true
 
-const App = ({currentUser, emailSignInStart,googleSignInStart}:any) => {
+const App = (currentUser:any) => {
   {console.log(currentUser)}
-  emailSignInStart('test@test.com', 'password123')
+  // googleSignInStart('test@test.com', 'password123')
   return (
     <div className="App">
       <Router>
-      {currentUser ? (
+      {currentUser.currentUser ? (
         <Switch>
+          {console.log('user is autenticated')}
           <Route exact path="/" component={Homepage} />
           {/* <Route exact path="/addnew" component={AddNewStudentPage} /> */}
           {/* <Route exact path="/listall" component={ListAllStudentsPage} /> */}
@@ -40,6 +33,7 @@ const App = ({currentUser, emailSignInStart,googleSignInStart}:any) => {
         </Switch>
       ) : (
         <Switch>
+          {console.log('user is not autenticated')}
           <Route component={Login} />
         </Switch>
       )}
@@ -51,11 +45,5 @@ const App = ({currentUser, emailSignInStart,googleSignInStart}:any) => {
 const mapStateToProps = createStructuredSelector({
   currentUser: selectCurrentUser
 });
-const mapDispatchToProps = (dispatch: any) => ({
-  googleSignInStart: () => dispatch(googleSignInStart()),
-  emailSignInStart: (email:any, password:any) =>
-    dispatch(emailSignInStart({ email, password }))
-});
 
-
-export default connect(mapStateToProps,mapDispatchToProps)(App);
+export default connect(mapStateToProps)(App);

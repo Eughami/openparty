@@ -2,8 +2,7 @@ import UserActionTypes from './user.types'
 import {User} from '../../components/interfaces/user.interface'
 
 const INITIAL_STATE = {
-   name: 'imam',
-    age: 21,
+   currentUser: null,
   error: null
 }
 
