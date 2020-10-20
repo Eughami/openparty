@@ -1,7 +1,7 @@
 const express = require('express')
 const app = express()
 const port = 7896
-const firebase = require( "firebase");
+const firebase = require("firebase");
 
 firebase.initializeApp({
   apiKey: "AIzaSyAqmmh2U3EF0D5H7cU_gtUDGua6J-pJmT8",
@@ -28,7 +28,7 @@ firebase.initializeApp({
 // }
 const posts = []
 
-for(var i =0; i<10; i++){
+for (var i = 0; i < 10; i++) {
   posts.push({
     user_id: `userID${i}`, //ID of the user owning the post
     location: null, //Lat & Lng of the location of the post
@@ -42,7 +42,7 @@ for(var i =0; i<10; i++){
         comment: 'Ayo MF'
       },
       {
-        user_id: `${i* 100}`,
+        user_id: `${i * 100}`,
         comment: 'Wassup Dog'
       },
       {
@@ -50,17 +50,17 @@ for(var i =0; i<10; i++){
         comment: '69'
       },
     ],
-    users_showing_up: i* 50, //Indicating how many users would be showing up to this event,
+    users_showing_up: i * 50, //Indicating how many users would be showing up to this event,
     date_of_post: new Date(2020, 9, i),
-    date_of_event: new Date(1995, 9, i+10),
-    user:{
+    date_of_event: new Date(1995, 9, i + 10),
+    user: {
       image_url: 'https://images-wixmp-ed30a86b8c4ca887773594c2.wixmp.com/f/5d546e2c-9b74-474a-b611-52ca190f519c/dbell1k-30511769-cfe3-4f6a-bdac-fdef21cfa415.png?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1cm46YXBwOiIsImlzcyI6InVybjphcHA6Iiwib2JqIjpbW3sicGF0aCI6IlwvZlwvNWQ1NDZlMmMtOWI3NC00NzRhLWI2MTEtNTJjYTE5MGY1MTljXC9kYmVsbDFrLTMwNTExNzY5LWNmZTMtNGY2YS1iZGFjLWZkZWYyMWNmYTQxNS5wbmcifV1dLCJhdWQiOlsidXJuOnNlcnZpY2U6ZmlsZS5kb3dubG9hZCJdfQ.8cv8qZPs0Ojw_gfzK6shb2JIl6JkQhMgixKVwC57Cy4',
       username: `MF number ${i}`,
     }
   })
 }
 
-firebase.database().ref("Posts").set(posts);
+// firebase.database().ref("Posts").set(posts);
 
 
 // var users = []
@@ -74,13 +74,13 @@ firebase.database().ref("Posts").set(posts);
 //   })
 // }
 
-app.get('/', (req, res)=>{
+app.get('/', (req, res) => {
   res.send(posts)
 })
 // app.get('/users', (req, res)=>{
 //   res.send(users)
 // })
 
-app.listen(port, ()=>{
+app.listen(port, () => {
   console.log(`Listening on Port ${port}`)
 })

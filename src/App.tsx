@@ -5,12 +5,12 @@ import UserProfile from './pages/user-profile';
 import Login from './pages/login'
 import Register from './pages/register';
 import Navbar from './components/navbar';
-import { Switch, Route, } from "react-router-dom"; 
+import { Switch, Route, } from "react-router-dom";
 import { Spin, Col } from "antd";
 import 'antd/dist/antd.css';
-import  firebase from "firebase";
+import firebase from "firebase";
 
-interface IAppProps { 
+interface IAppProps {
 }
 
 const App = (__props: IAppProps) => {
@@ -33,9 +33,9 @@ const App = (__props: IAppProps) => {
     }, 2000);
   }, []);
 
-  if(loadingCredentials) {
+  if (loadingCredentials) {
     return (
-      <Col span="12" style={{marginLeft: "20%", marginRight: "20%", marginTop: "5%", textAlign: "center"}}>
+      <Col span="12" style={{ marginLeft: "20%", marginRight: "20%", marginTop: "5%", textAlign: "center" }}>
         <Spin size="large" />
       </Col>
     );
@@ -43,24 +43,24 @@ const App = (__props: IAppProps) => {
   return (
     <div className="App">
       {
-        currentUser ? 
-        (
-          <div>
-            <Navbar user={currentUser} />
-            <Switch>
+        currentUser ?
+          (
+            <div>
+              <Navbar user={currentUser} />
+              <Switch>
                 <Route exact path="/" component={Homepage} />
-                <Route  exact path="/profile/:username" component={UserProfile} />  
-                <Route  exact path="/register" component={Register} />  
+                <Route exact path="/profile/:username" component={UserProfile} />
                 <Route component={Homepage} />
-            </Switch> 
-          </div>
-        )
-        : 
-        (
-          <div>
-            <Route path="/" component={Login} />  
-          </div>
-        )
+              </Switch>
+            </div>
+          )
+          :
+          (
+            <div>
+              <Route exact path="/" component={Login} />
+              <Route exact path="/register" component={Register} />
+            </div>
+          )
 
       }
 
