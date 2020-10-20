@@ -1,8 +1,10 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Switch, Route, Redirect } from "react-router-dom";
 import { connect } from 'react-redux';
 import { createStructuredSelector } from 'reselect';
 import { selectCurrentUser } from './redux/user/user.selectors';
+import { checkUserSession } from './redux/user/user.actions';
+
 
 import './App.css';
 import Homepage from './components/homepage';
@@ -12,15 +14,18 @@ import Login from './components/login';
 
 // const currentUser = true
 
-const App = (currentUser:any) => {
+const App = ({currentUser,checkUserSession}:any) => {
   {console.log(currentUser)}
+  useEffect(()=>{
+    checkUserSession()
+  },[checkUserSession])
   // googleSignInStart('test@test.com', 'password123')
   return (
     <div className="App">
       <Router>
-      {currentUser.currentUser ? (
+      {currentUser ? (
         <Switch>
-          {console.log('user is autenticated')}
+          {/* {console.log('user is autenticated')} */}
           <Route exact path="/" component={Homepage} />
           {/* <Route exact path="/addnew" component={AddNewStudentPage} /> */}
           {/* <Route exact path="/listall" component={ListAllStudentsPage} /> */}
@@ -46,4 +51,8 @@ const mapStateToProps = createStructuredSelector({
   currentUser: selectCurrentUser
 });
 
-export default connect(mapStateToProps)(App);
+const mapDispatchToProps = (dispatch:any) =>({
+  checkUserSession: () => dispatch(checkUserSession())
+})
+
+export default connect(mapStateToProps,mapDispatchToProps)(App);
