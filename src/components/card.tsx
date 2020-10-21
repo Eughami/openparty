@@ -48,11 +48,11 @@ const MyCard = (CardProp: CardsProps) => {
 
   const {user_id,likes,image_url,caption,comments,users_showing_up,date_of_event,date_of_post} = CardProp.Post
 
-  const {image_url:avatar_url, username} = CardProp.Post.user
+  // const {image_url:avatar_url, username} = CardProp.Post.user
 
   return (
     <div className='post__container'>
-      <Row className='post__header' align='middle'>
+      {/* <Row className='post__header' align='middle'>
         <Avatar 
           size='large' 
           icon={
@@ -62,7 +62,7 @@ const MyCard = (CardProp: CardsProps) => {
             />} 
           />
         <span>{username}</span>
-      </Row>
+      </Row> */}
       <Row className='post__image'>
         <img alt='' src={image_url} />
       </Row>

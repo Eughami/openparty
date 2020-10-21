@@ -19,7 +19,20 @@ firebase.initializeApp(config);
 export const createUserProfileDocument = async (userAuth, additionalData) => {
   if (!userAuth) return;
 
-  // console.log(`${userAuth.uid}`)
+  console.log('userAuth : ',userAuth)
+  console.log('additional data : ',additionalData)
+  let email = null
+  let username = null
+  let prefix = null
+  let phone = null
+  
+  if(additionalData){
+
+    email = additionalData.email
+    username =additionalData.username
+    prefix =additionalData.prefix
+    phone = additionalData.phone
+  }
 
   // await firebase.database().ref("Users").child(userAuth.uid).once("value", snapShot => {
   //   if(!snapShot.exists()) {
@@ -39,19 +52,17 @@ export const createUserProfileDocument = async (userAuth, additionalData) => {
   // console.log('test ref: ', userRef)
   let userSnap = await userRef.once('value', async(snapShot) => {
     if (!snapShot.exists()) {
-      const { displayName, email } = userAuth;
-      const createdAt = new Date();
       try {
         await userRef.set({
-          displayName,
           email,
-          createdAt,
-          ...additionalData
+          username,
+          phoneNumber: `+${prefix}${phone}`
         });
         console.log("snapshot created successfully")
       } catch (error) {
         console.log('error creating user', error.message);
       }
+      return snapShot
     }
     console.log('test ' ,snapShot.val());
     return snapShot

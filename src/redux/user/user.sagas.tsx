@@ -17,6 +17,7 @@ import {
   createUserProfileDocument,
   getCurrentUser
 } from '../../firebase/firebase.utils';
+import { RegistrationObject } from '../../components/interfaces/user.interface';
 
 export function* getSnapshotFromUserAuth(userAuth:any, additionalData:any) {
   try {
@@ -71,17 +72,22 @@ export function* signOut() {
   }
 }
 
-export function* signUp({ payload: { email, password, displayName } }:any) {
+export function* signUp({payload:{...regdata}}:any) {
   try {
+    const {email, password} = regdata
+    console.log('whole object ',regdata)
+    console.log('username and password ',email,password)
     const { user } = yield auth.createUserWithEmailAndPassword(email, password);
-    yield put(signUpSuccess({ user, additionalData: { displayName } }));
+    console.log("returned user from signup success, ",user)
+    yield getSnapshotFromUserAuth(user,regdata)
+    // yield put(signUpSuccess(user));
   } catch (error) {
     yield put(signUpFailure(error));
   }
 }
 
-export function* signInAfterSignUp({ payload: { user, additionalData } }:any) {
-  yield getSnapshotFromUserAuth(user, additionalData);
+export function* signInAfterSignUp({ payload: { ...regdata } }:any) {
+  yield getSnapshotFromUserAuth(regdata, null);
 }
 
 export function* onGoogleSignInStart() {

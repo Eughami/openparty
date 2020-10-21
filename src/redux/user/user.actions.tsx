@@ -1,3 +1,4 @@
+import { RegistrationObject } from '../../components/interfaces/user.interface';
 import UserActionTypes from './user.types';
 
 export const googleSignInStart = () => ({
@@ -36,14 +37,14 @@ export const signOutFailure = (error: any) => ({
   payload: error
 });
 
-export const signUpStart = (userCredentials: any) => ({
+export const signUpStart = (registrationObject: RegistrationObject) => ({
   type: UserActionTypes.SIGN_UP_START,
-  payload: userCredentials
+  payload: registrationObject
 });
 
-export const signUpSuccess = ({ user, additionalData }:any) => ({
+export const signUpSuccess = (userObj:RegistrationObject) => ({
   type: UserActionTypes.SIGN_UP_SUCCESS,
-  payload: { user, additionalData }
+  payload: userObj
 });
 
 export const signUpFailure = (error:any) => ({
