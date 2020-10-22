@@ -1,6 +1,7 @@
 import firebase from 'firebase/app';
 import 'firebase/firestore';
 import 'firebase/auth';
+import {userUpated} from '../redux/user/user.actions'
 
 const config = {
   apiKey: "AIzaSyAqmmh2U3EF0D5H7cU_gtUDGua6J-pJmT8",
@@ -19,20 +20,37 @@ firebase.initializeApp(config);
 export const createUserProfileDocument = async (userAuth, additionalData) => {
   if (!userAuth) return;
 
-  console.log('userAuth : ',userAuth)
-  console.log('additional data : ',additionalData)
+  console.log('userAuth : ', userAuth)
+  console.log('additional data : ', additionalData)
   let email = null
   let username = null
   let prefix = null
   let phone = null
-  
-  if(additionalData){
+
+  if (additionalData) {
 
     email = additionalData.email
-    username =additionalData.username
-    prefix =additionalData.prefix
+    username = additionalData.username
+    prefix = additionalData.prefix
     phone = additionalData.phone
   }
+  //update user in the database
+  await firebase.database().ref("Users").child(userAuth.uid).update({
+    email,
+    username,
+    phoneNumber: `+${prefix}${phone}`
+  })
+  // to link userCredentials to user in the database
+  await firebase.database().ref("Credentials").child("Usernames").child(username).update({ uid: userAuth.uid })
+
+  return {
+    email,
+    username,
+    phoneNumber: `+${prefix}${phone}`
+  }
+  // 
+  // await firebase.database().ref("Users").child(uid).once("value", snapshot => userObject = snapshot.val())
+
 
   // await firebase.database().ref("Users").child(userAuth.uid).once("value", snapShot => {
   //   if(!snapShot.exists()) {
@@ -48,27 +66,30 @@ export const createUserProfileDocument = async (userAuth, additionalData) => {
   //   } 
   //   return snapShot.val();
   // })
-  let userRef = firebase.database().ref(`Users/${userAuth.uid}`)
-  // console.log('test ref: ', userRef)
-  let userSnap = await userRef.once('value', async(snapShot) => {
-    if (!snapShot.exists()) {
-      try {
-        await userRef.set({
-          email,
-          username,
-          phoneNumber: `+${prefix}${phone}`
-        });
-        console.log("snapshot created successfully")
-      } catch (error) {
-        console.log('error creating user', error.message);
-      }
-      return snapShot
-    }
-    console.log('test ' ,snapShot.val());
-    return snapShot
+  // let userRef = firebase.database().ref(`Users/${userAuth.uid}`)
+  // let userSnap = await userRef.once('value', async(snapShot) => {
+  //   if (!snapShot.exists()) {
+  //     try {
+  //       userRef.set(
+  //       {
+  //         email,
+  //         username,
+  //         phoneNumber: `+${prefix}${phone}`
+  //       });
+  //       return  {
+  //         email,
+  //         username,
+  //         phoneNumber: `+${prefix}${phone}`
+  //       }
+  //     } catch (error) {
+  //       console.log('error creating user', error.message);
+  //     }
+  //   }
+  //   console.log('test ' ,snapShot.val());
+  //   return snapShot
 
-  });
-  return userSnap
+  // });
+  // return userSnap
 
 
   // firebase.database().ref("Users").child(current_userId).on("value", snapshot => if(snapshot.exists() {})
@@ -78,6 +99,21 @@ export const createUserProfileDocument = async (userAuth, additionalData) => {
 
 };
 
+export const userUpdated = () =>{
+  console.log("Action dispatched")
+
+  console.log(firebase.auth().currentUser)
+  if(firebase.auth().currentUser !== null ){
+    firebase.database().ref("Users").child(firebase.auth().currentUser.uid).on("value", snapshot => {
+      console.log("called")
+      userUpated(snapshot.val())
+      // dispatch({
+      //   type: "USER_UPDATED",
+      //   payload: snapshot.val(),
+      // });
+    })
+  }
+} 
 
 export const getCurrentUser = () => {
   return new Promise((resolve, reject) => {

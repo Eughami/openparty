@@ -15,7 +15,8 @@ import {
   auth,
   googleProvider,
   createUserProfileDocument,
-  getCurrentUser
+  getCurrentUser,
+  userUpdated
 } from '../../firebase/firebase.utils';
 import { RegistrationObject } from '../../components/interfaces/user.interface';
 
@@ -27,8 +28,8 @@ export function* getSnapshotFromUserAuth(userAuth:any, additionalData:any) {
       additionalData
     );
     console.log("user returned Snapshot : ", userSnapshot)
-    const currentUser = userSnapshot.val()
-    yield put(signInSuccess(currentUser));
+    // const currentUser = userSnapshot.val()
+    yield put(signInSuccess(userSnapshot));
   } catch (error) {
     yield put(signInFailure(error));
   }
@@ -47,7 +48,9 @@ export function* signInWithEmail({ payload: { email, password } }:any) {
   try {
     const { user } = yield auth.signInWithEmailAndPassword(email, password);
     yield console.log('user detilas : ', user)
-    yield getSnapshotFromUserAuth(user,null);
+    // yield getSnapshotFromUserAuth(user,null);
+    yield put(signInSuccess({}));
+
   } catch (error) {
     yield put(signInFailure(error));
   }
@@ -57,9 +60,19 @@ export function* isUserAuthenticated() {
   try {
     const userAuth = yield getCurrentUser();
     if (!userAuth) return;
-    yield getSnapshotFromUserAuth(userAuth,null);
+    yield put(signInSuccess({}));
+    // yield getSnapshotFromUserAuth(userAuth,null);
   } catch (error) {
     yield put(signInFailure(error));
+  }
+}
+export function* isUserUpdated() {
+  try {
+    yield userUpdated();
+    // if (!userAuth) return;
+    // yield getSnapshotFromUserAuth(userAuth,null);
+  } catch (error) {
+    yield console.log(error);
   }
 }
 
@@ -75,8 +88,6 @@ export function* signOut() {
 export function* signUp({payload:{...regdata}}:any) {
   try {
     const {email, password} = regdata
-    console.log('whole object ',regdata)
-    console.log('username and password ',email,password)
     const { user } = yield auth.createUserWithEmailAndPassword(email, password);
     console.log("returned user from signup success, ",user)
     yield getSnapshotFromUserAuth(user,regdata)
@@ -102,6 +113,10 @@ export function* onCheckUserSession() {
   yield takeLatest(UserActionTypes.CHECK_USER_SESSION, isUserAuthenticated);
 }
 
+export function* onUserUpadated() {
+  yield takeLatest(UserActionTypes.USER_UPDATED, isUserUpdated);
+}
+
 export function* onSignOutStart() {
   yield takeLatest(UserActionTypes.SIGN_OUT_START, signOut);
 }
@@ -119,6 +134,7 @@ export function* userSagas() {
     call(onGoogleSignInStart),
     call(onEmailSignInStart),
     call(onCheckUserSession),
+    call(onUserUpadated),
     call(onSignOutStart),
     call(onSignUpStart),
     call(onSignUpSuccess)

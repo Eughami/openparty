@@ -24,6 +24,11 @@ export const checkUserSession = () => ({
   type: UserActionTypes.CHECK_USER_SESSION
 });
 
+export const userUpated  = (currentUser:any) => ({
+  type: UserActionTypes.USER_UPDATED,
+  payload: currentUser
+});
+
 export const signOutStart = () => ({
   type: UserActionTypes.SIGN_OUT_START
 });

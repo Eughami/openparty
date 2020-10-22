@@ -3,7 +3,8 @@ import {User} from '../../components/interfaces/user.interface'
 
 const INITIAL_STATE = {
    currentUser: null,
-  error: null
+  error: null,
+  userInfo: null
 }
 
 const userReducer = (state = INITIAL_STATE, action:any) => {
@@ -27,6 +28,11 @@ const userReducer = (state = INITIAL_STATE, action:any) => {
         ...state,
         error: action.payload
       };
+      case UserActionTypes.USER_UPDATED:
+        return{
+          ...state,
+          userInfo: action.payload
+        }
     default:
       return state;
   }

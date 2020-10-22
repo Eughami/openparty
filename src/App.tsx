@@ -3,7 +3,7 @@ import { BrowserRouter as Router, Switch, Route, Redirect } from "react-router-d
 import { connect } from 'react-redux';
 import { createStructuredSelector } from 'reselect';
 import { selectCurrentUser } from './redux/user/user.selectors';
-import { checkUserSession,/* signOutStart */ } from './redux/user/user.actions';
+import { checkUserSession,/* signOutStart */userUpated } from './redux/user/user.actions';
 
 
 import './App.css';
@@ -15,21 +15,22 @@ import RegistrationForm from './components/register';
 
 // const currentUser = true
 
-const App = ({currentUser,checkUserSession}:any) => {
+const App = ({currentUser,checkUserSession,userUpated}:any) => {
   {console.log(currentUser)}
   useEffect(()=>{
     checkUserSession()
   },[checkUserSession])
+
+  useEffect(()=>{
+    userUpated()
+  },[currentUser])
   // googleSignInStart('test@test.com', 'password123')
   return (
     <div className="App">
       <Router>
       {currentUser ? (
         <Switch>
-          {/* {console.log('user is autenticated')} */}
           <Route exact path="/" component={Homepage} />
-          {/* <Route exact path="/addnew" component={AddNewStudentPage} /> */}
-          {/* <Route exact path="/listall" component={ListAllStudentsPage} /> */}
           <Route
             exact
             path="/login"
@@ -39,9 +40,14 @@ const App = ({currentUser,checkUserSession}:any) => {
         </Switch>
       ) : (
         <Switch>
-          {console.log('user is not autenticated')}
+          {console.log('location: ', )}
           <Route path='/login' component={Login} />
           <Route  path='/register' component={RegistrationForm} />
+            <Redirect
+              to={{
+                pathname: window.location.pathname === "/register" ? '/register' : "/login"
+              }}
+            />
         </Switch>
       )}
       </Router>
@@ -55,7 +61,7 @@ const mapStateToProps = createStructuredSelector({
 
 const mapDispatchToProps = (dispatch:any) =>({
   checkUserSession: () => dispatch(checkUserSession()),
-  // signOutStart: () => dispatch(signOutStart())
+  userUpated: () => dispatch(userUpated({})),
 })
 
 export default connect(mapStateToProps,mapDispatchToProps)(App);
