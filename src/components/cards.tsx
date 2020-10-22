@@ -1,4 +1,4 @@
-import React,{useEffect, useState} from 'react';
+import React, { useEffect, useState } from 'react';
 import MyCard from './card';
 import firebase from "firebase";
 
@@ -12,23 +12,23 @@ const Cards = () => {
     setLoading(!loading)
   };
 
-  useEffect( () => {
-    
-    firebase.database().ref("Posts").on("value", (snapshot)=>{
+  useEffect(() => {
+
+    firebase.database().ref("Posts").on("value", (snapshot) => {
       if (snapshot.exists()) {
         console.log("SNAP ", snapshot.val());
-        
+
         let temp: any = [];
         snapshot.forEach(post => {
           temp.push(post.val())
         })
         setPosts(temp);
-        console.log(temp);
-        
+        // console.log(temp);
+
         temp = [];
       }
     })
-  },[])
+  }, [])
 
   // useEffect( () => {
   //   fetch('http://localhost:7896')
@@ -39,17 +39,17 @@ const Cards = () => {
   //   })
   //   .catch(e => console.log(e))
   // },[])
-  
+
   return (
     <div className='posts__container'>
       {posts !== null ? (
         posts.map((post, index) =>
-          <MyCard key={index} Post={post}/>
+          <MyCard key={index} Post={post} />
         )
-      ) :(
-        // console.log('not defined')
-        <span>No Posts</span>
-      ) 
+      ) : (
+          // console.log('not defined')
+          <span>No Posts</span>
+        )
       }
     </div>
   );

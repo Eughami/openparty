@@ -1,10 +1,12 @@
 import React from 'react';
 import { Form, Input, Button, Checkbox } from 'antd';
 
-import {emailSignInStart, googleSignInStart} from '../redux/user/user.actions'
+import { emailSignInStart, googleSignInStart } from '../redux/user/user.actions'
 import { connect } from 'react-redux';
 
-const Login = ({emailSignInStart, googleSignInStart}:any) => {
+const Login = ({ emailSignInStart, googleSignInStart, currentUser }: any) => {
+
+  console.log("LOGIN PROPS: ", currentUser);
 
   const layout = {
     labelCol: { span: 8 },
@@ -13,9 +15,9 @@ const Login = ({emailSignInStart, googleSignInStart}:any) => {
   const tailLayout = {
     wrapperCol: { offset: 8, span: 16 },
   };
-  
-  const onFinish = (values:any) => {
-    const {username, password} = values
+
+  const onFinish = (values: any) => {
+    const { username, password } = values
     console.log('Success:', values);
     emailSignInStart(username, password)
   };
@@ -66,9 +68,14 @@ const Login = ({emailSignInStart, googleSignInStart}:any) => {
   );
 };
 
-const mapDispatchToProps = (dispatch: any )=>({
-  emailSignInStart: (email:any, password:any) =>dispatch(emailSignInStart({email,password})),
+const mapDispatchToProps = (dispatch: any) => ({
+  emailSignInStart: (email: any, password: any) => dispatch(emailSignInStart({ email, password })),
   googleSignInStart: () => dispatch(googleSignInStart())
 })
 
-export default connect(null, mapDispatchToProps)(Login)
+const mapStateToProps = (state: any) => {
+  return {
+    currentUser: state.user.currentUser,
+  };
+};
+export default connect(mapStateToProps, mapDispatchToProps)(Login)
