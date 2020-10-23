@@ -1,13 +1,19 @@
 import UserActionTypes from './user.types'
-import { User } from '../../components/interfaces/user.interface'
+import firebase from "firebase";
+import { RegistrationObject } from '../../components/interfaces/user.interface';
 
-const INITIAL_STATE = {
+interface LocalUserState {
+  currentUser: firebase.User | null,
+  userInfo: RegistrationObject | null,
+  error: any | null
+}
+const INITIAL_STATE: LocalUserState = {
   currentUser: null,
   error: null,
   userInfo: null
 }
 
-const userReducer = (state = INITIAL_STATE, action: any) => {
+const userReducer = (state = INITIAL_STATE, action: { type: string; payload: any; }): LocalUserState => {
   switch (action.type) {
     case UserActionTypes.SIGN_IN_SUCCESS:
       return {
@@ -19,13 +25,14 @@ const userReducer = (state = INITIAL_STATE, action: any) => {
       return {
         ...state,
         currentUser: null,
+        userInfo: null,
         error: null
       };
-    case UserActionTypes.SET_CURRENT_USER_START: {
+    case UserActionTypes.SET_CURRENT_USER:
       return {
-        ...state
+        ...state,
+        currentUser: action.payload
       }
-    }
     case UserActionTypes.SIGN_IN_FAILURE:
     case UserActionTypes.SIGN_OUT_FAILURE:
     case UserActionTypes.SIGN_UP_FAILURE:

@@ -5,39 +5,39 @@ import { connect } from 'react-redux';
 // import { selectCurrentUser } from './redux/user/user.selectors';
 import { setCurrentUserListener, setCurrentUserRootDatabaseListener } from './redux/user/user.actions';
 
-
 import './App.css';
 import Homepage from './components/homepage';
 
 import 'antd/dist/antd.css';
 import Login from './components/login';
 import RegistrationForm from './components/register';
+import UserProfile from './components/user-info';
+import { RegistrationObject } from './components/interfaces/user.interface';
 
 // const currentUser = true
 
-const App = ({ currentUser, currentUserInfo, setCurrentUserListener, setCurrentUserRootDatabaseListener }: any) => {
-  // {console.log(currentUser)}
-  // useEffect(()=>{  
-  //   checkUserSession()
-  // },[checkUserSession])
 
-  // useEffect(()=>{
-  //   userUpated()
-  // },[currentUser])
-  // googleSignInStart('test@test.com', 'password123')
+interface IAppProps {
+  setCurrentUserListener?: () => Promise<any>,
+  setCurrentUserRootDatabaseListener?: (uid: string) => Promise<any>,
+  currentUser?: firebase.User,
+  userInfo?: RegistrationObject
+}
 
-  // console.log("APP.TSX PROPS:", currentUser);
+const App = (props: IAppProps) => {
+  const { currentUser, setCurrentUserListener, setCurrentUserRootDatabaseListener } = props;
 
+  console.log("APP.TSX PROPS: ", currentUser);
 
   useEffect(() => {
-    setCurrentUserListener();
+    setCurrentUserListener!();
   }, [setCurrentUserListener, currentUser]);
 
   useEffect(() => {
     if (currentUser !== null) {
       console.log("CALLING DB LISTENER WITH CURRENT USER: ", currentUser);
 
-      setCurrentUserRootDatabaseListener(currentUser.user.uid);
+      setCurrentUserRootDatabaseListener!(currentUser!.uid);
     }
   }, [setCurrentUserRootDatabaseListener, currentUser]);
 
@@ -47,6 +47,7 @@ const App = ({ currentUser, currentUserInfo, setCurrentUserListener, setCurrentU
         {currentUser ? (
           <Switch>
             <Route path="/" component={Homepage} />
+            <Route exact path="/profile/:username" component={UserProfile} />
             {/* <Route
               exact
               path="/login"
@@ -56,7 +57,6 @@ const App = ({ currentUser, currentUserInfo, setCurrentUserListener, setCurrentU
           </Switch>
         ) : (
             <Switch>
-              {console.log('location: ',)}
               <Route path='/login' component={Login} />
               <Route path='/register' component={RegistrationForm} />
               <Redirect
@@ -84,8 +84,6 @@ const mapStateToProps = (state: any) => {
 };
 
 const mapDispatchToProps = (dispatch: any) => {
-  // checkUserSession: () => dispatch(checkUserSession()),
-  // userUpated: () => dispatch(userUpated({})),
   return {
     setCurrentUserListener: () => dispatch(setCurrentUserListener()),
     setCurrentUserRootDatabaseListener: (uid: string) => dispatch(setCurrentUserRootDatabaseListener(uid))

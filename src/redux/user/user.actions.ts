@@ -16,14 +16,14 @@ export const signInFailure = (error: any) => ({
   payload: error
 });
 
-export const emailSignInStart = (emailAndPassword: any) => (dispatch: any) =>
+export const emailSignInStart = (emailAndPassword: { email: string, password: string }) => (dispatch: (arg0: { type: string; payload?: any; }) => void) =>
   new Promise((resolve, reject) => {
     dispatch({ type: UserActionTypes.EMAIL_SIGN_IN_START });
 
     try {
       firebase.auth().signInWithEmailAndPassword(emailAndPassword.email, emailAndPassword.password)
         .then((user) => {
-          dispatch({ type: UserActionTypes.SIGN_IN_SUCCESS, payload: user });
+          dispatch({ type: UserActionTypes.SIGN_IN_SUCCESS, payload: user.user });
           resolve(user);
         })
         .catch((error) => {
@@ -40,43 +40,39 @@ export const emailSignInStart = (emailAndPassword: any) => (dispatch: any) =>
 
 export const setCurrentUserListener = () => (dispatch: any) =>
   new Promise((resolve, reject) => {
-    dispatch({ type: UserActionTypes.SET_CURRENT_USER_START });
 
     try {
       firebase.auth().onAuthStateChanged((user) => {
-        dispatch({ type: UserActionTypes.SET_CURRENT_USER, payload: user });
+        console.log("AUTH STATE CHANGED! ", user);
 
+        if (user) {
+          dispatch({ type: UserActionTypes.SET_CURRENT_USER, payload: user });
+        }
+        else {
+          dispatch({ type: UserActionTypes.SIGN_OUT_SUCCESS });
+        }
+
+        resolve(user);
       });
 
-      resolve(true);
     } catch (error) {
-      // dispatch({ type: UserActionTypes.SIGN_IN_FAILURE, payload: error });
       reject(error)
     }
 
   });
 
-export const setCurrentUserRootDatabaseListener = (uid: string) => (dispatch: any) =>
+export const setCurrentUserRootDatabaseListener = (uid: string) => (dispatch: (arg0: { type: string; payload: any; }) => void) =>
   new Promise((resolve, reject) => {
-    // dispatch({ type: UserActionTypes.SET_CURRENT_USER_START });
 
     try {
-      // const { currentUser } = firebase.auth();
       firebase.database().ref("Users").child(uid).on("value", userSnap => {
         console.log("NOW LISTENING ON NODE: ", userSnap.val());
 
         dispatch({ type: UserActionTypes.DATABASE_LISTENER_START, payload: userSnap.val() });
+        resolve(userSnap.val());
       })
-      resolve(true);
-      // if (firebase.auth().currentUser !== null) {
-
-      // }
-      // else {
-      //   reject("User not auth-d")
-      // }
 
     } catch (error) {
-      // dispatch({ type: UserActionTypes.SIGN_IN_FAILURE, payload: error });
       reject(error)
     }
 
