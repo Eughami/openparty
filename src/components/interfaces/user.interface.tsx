@@ -70,4 +70,5 @@ export interface RegistrationObject {
   following_count: number,
   image_url: string,
   posts_count: number,
+  Posts: Array<string>,
 } 

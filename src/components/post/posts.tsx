@@ -2,16 +2,105 @@ import React, { useEffect, useState } from 'react';
 import MyPost from './post';
 import firebase from "firebase";
 import { Comment, Post, PostPrivacy, RegistrationObject } from '../interfaces/user.interface';
-import { Spin, Empty } from "antd";
+import { Spin, Empty, Col } from "antd";
 import { connect } from 'react-redux';
 import { setCurrentUserListener, setCurrentUserRootDatabaseListener } from '../../redux/user/user.actions';
-import post from './post';
+
 interface IPostsProps {
     setCurrentUserListener?: () => Promise<any>,
     setCurrentUserRootDatabaseListener?: (uid: string) => Promise<any>,
     currentUser?: firebase.User,
-    userInfo?: RegistrationObject
+    userInfo?: RegistrationObject,
+    fromProfile?: boolean,
 }
+
+export const awaitFillPosts = async (posts: Array<firebase.database.DataSnapshot>, user?: RegistrationObject): Promise<Array<Post>> => {
+    if (user) {
+        let temp: Array<Post> = [];
+
+        console.log("GETTING ALL POSTS... ", posts.length);
+        for (let i = 0; i < posts.length; i++) {
+
+            temp.push({
+                caption: posts[i].val().caption,
+                user: {
+                    image_url: user.image_url,
+                    username: user.username,
+                },
+                likes: posts[i].val().likes,
+                privacy: posts[i].val().privacy,
+                user_id: user.uid,
+                image_url: posts[i].val().image_url,
+                tags: posts[i].val().tags,
+                id: posts[i].key!,
+            });
+            console.log("INNER COMMENT: ", posts[i].val());
+            if (posts[i].val().comments) {
+                const commentKeys = Object.keys(posts[i].val().comments);
+                let thisCommentArray: Array<Comment> = [];
+
+                commentKeys.map((commentKey: string) => {
+                    const thisComment: Comment = posts[i].val().comments[commentKey];
+                    return thisCommentArray.push(thisComment);
+                })
+
+                // console.log("INNER COMMENT: ", thisCommentArray);
+
+                temp[i].comments = thisCommentArray;
+
+                thisCommentArray = [];
+            }
+
+        }
+
+        return temp;
+    }
+
+    let temp: Array<Post> = [];
+    // console.log("GETTING ALL POSTS... ");
+
+    for (let i = 0; i < posts.length; i++) {
+
+        await firebase.database().ref("Users").child(posts[i].val().uid).once("value", userPosts => {
+            if (userPosts.exists()) {
+                // console.log("CHECKER: ", posts[i].val());
+                temp.push({
+                    caption: posts[i].val().caption,
+                    user: {
+                        image_url: userPosts.val().image_url,
+                        username: userPosts.val().username,
+                    },
+                    likes: posts[i].val().likes,
+                    privacy: posts[i].val().privacy,
+                    user_id: userPosts.key!,
+                    image_url: posts[i].val().image_url,
+                    tags: posts[i].val().tags,
+                    id: posts[i].key!,
+                });
+                if (posts[i].val().comments) {
+                    const commentKeys = Object.keys(posts[i].val().comments);
+                    // console.log("INNER COMMENT: ", commentKeys);
+                    let thisCommentArray: Array<Comment> = [];
+
+                    commentKeys.map((commentKey: string) => {
+                        const thisComment: Comment = posts[i].val().comments[commentKey];
+                        return thisCommentArray.push(thisComment);
+                    })
+
+                    // console.log("INNER COMMENT: ", thisCommentArray);
+
+                    temp[i].comments = thisCommentArray;
+
+                    thisCommentArray = [];
+                }
+
+            }
+        });
+
+    }
+
+    return temp;
+};
 
 const Posts = (props: IPostsProps) => {
     const { currentUser, userInfo } = props;
@@ -21,54 +110,6 @@ const Posts = (props: IPostsProps) => {
     const [loading, setLoading] = useState<boolean>(true)
     const [posts, setPosts] = useState<Array<Post>>([])
 
-    const awaitFillPosts = async (posts: Array<firebase.database.DataSnapshot>): Promise<Array<Post>> => {
-        let temp: Array<Post> = [];
-        // console.log("GETTING ALL POSTS... ");
-
-        for (let i = 0; i < posts.length; i++) {
-
-            await firebase.database().ref("Users").child(posts[i].val().uid).once("value", userPosts => {
-                if (userPosts.exists()) {
-                    // console.log("CHECKER: ", posts[i].val());
-                    temp.push({
-                        caption: posts[i].val().caption,
-                        user: {
-                            image_url: userPosts.val().image_url,
-                            username: userPosts.val().username,
-                        },
-                        likes: posts[i].val().likes,
-                        privacy: posts[i].val().privacy,
-                        user_id: userPosts.key!,
-                        image_url: posts[i].val().image_url,
-                        tags: posts[i].val().tags,
-                        id: posts[i].key!,
-                    });
-                    if (posts[i].val().comments) {
-                        const commentKeys = Object.keys(posts[i].val().comments);
-                        // console.log("INNER COMMENT: ", commentKeys);
-                        let thisCommentArray: Array<Comment> = [];
-
-                        commentKeys.map((commentKey: string) => {
-                            const thisComment: Comment = posts[i].val().comments[commentKey];
-                            return thisCommentArray.push(thisComment);
-                        })
-
-                        console.log("INNER COMMENT: ", thisCommentArray);
-
-                        temp[i].comments = thisCommentArray;
-
-                        thisCommentArray = [];
-                    }
-
-                }
-            });
-
-        }
-
-        return temp;
-    };
-
-
     useEffect(() => {
 
         if (!currentUser) {
@@ -76,9 +117,10 @@ const Posts = (props: IPostsProps) => {
             return;
         }
 
-        const unSub = firebase.database().ref("Posts").on("value", async (snapshot) => {
+        //limit to 50 or som-n...
+        const unSub = firebase.database().ref("Posts").limitToLast(50).on("value", async (snapshot) => {
             if (snapshot.exists()) {
-                console.log("USE EFFECT RUNNING ", snapshot.val());
+                // console.log("USE EFFECT RUNNING ", snapshot.val());
 
                 let ttt: Array<firebase.database.DataSnapshot> = [];
                 snapshot.forEach((post) => {
@@ -104,7 +146,9 @@ const Posts = (props: IPostsProps) => {
 
     if (loading) {
         return (
-            <Spin size="large" />
+            <Col span="12" style={{ marginLeft: "20%", marginRight: "20%", marginTop: "5%", textAlign: "center" }}>
+                <Spin size="large" />
+            </Col>
         )
     }
 

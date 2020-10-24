@@ -1,5 +1,5 @@
-import React, { useEffect } from 'react';
-import { BrowserRouter as Router, Switch, Route, Redirect } from "react-router-dom";
+import React, { useEffect, useState } from 'react';
+import { Switch, Route, Redirect } from "react-router-dom";
 import { connect } from 'react-redux';
 // import { createStructuredSelector } from 'reselect';
 // import { selectCurrentUser } from './redux/user/user.selectors';
@@ -7,13 +7,12 @@ import { setCurrentUserListener, setCurrentUserRootDatabaseListener } from './re
 
 import './App.css';
 import Homepage from './components/homepage';
-import Post from './components/post/post';
-import Header from "./components/header/header";
 import 'antd/dist/antd.css';
 import Login from './components/login';
 import RegistrationForm from './components/register';
 import UserProfile from './components/user-info';
 import { RegistrationObject } from './components/interfaces/user.interface';
+import { Col, Spin } from 'antd';
 
 // const currentUser = true
 
@@ -28,10 +27,20 @@ interface IAppProps {
 const App = (props: IAppProps) => {
   const { currentUser, setCurrentUserListener, setCurrentUserRootDatabaseListener } = props;
 
-  console.log("APP.TSX PROPS: ", currentUser);
+  console.log("APP.TSX PROPS:  ", currentUser);
+
+  const [loadingCredentials, setLoadingCredentials] = useState<boolean>(true);
+
+  useEffect(() => {
+    setTimeout(() => {
+      setLoadingCredentials(false)
+    }, 1000);
+  }, []);
+
 
   useEffect(() => {
     setCurrentUserListener!();
+    setLoadingCredentials(true);
   }, [setCurrentUserListener, currentUser]);
 
   useEffect(() => {
@@ -42,43 +51,41 @@ const App = (props: IAppProps) => {
     }
   }, [setCurrentUserRootDatabaseListener, currentUser]);
 
-  // return (
-  //   <div className="App">
-  //     <Header />
-  //     <div style={{ marginTop: "10%" }}>
-  //       <Post />
-  //     </div>
 
-  //   </div>
-  // );
+  if (loadingCredentials) {
+    return (
+      <Col span="12" style={{ marginLeft: "20%", marginRight: "20%", marginTop: "5%", textAlign: "center" }}>
+        <Spin size="large" />
+      </Col>
+    );
+  }
 
   return (
     <div className="App">
-      <Router>
-        {currentUser ? (
+      {currentUser ? (
+        <Switch>
+          <Route exact path="/" component={Homepage} />
+          <Route exact path="/profile/:username" component={UserProfile} />
+          {/* <Route
+            exact
+            path="/login"
+            render={() => (currentUser ? <Redirect to="/" /> : <Redirect to="/" />)}
+          /> */}
+          <Route component={Homepage} />
+        </Switch>
+      ) : (
           <Switch>
-            <Route path="/" component={Homepage} />
-            <Route exact path="/profile/:username" component={UserProfile} />
-            {/* <Route
-              exact
-              path="/login"
-              render={() => (currentUser ? <Redirect to="/" /> : <Login />)}
-            /> */}
-            <Route component={Homepage} />
-          </Switch>
-        ) : (
-            <Switch>
-              <Route path='/login' component={Login} />
+            {/* <Route path='/login' component={Login} />
               <Route path='/register' component={RegistrationForm} />
               <Redirect
                 to={{
                   pathname: window.location.pathname === "/register" ? '/register' : "/login"
                 }}
-              />
-              <Route component={Login} />
-            </Switch>
-          )}
-      </Router>
+              /> */}
+            <Route exact path='/register' component={RegistrationForm} />
+            <Route component={Login} />
+          </Switch>
+        )}
     </div>
   );
 }

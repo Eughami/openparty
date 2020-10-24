@@ -1,7 +1,5 @@
 import { Col, Row } from 'antd';
 import React, { useEffect } from 'react';
-import Cards from './cards';
-import Navbar from '../components/navbar';
 import Posts from './post/posts';
 import Header from "./header/header";
 import { connect } from 'react-redux';

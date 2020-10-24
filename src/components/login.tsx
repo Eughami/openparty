@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Form, Input, Button, Checkbox } from 'antd';
 
 import { emailSignInStart, googleSignInStart } from '../redux/user/user.actions'
@@ -21,7 +21,17 @@ const tailLayout = {
 
 const Login = (props: IAppProps) => {
 
+  const { currentUser } = props;
+
   console.log("LOGIN PROPS: ", props.history);
+
+  useEffect(() => {
+    if (currentUser) {
+      console.log("REDIRECTING TO... HOME!");
+
+      props.history.replace("/");
+    }
+  }, [currentUser, props.history]);
 
 
   const onFinish = (values: any) => {

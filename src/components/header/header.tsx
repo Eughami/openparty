@@ -12,7 +12,7 @@ interface IHeaderProps {
     setCurrentUserListener?: () => Promise<any>,
     setCurrentUserRootDatabaseListener?: (uid: string) => Promise<any>,
     currentUser?: firebase.User,
-    userInfo?: RegistrationObject
+    currentUserInfo?: RegistrationObject
 }
 
 const Header = (props: IHeaderProps) => {
@@ -34,7 +34,7 @@ const Header = (props: IHeaderProps) => {
                         </Col>
                         <Col span="4">
                             <span>
-                                <UserOutlined size={25} onClick={() => window.location.replace(`/profile/${props.userInfo!.username}`)} />
+                                <UserOutlined size={25} onClick={() => window.location.replace(`/profile/${props.currentUserInfo!.username}`)} />
                             </span>
                         </Col>
                         <Col span="4">
