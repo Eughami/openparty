@@ -16,7 +16,7 @@ export const signInFailure = (error: any) => ({
   payload: error
 });
 
-export const emailSignInStart = (emailAndPassword: { email: string, password: string }) => (dispatch: (arg0: { type: string; payload?: any; }) => void) =>
+export const emailSignInStart = (emailAndPassword: { email: string, password: string }, history: any) => (dispatch: (arg0: { type: string; payload?: any; }) => void) =>
   new Promise((resolve, reject) => {
     dispatch({ type: UserActionTypes.EMAIL_SIGN_IN_START });
 
@@ -27,7 +27,8 @@ export const emailSignInStart = (emailAndPassword: { email: string, password: st
           resolve(user);
         })
         .catch((error) => {
-          dispatch({ type: UserActionTypes.SIGN_IN_FAILURE, payload: error })
+          dispatch({ type: UserActionTypes.SIGN_IN_FAILURE, payload: error });
+          history.replace("/")
           reject(error)
         })
 

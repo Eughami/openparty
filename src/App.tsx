@@ -7,7 +7,8 @@ import { setCurrentUserListener, setCurrentUserRootDatabaseListener } from './re
 
 import './App.css';
 import Homepage from './components/homepage';
-
+import Post from './components/post/post';
+import Header from "./components/header/header";
 import 'antd/dist/antd.css';
 import Login from './components/login';
 import RegistrationForm from './components/register';
@@ -40,6 +41,16 @@ const App = (props: IAppProps) => {
       setCurrentUserRootDatabaseListener!(currentUser!.uid);
     }
   }, [setCurrentUserRootDatabaseListener, currentUser]);
+
+  // return (
+  //   <div className="App">
+  //     <Header />
+  //     <div style={{ marginTop: "10%" }}>
+  //       <Post />
+  //     </div>
+
+  //   </div>
+  // );
 
   return (
     <div className="App">

@@ -1,7 +1,19 @@
-.App{
+/* .App{
   background-color: rgba(var(--b3f,250,250,250),1);
   
+} */
+
+.App {
+  background: #fafafaa8;
+  min-height: 100vh;
+  min-width: 100vh;
 }
+
+.App-main {
+  width: 50%;
+  margin: 0 auto;
+}
+
 .sticky__navbar{
   position: fixed;
   top: 0;
@@ -68,7 +80,7 @@
 }
 .post__clikes__and__comments > * {
   
-  padding-left: 18px;
+  padding-right: 18px;
 }
 .post__clikes__and__comments > *:hover {
   cursor: pointer;
@@ -80,5 +92,5 @@
 .post__add__comment{
   /* border: black solid; */
   /* height: 10%; */
-  height: 10%;
+  height: 50px;
 }

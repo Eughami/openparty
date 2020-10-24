@@ -4,22 +4,30 @@ import { Form, Input, Button, Checkbox } from 'antd';
 import { emailSignInStart, googleSignInStart } from '../redux/user/user.actions'
 import { connect } from 'react-redux';
 
-const Login = ({ emailSignInStart, googleSignInStart, currentUser }: any) => {
+interface IAppProps {
+  emailSignInStart?: (email: string, password: string, history: any) => Promise<any>,
+  googleSignInStart?: () => Promise<any>,
+  history?: any,
+  currentUser?: firebase.User,
+}
 
-  console.log("LOGIN PROPS: ", currentUser);
+const layout = {
+  labelCol: { span: 8 },
+  wrapperCol: { span: 16 },
+};
+const tailLayout = {
+  wrapperCol: { offset: 8, span: 16 },
+};
 
-  const layout = {
-    labelCol: { span: 8 },
-    wrapperCol: { span: 16 },
-  };
-  const tailLayout = {
-    wrapperCol: { offset: 8, span: 16 },
-  };
+const Login = (props: IAppProps) => {
+
+  console.log("LOGIN PROPS: ", props.history);
+
 
   const onFinish = (values: any) => {
     const { username, password } = values
     console.log('Success:', values);
-    emailSignInStart(username, password)
+    props.emailSignInStart!(username, password, props!.history);
   };
 
   const onFinishFailed = (errorInfo: any) => {
@@ -60,7 +68,7 @@ const Login = ({ emailSignInStart, googleSignInStart, currentUser }: any) => {
         </Button>
       </Form.Item>
       <Form.Item {...tailLayout}>
-        <Button type="primary" onClick={() => googleSignInStart()}>
+        <Button type="primary" onClick={() => props.googleSignInStart!()}>
           Login With Google
         </Button>
       </Form.Item>
@@ -69,7 +77,7 @@ const Login = ({ emailSignInStart, googleSignInStart, currentUser }: any) => {
 };
 
 const mapDispatchToProps = (dispatch: any) => ({
-  emailSignInStart: (email: any, password: any) => dispatch(emailSignInStart({ email, password })),
+  emailSignInStart: (email: string, password: string, history: any) => dispatch(emailSignInStart({ email, password }, history)),
   googleSignInStart: () => dispatch(googleSignInStart())
 })
 

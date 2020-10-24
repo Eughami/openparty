@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import MyCard from './card';
 import firebase from "firebase";
-import { Post, RegistrationObject } from './interfaces/user.interface';
+import { Post, PostPrivacy, RegistrationObject } from './interfaces/user.interface';
 import { Spin, Empty } from "antd";
 import { connect } from 'react-redux';
 import { setCurrentUserListener, setCurrentUserRootDatabaseListener } from '../redux/user/user.actions';
@@ -14,6 +14,9 @@ interface ICardsProps {
 
 const Cards = (props: ICardsProps) => {
   const { currentUser, userInfo } = props;
+
+  console.log("CARDS.TSX PROPS: ", props);
+
 
   const [loading, setLoading] = useState<boolean>(true)
   const [posts, setPosts] = useState<Array<Post>>([])
@@ -37,6 +40,7 @@ const Cards = (props: ICardsProps) => {
             privacy: posts[i].val().privacy,
             user_id: userPosts.key!,
             image_url: posts[i].val().image_url,
+            id: posts[i].val().key!
           })
         }
       });
@@ -49,14 +53,18 @@ const Cards = (props: ICardsProps) => {
 
   useEffect(() => {
 
-    if (!currentUser) return;
+    if (!currentUser) {
+      setLoading(false);
+      return;
+    }
 
     const unSub = firebase.database().ref("Posts").on("value", async (snapshot) => {
       if (snapshot.exists()) {
+        console.log("USE EFFECT RUNNING ", snapshot.val());
 
         let ttt: Array<firebase.database.DataSnapshot> = [];
         snapshot.forEach((post) => {
-          if (post.val().privacy === "Public" || post.val().uid === currentUser!.uid) {
+          if (post.val().privacy === PostPrivacy.PUBLIC || post.val().uid === currentUser!.uid) {
             ttt.push(post);
           }
         });
@@ -72,7 +80,7 @@ const Cards = (props: ICardsProps) => {
       }
     })
 
-    return firebase.database().ref("Posts").off("value", unSub);
+    return () => firebase.database().ref("Posts").off("value", unSub);
 
   }, [currentUser])
 

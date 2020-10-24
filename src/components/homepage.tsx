@@ -2,8 +2,10 @@ import { Col, Row } from 'antd';
 import React, { useEffect } from 'react';
 import Cards from './cards';
 import Navbar from '../components/navbar';
+import Posts from './post/posts';
+import Header from "./header/header";
 import { connect } from 'react-redux';
-import { setCurrentUserRootDatabaseListener } from '../redux/user/user.actions';
+// import { setCurrentUserRootDatabaseListener } from '../redux/user/user.actions';
 
 const Homepage = ({ currentUserInfo }: any) => {
 
@@ -12,13 +14,13 @@ const Homepage = ({ currentUserInfo }: any) => {
 
   return (
     <>
-      <Navbar />
+      <Header />
       <Row className='body__container'>
         <Col xs={{ span: 0 }} xl={{ span: 4, offset: 0 }} span={6}>
           {/* <div style={{border: 'black solid', height: '300px',width: '100%'}}></div> */}
         </Col>
         <Col xs={{ span: 22, offset: 1 }} lg={{ span: 16, offset: 2 }} xl={{ span: 10, offset: 4 }} span={12}>
-          <Cards />
+          <Posts />
         </Col>
         <Col xs={{ span: 0 }} lg={{ span: 5, offset: 1 }} xl={{ span: 6, offset: 0 }} >
           {/* <div style={{border: 'black solid', height: '300px',width: '100%'}}></div> */}
