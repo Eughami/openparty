@@ -32,7 +32,7 @@ const Post = (props: IPostProps) => {
     console.log("POST.TSX PROPS: ", props);
     // const { post } = props;
     const [postCommentLoading, setPostCommentLoading] = useState<boolean>(false)
-    const [comment, setComment] = useState<Comment>({ comment: "", comments: [], id: "", likes: 0, user_id: "", timestamp: 0 });
+    const [comment, setComment] = useState<Comment>({ comment: "", comments: [], id: "", likes: 0, timestamp: 0, user: { image_url: "", user_id: "", username: "" } });
 
     const { user_id, likes, image_url, caption, comments, users_showing_up, date_of_event, date_of_post, tags, id: post_id } = props.post
 
@@ -40,7 +40,7 @@ const Post = (props: IPostProps) => {
 
     const { currentUser, userInfo } = props;
 
-    const resetCommentForm = () => setComment({ comment: "", comments: [], id: "", likes: 0, user_id: "", timestamp: 0 });
+    const resetCommentForm = () => setComment({ comment: "", comments: [], id: "", likes: 0, timestamp: 0, user: { image_url: "", user_id: "", username: "" } });
 
     const onPostComment = () => {
         console.log('Finish:', comment);
@@ -76,7 +76,7 @@ const Post = (props: IPostProps) => {
         if (value.length > 0) {
             setComment({
                 comment: value,
-                user_id: currentUser ? currentUser.uid : "undefined",
+                user: { user_id: currentUser!.uid, image_url: avatar_url, username: username },
                 comments: [],
                 likes: 0,
                 id: makeId(26), //generate new comment_id here,
@@ -138,16 +138,19 @@ const Post = (props: IPostProps) => {
                 {/* <Row className='post__captions' align='middle'>
                 </Row> */}
                 <strong>{username}</strong> {caption}
+                <br />
 
-                {/* <span>Comments</span><br/>
-                {comments ? (
-                    <>
-                    <span>{comments[0].user_id} </span>
-                    <span>{comments[0].comment}</span><br/>
-                    </>
-                ): (
-                    <span>No Comment</span>
-                )} */}
+                {/* <p style={{ fontWeight: "bold" }}>Comments</p><br /> */}
+                {
+                    comments && comments.map((comment: Comment, index: number) =>
+                        <Row style={{ alignContent: "center" }} key={index}>
+                            <span style={{ fontWeight: "bold" }}>{comment.user.username} </span>
+                            <span style={{ marginLeft: 10 }}>{comment.comment}</span><br />
+                            {/* <span style={{ marginLeft: 10, float: "right" }}>{"16 Oct 2020"}</span><br /> */}
+                        </Row>
+                    )
+                }
+
 
             </div>
             {/* <Row className=''> */}

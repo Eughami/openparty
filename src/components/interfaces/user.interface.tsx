@@ -17,12 +17,16 @@ export enum PostPrivacy {
   FOLLOWERS = "Followers",
 }
 export interface Comment {
-  user_id: string,
   comment: string,
   likes: number,
   id: string,
   comments: Array<Comment>,
   timestamp: number,
+  user: {
+    username: string,
+    image_url: string
+    user_id: string,
+  },
 };
 
 export interface PostTags_v2 {

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import MyPost from './post';
 import firebase from "firebase";
-import { Post, PostPrivacy, RegistrationObject } from '../interfaces/user.interface';
+import { Comment, Post, PostPrivacy, RegistrationObject } from '../interfaces/user.interface';
 import { Spin, Empty } from "antd";
 import { connect } from 'react-redux';
 import { setCurrentUserListener, setCurrentUserRootDatabaseListener } from '../../redux/user/user.actions';
@@ -41,9 +41,25 @@ const Posts = (props: IPostsProps) => {
                         user_id: userPosts.key!,
                         image_url: posts[i].val().image_url,
                         tags: posts[i].val().tags,
-                        comments: posts[i].val().comments,
                         id: posts[i].key!,
-                    })
+                    });
+                    if (posts[i].val().comments) {
+                        const commentKeys = Object.keys(posts[i].val().comments);
+                        // console.log("INNER COMMENT: ", commentKeys);
+                        let thisCommentArray: Array<Comment> = [];
+
+                        commentKeys.map((commentKey: string) => {
+                            const thisComment: Comment = posts[i].val().comments[commentKey];
+                            return thisCommentArray.push(thisComment);
+                        })
+
+                        console.log("INNER COMMENT: ", thisCommentArray);
+
+                        temp[i].comments = thisCommentArray;
+
+                        thisCommentArray = [];
+                    }
+
                 }
             });
 
