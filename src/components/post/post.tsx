@@ -13,7 +13,7 @@ interface IPostProps {
     setCurrentUserListener?: () => Promise<any>,
     setCurrentUserRootDatabaseListener?: (uid: string) => Promise<any>,
     currentUser?: firebase.User,
-    userInfo?: RegistrationObject,
+    currentUserInfo?: RegistrationObject,
     post: PostInterface
 }
 
@@ -38,12 +38,13 @@ const Post = (props: IPostProps) => {
 
     const { image_url: avatar_url, username } = props.post.user
 
-    const { currentUser, userInfo } = props;
+    const { currentUser, currentUserInfo } = props;
 
     const resetCommentForm = () => setComment({ comment: "", comments: [], id: "", likes: 0, timestamp: 0, user: { image_url: "", user_id: "", username: "" } });
 
     const onPostComment = () => {
-        console.log('Finish:', comment);
+        console.log('Finish:', currentUserInfo);
+        if (!currentUserInfo) return alert("We're having trouble posting your comment. Please wait...");
         setPostCommentLoading(true);
         firebase.database().ref("Posts").child(post_id).child("comments").push().update({ ...comment, timestamp: new Date().getTime() })
             .then(() => {
@@ -76,7 +77,7 @@ const Post = (props: IPostProps) => {
         if (value.length > 0) {
             setComment({
                 comment: value,
-                user: { user_id: currentUser!.uid, image_url: avatar_url, username: username },
+                user: { user_id: currentUser ? currentUser.uid : "-user", image_url: avatar_url, username: currentUserInfo ? currentUserInfo.username : "-user" },
                 comments: [],
                 likes: 0,
                 id: makeId(26), //generate new comment_id here,
