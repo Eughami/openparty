@@ -10,7 +10,7 @@ interface IPostsProps {
     setCurrentUserListener?: () => Promise<any>,
     setCurrentUserRootDatabaseListener?: (uid: string) => Promise<any>,
     currentUser?: firebase.User,
-    userInfo?: RegistrationObject,
+    currentUserInfo?: RegistrationObject,
     fromProfile?: boolean,
 }
 
@@ -103,7 +103,7 @@ export const awaitFillPosts = async (posts: Array<firebase.database.DataSnapshot
 };
 
 const Posts = (props: IPostsProps) => {
-    const { currentUser, userInfo } = props;
+    const { currentUser, currentUserInfo } = props;
 
     console.log("CARDS.TSX PROPS: ", props);
 

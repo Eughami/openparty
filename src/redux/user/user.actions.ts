@@ -79,6 +79,23 @@ export const setCurrentUserRootDatabaseListener = (uid: string) => (dispatch: (a
 
   });
 
+export const setCurrentUserUsernameDatabaseListener = (uid: string) => (dispatch: (arg0: { type: string; payload: any; }) => void) =>
+  new Promise((resolve, reject) => {
+
+    try {
+      firebase.database().ref("Users").child(uid).child("username").on("value", userSnap => {
+        console.log("NOW LISTENING ON USERNAME NODE: ", userSnap.val());
+
+        dispatch({ type: UserActionTypes.USERNAME_NODE_DATABASE_LISTENER_START, payload: userSnap.val() });
+        resolve(userSnap.val());
+      })
+
+    } catch (error) {
+      reject(error)
+    }
+
+  });
+
 export const checkUserSession = () => ({
   type: UserActionTypes.CHECK_USER_SESSION
 });

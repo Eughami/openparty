@@ -30,6 +30,8 @@ const UserProfile = (props: IUserProps) => {
     const [posts, setPosts] = useState<Array<Post> | boolean>([]);
 
     const awaitFillPosts = async (posts: Array<firebase.database.DataSnapshot>, user: RegistrationObject): Promise<Array<Post>> => {
+        if (!user) return [];
+
         let temp: Array<Post> = [];
 
         console.log("GETTING ALL POSTS... ", posts.length);
@@ -80,15 +82,15 @@ const UserProfile = (props: IUserProps) => {
             // setRealUser(false);
             return;
         }
-        let unSub_1: any = undefined;
-        let unSub_2: any = undefined;
-        // let unSub_3: any = undefined;
+        // let unSub_1: any = null;
+        // let unSub_2: any = null;
+        // let unSub_3: any = null;
 
         if (selfUser) {
             console.log("GOING IN!");
 
             //to make it real time, when some action happens in main post node, push/ovw data to this loc
-            unSub_1 = firebase.database().ref("Users").child(currentUser!.uid).child("Posts").on("value", async (snapshot) => {
+            const unSub_1 = firebase.database().ref("Users").child(currentUser!.uid).child("Posts").on("value", async (snapshot) => {
                 if (snapshot.exists()) {
                     // console.log("USE EFFECT RUNNING ", snapshot.val());
 
@@ -137,12 +139,14 @@ const UserProfile = (props: IUserProps) => {
                     setRealUser(false);
                 }
             })
+
+            return () => firebase.database().ref("Posts").off("value", unSub_1);
         }
         else {
             try {
 
                 //to make it real time, when some action happens in main users node, push/ovw data to this loc
-                unSub_2 = firebase.database().ref("Credentials").child("Usernames").child(username).on("value", otherUser => {
+                const unSub_2 = firebase.database().ref("Credentials").child("Usernames").child(username).on("value", otherUser => {
                     if (otherUser.exists()) {
                         const otherUid = otherUser.val().uid;
                         console.log("OTHER UID: ", otherUid);
@@ -171,6 +175,9 @@ const UserProfile = (props: IUserProps) => {
 
                                 await awaitPushPostIds();
 
+                                console.log("==== POST IDS: ", postIds);
+                                
+
                                 // postIds.map((postId) => {
                                 //     return firebase.database().ref("Posts").child(postId).once("value", mainPost => {
                                 //         if (mainPost.val().privacy === PostPrivacy.PUBLIC) {
@@ -180,7 +187,8 @@ const UserProfile = (props: IUserProps) => {
                                 //     })
                                 // })
 
-                                const newPosts = await awaitFillPosts(ttt, otherUserInfo!);
+                                // const newPosts = await awaitFillPosts(ttt, otherUserInfo!);
+                                const newPosts = await awaitFillPosts(ttt, userInfo.val());
 
                                 setPosts(newPosts)
                                 setLoading(false);
@@ -189,33 +197,32 @@ const UserProfile = (props: IUserProps) => {
                                 ttt = [];
                             }
                             else {
-                                setPosts([]);
+                                setPosts(false);
                                 setLoading(false);
                                 setRealUser(false);
                             }
                         })
                     }
                     else {
-                        setPosts([]);
+                        setPosts(false);
                         setLoading(false);
                         setRealUser(false);
                     }
                 })
 
+                return () => firebase.database().ref("Credentials").child("Usernames").child(username).off("value", unSub_2);
 
             } catch (error) {
                 console.log(error);
-                setPosts([]);
+                // unSub_2 = null;
+                setPosts(false);
                 setLoading(false);
                 setRealUser(false);
             }
 
         }
 
-        if (unSub_1)
-            return () => firebase.database().ref("Posts").off("value", unSub_1);
-
-    }, [currentUser, selfUser, username, currentUserInfo, otherUserInfo])
+    }, [currentUser, selfUser, username, currentUserInfo])
 
     useEffect(() => {
         if (currentUserInfo)
@@ -225,22 +232,28 @@ const UserProfile = (props: IUserProps) => {
     if (!realUser || (!loading && posts === false)) {
         // setLoading(false);
         return (
-            <div style={{ textAlign: "center", marginLeft: "20%", marginRight: "20%", marginTop: "5%" }}>
-                <Result
-                    status="404"
-                    title="That's weird :\"
-                    subTitle="The page you visited does not exist."
-                // extra={<Button type="primary">Back Home</Button>}
-                />
+            <div>
+                <Header />
+                <div style={{ textAlign: "center", marginLeft: "20%", marginRight: "20%", marginTop: "5%" }}>
+                    <Result
+                        status="404"
+                        title="That's weird :\"
+                        subTitle="The page you visited does not exist."
+                    // extra={<Button type="primary">Back Home</Button>}
+                    />
+                </div>
             </div>
         )
     }
 
     if ((loading || !currentUserInfo || !currentUser)) {
         return (
-            <Col span="12" style={{ marginLeft: "20%", marginRight: "20%", marginTop: "5%", textAlign: "center" }}>
-                <Spin size="large" />
-            </Col>
+            <div>
+                <Header />
+                <Col span="12" style={{ marginLeft: "20%", marginRight: "20%", marginTop: "5%", textAlign: "center" }}>
+                    <Spin size="large" />
+                </Col>
+            </div>
         );
     }
     else {
@@ -260,8 +273,10 @@ const UserProfile = (props: IUserProps) => {
             <Header />
             <div style={{ marginLeft: "20%", marginRight: "20%", marginTop: "10%" }}>
                 {
-                    selfUser ?
+                    selfUser === true && currentUserInfo ?
                         (
+                            <div>
+
                             <Row style={{ alignItems: "center" }}>
                                 <Avatar
                                     src={currentUserInfo!.image_url}
@@ -278,16 +293,32 @@ const UserProfile = (props: IUserProps) => {
                                     </Col>
 
                                     <Row style={{ justifyContent: "space-between", alignItems: "center" }}>
-                                        <p style={{ marginRight: 20 }}>{currentUserInfo!.posts_count} Posts</p>
+                                        <p style={{ marginRight: 20 }}>{(posts as Post[]).length} Posts</p>
                                         <p style={{ marginRight: 20 }}>{currentUserInfo!.followers_count} Followers</p>
                                         <p>{currentUserInfo!.following_count} Following</p>
                                     </Row>
                                 </div>
                             </Row>
 
+                            <hr />
+                            <div className='posts__container'>
+                                {(posts as Post[]).length > 0 ? (
+                                    (posts as Post[]).map((post, index) =>
+                                        <MyPost key={index} post={post} />
+                                    )
+                                ) : (
+                                        <h1 style={{ textAlign: "center" }}>"You Have No Posts</h1>
+                                    )
+                                }
+                            </div>
+
+                            </div>
+
                         )
                         :
-                        (
+                        selfUser === false && otherUserInfo ? (
+                            <div>
+
                             <Row style={{ alignItems: "center" }}>
                                 <Avatar
                                     src={otherUserInfo!.image_url}
@@ -304,27 +335,38 @@ const UserProfile = (props: IUserProps) => {
                                     </Col>
 
                                     <Row style={{ justifyContent: "space-between", alignItems: "center" }}>
-                                        <p style={{ marginRight: 20 }}>{otherUserInfo!.posts_count} Posts</p>
+                                        <p style={{ marginRight: 20 }}>{(posts as Post[]).length} Posts</p>
                                         <p style={{ marginRight: 20 }}>{otherUserInfo!.followers_count} Followers</p>
                                         <p>{otherUserInfo!.following_count} Following</p>
                                     </Row>
                                 </div>
                             </Row>
 
-                        )
-                }
+                            <hr />
+                            <div className='posts__container'>
+                                {(posts as Post[]).length > 0 ? (
+                                    (posts as Post[]).map((post, index) =>
+                                        <MyPost key={index} post={post} />
+                                    )
+                                ) : (
+                                        <h1 style={{ textAlign: "center" }}><Empty /></h1>
+                                    )
+                                }
+                             </div>
 
-                <hr />
-                <div className='posts__container'>
-                    {(posts as Post[]).length > 0 ? (
-                        (posts as Post[]).map((post, index) =>
-                            <MyPost key={index} post={post} />
+                            </div>
+
                         )
-                    ) : (
-                            <h1 style={{ textAlign: "center" }}>{selfUser ? "You Have No Posts" : <Empty />}</h1>
-                        )
-                    }
-                </div>
+                            :
+                            (
+                                <Result
+                                    status="403"
+                                    title="That's weird :\"
+                                    subTitle="The page you visited does not exist."
+                                // extra={<Button type="primary">Back Home</Button>}
+                                />
+                            )
+                }
             </div>
 
         </div>

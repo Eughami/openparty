@@ -40,6 +40,12 @@ const userReducer = (state = INITIAL_STATE, action: { type: string; payload: any
         ...state,
         error: action.payload
       };
+    // case UserActionTypes.USERNAME_NODE_DATABASE_LISTENER_START: 
+    //   return {
+    //     ...state,
+    //     userInfo: {...state.userInfo ,username: action.payload.username,},
+    //   }
+
     case UserActionTypes.DATABASE_LISTENER_START:
       return {
         ...state,
