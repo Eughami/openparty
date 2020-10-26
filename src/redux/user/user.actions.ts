@@ -1,6 +1,7 @@
 import { RegistrationObject } from '../../components/interfaces/user.interface';
 import UserActionTypes from './user.types';
 import firebase from "firebase";
+import axios from 'axios'
 
 export const googleSignInStart = () => ({
   type: UserActionTypes.GOOGLE_SIGN_IN_START
@@ -16,7 +17,7 @@ export const signInFailure = (error: any) => ({
   payload: error
 });
 
-export const emailSignInStart = (emailAndPassword: { email: string, password: string }, history: any) => (dispatch: (arg0: { type: string; payload?: any; }) => void) =>
+export const emailSignInStart = (emailAndPassword: { email: string, password: string }, history?: any) => (dispatch: (arg0: { type: string; payload?: any; }) => void) =>
   new Promise((resolve, reject) => {
     dispatch({ type: UserActionTypes.EMAIL_SIGN_IN_START });
 
@@ -24,11 +25,13 @@ export const emailSignInStart = (emailAndPassword: { email: string, password: st
       firebase.auth().signInWithEmailAndPassword(emailAndPassword.email, emailAndPassword.password)
         .then((user) => {
           dispatch({ type: UserActionTypes.SIGN_IN_SUCCESS, payload: user.user });
+          if (history) {
+            history.replace("/");
+          }
           resolve(user);
         })
         .catch((error) => {
           dispatch({ type: UserActionTypes.SIGN_IN_FAILURE, payload: error });
-          history.replace("/")
           reject(error)
         })
 
@@ -118,10 +121,40 @@ export const signOutFailure = (error: any) => ({
   payload: error
 });
 
-export const signUpStart = (registrationObject: RegistrationObject) => ({
-  type: UserActionTypes.SIGN_UP_START,
-  payload: registrationObject
-});
+export const signUpStart = (registrationObject: RegistrationObject) => (dispatch: (arg0: { type: string; payload?: any; }) => void) =>
+  new Promise(async (resolve, reject) => {
+    dispatch({ type: UserActionTypes.SIGN_UP_START });
+
+    try {
+      const registerResponse = await axios.post("https://us-central1-openpaarty.cloudfunctions.net/register_user",
+        {
+          email: registrationObject.email,
+          username: registrationObject.username,
+          phone: registrationObject.phone,
+          prefix: registrationObject.prefix,
+          password: registrationObject.password,
+          auth: "fromapi@gmail.com",
+        });
+      const registerData = registerResponse.data as { user?: RegistrationObject, success: boolean, message?: string | any, status?: number };
+      console.log("REGISTER DATA: ", registerData);
+
+      if (!registerData.success) {
+        dispatch({ type: UserActionTypes.SIGN_UP_FAILURE, payload: registerData });
+        resolve(registerData);
+      }
+      else {
+        emailSignInStart({ email: registrationObject.email, password: registrationObject.password })
+        // dispatch({ type: UserActionTypes.SIGN_UP_SUCCESS, payload: registerData });
+
+        resolve(registerData);
+      }
+
+    } catch (error) {
+      dispatch({ type: UserActionTypes.SIGN_UP_FAILURE, payload: error });
+      reject(error)
+    }
+
+  });;
 
 export const signUpSuccess = (userObj: RegistrationObject) => ({
   type: UserActionTypes.SIGN_UP_SUCCESS,

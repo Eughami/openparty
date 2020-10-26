@@ -12,9 +12,8 @@ import {
 import { QuestionCircleOutlined } from '@ant-design/icons';
 import firebase from "firebase";
 import { RegistrationObject } from './interfaces/user.interface';
-import {signUpStart} from '../redux/user/user.actions'
+import { signUpStart } from '../redux/user/user.actions'
 import { connect } from 'react-redux';
-
 
 const { Option } = Select;
 
@@ -51,15 +50,18 @@ const tailFormItemLayout = {
 };
 
 interface IRegisterProps {
-  history: any
+  signUpStart?: (signUpObj: RegistrationObject) => Promise<any>,
+  currentUser?: firebase.User,
+  userInfo?: RegistrationObject
 }
 
-const RegistrationForm = ({props, signUpStart}:any) => {
+const RegistrationForm = (props: IRegisterProps) => {
   const [form] = Form.useForm();
-  const [registerWorking, setRegisterWorking] = useState(false);
+  const [registerWorking, setRegisterWorking] = useState<boolean>(false);
+
+  const { signUpStart } = props;
 
   console.log("REGISTRATION FORM PROPS: ", props);
-
 
   // useEffect(() => {
   //   const unsub = firebase.auth().onAuthStateChanged((user) => {
@@ -71,45 +73,17 @@ const RegistrationForm = ({props, signUpStart}:any) => {
   //   return unsub;
   // }, [])
 
-
   const onFinish = (object: RegistrationObject) => {
-    signUpStart(object)
-    // setRegisterWorking(true);
+    setRegisterWorking(true);
+    signUpStart!(object).then(() => {
+      setRegisterWorking(false);
+    }).catch((error) => {
+      console.log("@REGISTER.TSX.", error);
+      alert(JSON.stringify(error))
+      setRegisterWorking(false);
+    })
 
     console.log('Received values of form: ', object);
-
-    // let response: firebase.auth.UserCredential = { credential: null, user: null, additionalUserInfo: null, operationType: null };
-
-    // try {
-    //   response = await firebase.auth().createUserWithEmailAndPassword(object.email, object.password!);
-    // } catch (error) {
-    //   console.log(error);
-
-    //   alert(`Something went wrong while creating your account...\n${error.message}`);
-    //   setRegisterWorking(true);
-    //   return;
-    //   // throw new Error(error.message)
-    // }
-
-    // console.log("RESPONSE: ", response);
-
-    // delete object.confirm;
-    // delete object.agreement;
-    // delete object.password;
-
-    // object.followers_count = 0;
-    // object.following_count = 0;
-    // object.posts_count = 0;
-    // object.image_url = "";
-
-    // if (response.user) {
-    //   object.uid = response.user.uid;
-    //   await firebase.database().ref("Users").child(response.user.uid).set({ ...object, });
-    // }
-    // else {
-    //   alert("Something went wrong while creating your account...");
-    // }
-    // setRegisterWorking(false);
   };
 
   const prefixSelector = (
@@ -265,8 +239,18 @@ const RegistrationForm = ({props, signUpStart}:any) => {
   );
 };
 
-const mapsDispatchToProps = (dispatch:any) =>({
-  signUpStart: (regObj: RegistrationObject) => dispatch(signUpStart(regObj))
-})
+const mapStateToProps = (state: any) => {
+  return {
+    currentUser: state.user.currentUser,
+    currentUserInfo: state.user.userInfo,
+  };
+};
 
-export default connect(null, mapsDispatchToProps)(RegistrationForm);
+const mapDispatchToProps = (dispatch: any) => {
+  return {
+    signUpStart: (signUpObj: RegistrationObject) => dispatch(signUpStart(signUpObj)),
+  }
+
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(RegistrationForm);
