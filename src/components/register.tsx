@@ -10,11 +10,13 @@ import {
   // Alert
 } from 'antd';
 import { QuestionCircleOutlined } from '@ant-design/icons';
-import firebase from "firebase";
-import { RegistrationObject } from './interfaces/user.interface';
-import {signUpStart} from '../redux/user/user.actions'
+import firebase from 'firebase';
+import { RegistrationRequest } from './interfaces/interface';
+import { emailSignInStart } from '../redux/user/user.actions';
 import { connect } from 'react-redux';
-
+import { API_BASE_URL, REGISTRATION_ENDPOINT } from '../service/api';
+import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
+import { toast, ToastContainer } from 'react-toastify';
 
 const { Option } = Select;
 
@@ -50,16 +52,11 @@ const tailFormItemLayout = {
   },
 };
 
-interface IRegisterProps {
-  history: any
-}
-
-const RegistrationForm = ({props, signUpStart}:any) => {
+const RegistrationForm = ({ emailSignInStart, history }: any) => {
   const [form] = Form.useForm();
   const [registerWorking, setRegisterWorking] = useState(false);
 
-  console.log("REGISTRATION FORM PROPS: ", props);
-
+  // console.log('REGISTRATION FORM PROPS: ', props);
 
   // useEffect(() => {
   //   const unsub = firebase.auth().onAuthStateChanged((user) => {
@@ -71,45 +68,40 @@ const RegistrationForm = ({props, signUpStart}:any) => {
   //   return unsub;
   // }, [])
 
+  const onFinish = async (object: RegistrationRequest) => {
+    setRegisterWorking(true);
 
-  const onFinish = (object: RegistrationObject) => {
-    signUpStart(object)
-    // setRegisterWorking(true);
+    //attaching the auth
+    object.auth = 'api@openparty.com';
+    const requestOptions: AxiosRequestConfig = {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      data: object,
+    };
+    const url = `${API_BASE_URL}${REGISTRATION_ENDPOINT}`;
 
     console.log('Received values of form: ', object);
+    try {
+      const response: AxiosResponse = await axios(url, requestOptions);
 
-    // let response: firebase.auth.UserCredential = { credential: null, user: null, additionalUserInfo: null, operationType: null };
+      const jsonRes = response.data;
+      console.log('api response : ', jsonRes);
+      setRegisterWorking(false);
 
-    // try {
-    //   response = await firebase.auth().createUserWithEmailAndPassword(object.email, object.password!);
-    // } catch (error) {
-    //   console.log(error);
+      if (!jsonRes.status) {
+        toast.error(`${jsonRes.message}`);
+        return;
+      }
 
-    //   alert(`Something went wrong while creating your account...\n${error.message}`);
-    //   setRegisterWorking(true);
-    //   return;
-    //   // throw new Error(error.message)
-    // }
-
-    // console.log("RESPONSE: ", response);
-
-    // delete object.confirm;
-    // delete object.agreement;
-    // delete object.password;
-
-    // object.followers_count = 0;
-    // object.following_count = 0;
-    // object.posts_count = 0;
-    // object.image_url = "";
-
-    // if (response.user) {
-    //   object.uid = response.user.uid;
-    //   await firebase.database().ref("Users").child(response.user.uid).set({ ...object, });
-    // }
-    // else {
-    //   alert("Something went wrong while creating your account...");
-    // }
-    // setRegisterWorking(false);
+      toast.success('SignUp successfully, Auto-Login');
+      emailSignInStart(object.email, object.password, history);
+    } catch (error) {
+      setRegisterWorking(false);
+      toast.error(`${error.response.data.message}`);
+      console.log(error.response.data);
+    }
   };
 
   const prefixSelector = (
@@ -126,7 +118,10 @@ const RegistrationForm = ({props, signUpStart}:any) => {
   );
 
   return (
-    <Col span="12" style={{ marginLeft: "20%", marginRight: "20%", marginTop: "5%" }}>
+    <Col
+      span="12"
+      style={{ marginLeft: '20%', marginRight: '20%', marginTop: '5%' }}
+    >
       {/* <Alert
         message="Error"
         description="This is an error message about copywriting."
@@ -145,6 +140,7 @@ const RegistrationForm = ({props, signUpStart}:any) => {
         style={{ marginTop: 30 }}
         scrollToFirstError
       >
+        <ToastContainer />
         <Form.Item
           name="email"
           label="E-mail"
@@ -192,7 +188,9 @@ const RegistrationForm = ({props, signUpStart}:any) => {
                   return Promise.resolve();
                 }
 
-                return Promise.reject('The two passwords that you entered do not match!');
+                return Promise.reject(
+                  'The two passwords that you entered do not match!'
+                );
               },
             }),
           ]}
@@ -205,7 +203,7 @@ const RegistrationForm = ({props, signUpStart}:any) => {
           label={
             <span>
               Username&nbsp;
-                    <Tooltip title="What do you want others to call you?">
+              <Tooltip title="What do you want others to call you?">
                 <QuestionCircleOutlined />
               </Tooltip>
             </span>
@@ -245,7 +243,9 @@ const RegistrationForm = ({props, signUpStart}:any) => {
           rules={[
             {
               validator: (_, value) =>
-                value ? Promise.resolve() : Promise.reject('Should accept agreement'),
+                value
+                  ? Promise.resolve()
+                  : Promise.reject('Should accept agreement'),
             },
           ]}
           {...tailFormItemLayout}
@@ -257,16 +257,16 @@ const RegistrationForm = ({props, signUpStart}:any) => {
         <Form.Item {...tailFormItemLayout}>
           <Button loading={registerWorking} type="primary" htmlType="submit">
             Register
-                </Button>
+          </Button>
         </Form.Item>
       </Form>
-
     </Col>
   );
 };
 
-const mapsDispatchToProps = (dispatch:any) =>({
-  signUpStart: (regObj: RegistrationObject) => dispatch(signUpStart(regObj))
-})
+const mapsDispatchToProps = (dispatch: any) => ({
+  emailSignInStart: (email: string, password: string, history: any) =>
+    dispatch(emailSignInStart({ email, password }, history)),
+});
 
 export default connect(null, mapsDispatchToProps)(RegistrationForm);

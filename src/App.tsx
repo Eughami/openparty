@@ -1,9 +1,18 @@
 import React, { useEffect, useState } from 'react';
-import { Switch, Route, Redirect } from "react-router-dom";
+import {
+  Switch,
+  Route,
+  Redirect,
+  withRouter,
+  RouteComponentProps,
+} from 'react-router-dom';
 import { connect } from 'react-redux';
 // import { createStructuredSelector } from 'reselect';
 // import { selectCurrentUser } from './redux/user/user.selectors';
-import { setCurrentUserListener, setCurrentUserRootDatabaseListener } from './redux/user/user.actions';
+import {
+  setCurrentUserListener,
+  setCurrentUserRootDatabaseListener,
+} from './redux/user/user.actions';
 
 import './App.css';
 import Homepage from './components/homepage';
@@ -14,47 +23,59 @@ import UserProfile from './components/user-info';
 import { RegistrationObject } from './components/interfaces/user.interface';
 import { Col, Spin } from 'antd';
 
+import 'react-toastify/dist/ReactToastify.css';
+
 // const currentUser = true
 
-
-interface IAppProps {
-  setCurrentUserListener?: () => Promise<any>,
-  setCurrentUserRootDatabaseListener?: (uid: string) => Promise<any>,
-  currentUser?: firebase.User,
-  userInfo?: RegistrationObject
+interface IAppProps extends RouteComponentProps<any> {
+  setCurrentUserListener?: () => Promise<any>;
+  setCurrentUserRootDatabaseListener?: (uid: string) => Promise<any>;
+  currentUser?: firebase.User;
+  userInfo?: RegistrationObject;
 }
 
 const App = (props: IAppProps) => {
-  const { currentUser, setCurrentUserListener, setCurrentUserRootDatabaseListener } = props;
+  const {
+    currentUser,
+    setCurrentUserListener,
+    setCurrentUserRootDatabaseListener,
+  } = props;
 
-  console.log("APP.TSX PROPS:  ", currentUser);
+  console.log('APP.TSX PROPS:  ', currentUser);
 
   const [loadingCredentials, setLoadingCredentials] = useState<boolean>(true);
 
-  useEffect(() => {
-    setTimeout(() => {
-      setLoadingCredentials(false)
-    }, 1000);
-  }, []);
+  // useEffect(() => {
+  //   setTimeout(() => {
+  //     setLoadingCredentials(false);
+  //   }, 1000);
+  // }, []);
 
-
   useEffect(() => {
-    setCurrentUserListener!();
     setLoadingCredentials(true);
+    setCurrentUserListener!();
+    setLoadingCredentials(false);
   }, [setCurrentUserListener, currentUser]);
 
   useEffect(() => {
     if (currentUser !== null) {
-      console.log("CALLING DB LISTENER WITH CURRENT USER: ", currentUser);
+      console.log('CALLING DB LISTENER WITH CURRENT USER: ', currentUser);
 
       setCurrentUserRootDatabaseListener!(currentUser!.uid);
     }
   }, [setCurrentUserRootDatabaseListener, currentUser]);
 
-
   if (loadingCredentials) {
     return (
-      <Col span="12" style={{ marginLeft: "20%", marginRight: "20%", marginTop: "5%", textAlign: "center" }}>
+      <Col
+        span="12"
+        style={{
+          marginLeft: '20%',
+          marginRight: '20%',
+          marginTop: '5%',
+          textAlign: 'center',
+        }}
+      >
         <Spin size="large" />
       </Col>
     );
@@ -66,29 +87,38 @@ const App = (props: IAppProps) => {
         <Switch>
           <Route exact path="/" component={Homepage} />
           <Route exact path="/profile/:username" component={UserProfile} />
-          {/* <Route
+          <Route
             exact
             path="/login"
-            render={() => (currentUser ? <Redirect to="/" /> : <Redirect to="/" />)}
-          /> */}
-          <Route component={Homepage} />
+            render={() =>
+              currentUser ? <Redirect to="/" /> : <Redirect to="/" />
+            }
+          />
+          {/* <Route component={Homepage} /> */}
         </Switch>
       ) : (
-          <Switch>
-            {/* <Route path='/login' component={Login} />
-              <Route path='/register' component={RegistrationForm} />
+        <Switch>
+          <Route
+            exact
+            path="/"
+            render={() =>
+              !currentUser ? <Redirect to="/login" /> : <Redirect to="/" />
+            }
+          />
+          <Route path="/login" component={Login} />
+          {/* <Route path='/register' component={RegistrationForm} />
               <Redirect
                 to={{
                   pathname: window.location.pathname === "/register" ? '/register' : "/login"
                 }}
               /> */}
-            <Route exact path='/register' component={RegistrationForm} />
-            <Route component={Login} />
-          </Switch>
-        )}
+          <Route exact path="/register" component={RegistrationForm} />
+          <Route component={Login} />
+        </Switch>
+      )}
     </div>
   );
-}
+};
 
 // const mapStateToProps = createStructuredSelector({
 //   currentUser: selectCurrentUser,
@@ -104,9 +134,9 @@ const mapStateToProps = (state: any) => {
 const mapDispatchToProps = (dispatch: any) => {
   return {
     setCurrentUserListener: () => dispatch(setCurrentUserListener()),
-    setCurrentUserRootDatabaseListener: (uid: string) => dispatch(setCurrentUserRootDatabaseListener(uid))
-  }
+    setCurrentUserRootDatabaseListener: (uid: string) =>
+      dispatch(setCurrentUserRootDatabaseListener(uid)),
+  };
+};
 
-}
-
-export default connect(mapStateToProps, mapDispatchToProps)(App);
+export default connect(mapStateToProps, mapDispatchToProps)(withRouter(App));
