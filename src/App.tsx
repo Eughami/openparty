@@ -13,6 +13,7 @@ import RegistrationForm from './components/register';
 import UserProfile from './components/user-info';
 import { RegistrationObject } from './components/interfaces/user.interface';
 import { Col, Spin } from 'antd';
+import firebase from 'firebase';
 
 // const currentUser = true
 
@@ -21,35 +22,62 @@ interface IAppProps {
   setCurrentUserListener?: () => Promise<any>,
   setCurrentUserRootDatabaseListener?: (uid: string) => Promise<any>,
   currentUser?: firebase.User,
-  userInfo?: RegistrationObject
+  currentUserInfo?: RegistrationObject
 }
 
 const App = (props: IAppProps) => {
-  const { currentUser, setCurrentUserListener, setCurrentUserRootDatabaseListener } = props;
+  const { currentUser, currentUserInfo, setCurrentUserListener, setCurrentUserRootDatabaseListener } = props;
 
+  useEffect(() => {
+    if (!currentUser)
+      setCurrentUserListener!().then(() => {
+        setLoadingCredentials(false)
+      }).catch(() => {
+        setLoadingCredentials(false)
+      });
+
+  }, [currentUser, setCurrentUserListener])
+
+  useEffect(() => {
+    if (!currentUserInfo && currentUser)
+      setCurrentUserRootDatabaseListener!(currentUser.uid);
+  }, [currentUserInfo, setCurrentUserRootDatabaseListener, currentUser])
   console.log("APP.TSX PROPS:  ", currentUser);
+
+  // useEffect(() => {
+  //   if (!currentUser) return;
+  //   console.log("@DB TEST EFFECT ", currentUser.email);
+
+  //   firebase.database().ref("Postsv2").child("422Yk0hzciT3UwwIUocDivVlJRL2/0").once("value", snapshot => {
+  //     console.log("@DB DEBUG ", snapshot.val());
+
+  //   }, error => {
+  //     console.log(error);
+
+  //   })
+  // }, [currentUser])
 
   const [loadingCredentials, setLoadingCredentials] = useState<boolean>(true);
 
-  useEffect(() => {
-    setTimeout(() => {
-      setLoadingCredentials(false)
-    }, 1000);
-  }, []);
+  // useEffect(() => {
+  //   setTimeout(() => {
+  //     setLoadingCredentials(false)
+  //   }, 1000);
+  // }, []);
 
 
-  useEffect(() => {
-    setCurrentUserListener!();
-    setLoadingCredentials(true);
-  }, [setCurrentUserListener, currentUser]);
+  // useEffect(() => {
+  //   setCurrentUserListener!();
+  //   setLoadingCredentials(true);
+  // }, [setCurrentUserListener, currentUser]);
 
-  useEffect(() => {
-    if (currentUser !== null) {
-      console.log("CALLING DB LISTENER WITH CURRENT USER: ", currentUser);
+  // useEffect(() => {
+  //   if (currentUser !== null) {
+  //     console.log("CALLING DB LISTENER WITH CURRENT USER: ", currentUser);
 
-      setCurrentUserRootDatabaseListener!(currentUser!.uid);
-    }
-  }, [setCurrentUserRootDatabaseListener, currentUser]);
+  //     setCurrentUserRootDatabaseListener!(currentUser!.uid);
+  //   }
+  // }, [setCurrentUserRootDatabaseListener, currentUser]);
 
 
   if (loadingCredentials) {
@@ -89,10 +117,6 @@ const App = (props: IAppProps) => {
     </div>
   );
 }
-
-// const mapStateToProps = createStructuredSelector({
-//   currentUser: selectCurrentUser,
-// });
 
 const mapStateToProps = (state: any) => {
   return {

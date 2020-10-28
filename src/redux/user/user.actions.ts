@@ -43,13 +43,18 @@ export const emailSignInStart = (emailAndPassword: { email: string, password: st
   });
 
 export const setCurrentUserListener = () => (dispatch: any) =>
-  new Promise((resolve, reject) => {
+  new Promise(async (resolve, reject) => {
 
     try {
-      firebase.auth().onAuthStateChanged((user) => {
+      firebase.auth().onAuthStateChanged(async (user) => {
         console.log("AUTH STATE CHANGED! ", user);
 
         if (user) {
+          const token = await user.getIdToken(true);
+          console.log(token);
+
+          localStorage.setItem("userToken", token);
+
           dispatch({ type: UserActionTypes.SET_CURRENT_USER, payload: user });
         }
         else {
@@ -131,9 +136,9 @@ export const signUpStart = (registrationObject: RegistrationObject) => (dispatch
           email: registrationObject.email,
           username: registrationObject.username,
           phone: registrationObject.phone,
-          prefix: registrationObject.prefix,
+          prefix: `+${registrationObject.prefix}`,
           password: registrationObject.password,
-          auth: "fromapi@gmail.com",
+          auth: "api@openparty.com",
         });
       const registerData = registerResponse.data as { user?: RegistrationObject, success: boolean, message?: string | any, status?: number };
       console.log("REGISTER DATA: ", registerData);
