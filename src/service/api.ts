@@ -1,6 +1,7 @@
-export const API_BASE_URL = 'http://localhost:5001/openpaarty/us-central1/';
+export const API_BASE_URL =
+  'http://localhost:5000/openpaarty/us-central1/api/v1/';
 
-export const REGISTRATION_ENDPOINT = 'register_user';
+export const REGISTRATION_ENDPOINT = 'users';
 
 export const ADD_POST_ENDPOINT = 'add_post';
 

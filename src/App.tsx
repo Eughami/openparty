@@ -31,12 +31,13 @@ interface IAppProps extends RouteComponentProps<any> {
   setCurrentUserListener?: () => Promise<any>;
   setCurrentUserRootDatabaseListener?: (uid: string) => Promise<any>;
   currentUser?: firebase.User;
-  userInfo?: RegistrationObject;
+  currentUserInfo?: RegistrationObject;
 }
 
 const App = (props: IAppProps) => {
   const {
     currentUser,
+    currentUserInfo,
     setCurrentUserListener,
     setCurrentUserRootDatabaseListener,
   } = props;
@@ -45,25 +46,22 @@ const App = (props: IAppProps) => {
 
   const [loadingCredentials, setLoadingCredentials] = useState<boolean>(true);
 
-  // useEffect(() => {
-  //   setTimeout(() => {
-  //     setLoadingCredentials(false);
-  //   }, 1000);
-  // }, []);
+  useEffect(() => {
+    if (!currentUser)
+      setCurrentUserListener!()
+        .then(() => {
+          setLoadingCredentials(false);
+        })
+        .catch(() => {
+          setLoadingCredentials(false);
+        });
+  }, [currentUser, setCurrentUserListener]);
 
   useEffect(() => {
-    setLoadingCredentials(true);
-    setCurrentUserListener!();
-    setLoadingCredentials(false);
-  }, [setCurrentUserListener, currentUser]);
-
-  useEffect(() => {
-    if (currentUser !== null) {
-      console.log('CALLING DB LISTENER WITH CURRENT USER: ', currentUser);
-
-      setCurrentUserRootDatabaseListener!(currentUser!.uid);
-    }
-  }, [setCurrentUserRootDatabaseListener, currentUser]);
+    if (!currentUserInfo && currentUser)
+      setCurrentUserRootDatabaseListener!(currentUser.uid);
+  }, [currentUserInfo, setCurrentUserRootDatabaseListener, currentUser]);
+  console.log('APP.TSX PROPS:  ', currentUser?.getIdToken());
 
   if (loadingCredentials) {
     return (

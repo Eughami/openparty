@@ -12,11 +12,12 @@ import {
 import { QuestionCircleOutlined } from '@ant-design/icons';
 import firebase from 'firebase';
 import { RegistrationRequest } from './interfaces/interface';
-import { emailSignInStart } from '../redux/user/user.actions';
+import { emailSignInStart, signUpStart } from '../redux/user/user.actions';
 import { connect } from 'react-redux';
 import { API_BASE_URL, REGISTRATION_ENDPOINT } from '../service/api';
 import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
 import { toast, ToastContainer } from 'react-toastify';
+import { RegistrationObject } from './interfaces/user.interface';
 
 const { Option } = Select;
 
@@ -52,7 +53,7 @@ const tailFormItemLayout = {
   },
 };
 
-const RegistrationForm = ({ emailSignInStart, history }: any) => {
+const RegistrationForm = ({ emailSignInStart, signUpStart, history }: any) => {
   const [form] = Form.useForm();
   const [registerWorking, setRegisterWorking] = useState(false);
 
@@ -68,39 +69,16 @@ const RegistrationForm = ({ emailSignInStart, history }: any) => {
   //   return unsub;
   // }, [])
 
-  const onFinish = async (object: RegistrationRequest) => {
+  const onFinish = async (object: RegistrationObject) => {
     setRegisterWorking(true);
-
-    //attaching the auth
-    object.auth = 'api@openparty.com';
-    const requestOptions: AxiosRequestConfig = {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      data: object,
-    };
-    const url = `${API_BASE_URL}${REGISTRATION_ENDPOINT}`;
-
-    console.log('Received values of form: ', object);
     try {
-      const response: AxiosResponse = await axios(url, requestOptions);
-
-      const jsonRes = response.data;
-      console.log('api response : ', jsonRes);
-      setRegisterWorking(false);
-
-      if (!jsonRes.status) {
-        toast.error(`${jsonRes.message}`);
-        return;
-      }
-
-      toast.success('SignUp successfully, Auto-Login');
+      const registerResponse = await signUpStart(object, history);
+      console.log(registerResponse);
       emailSignInStart(object.email, object.password, history);
-    } catch (error) {
       setRegisterWorking(false);
-      toast.error(`${error.response.data.message}`);
-      console.log(error.response.data);
+    } catch (error) {
+      console.log('REGISTRATION FAILED');
+      setRegisterWorking(false);
     }
   };
 
@@ -267,6 +245,8 @@ const RegistrationForm = ({ emailSignInStart, history }: any) => {
 const mapsDispatchToProps = (dispatch: any) => ({
   emailSignInStart: (email: string, password: string, history: any) =>
     dispatch(emailSignInStart({ email, password }, history)),
+  signUpStart: (regObj: any, history: any) =>
+    dispatch(signUpStart(regObj, history)),
 });
 
 export default connect(null, mapsDispatchToProps)(RegistrationForm);
