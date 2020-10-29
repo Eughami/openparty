@@ -16,7 +16,13 @@ interface IPostsProps {
     fromProfile?: boolean,
 }
 
-
+/**
+ * Assign posts object and return an array of posts
+ * @param posts the postsRef pointing to the database node
+ * @param user optional user object to be with the post
+ * @returns Array of Posts
+ * @deprecated We now make request to our server 
+ */
 
 export const awaitFillPosts = async (posts: Array<firebase.database.DataSnapshot>, user?: RegistrationObject): Promise<Array<Post>> => {
     if (user) {
@@ -112,8 +118,7 @@ const Posts = (props: IPostsProps) => {
     console.log("CARDS.TSX PROPS: ", props);
 
     const [loading, setLoading] = useState<boolean>(true)
-    const [posts, setPosts] = useState<Array<Post>>([])
-    const [testPosts, setTestPosts] = useState<Array<any>>([])
+    const [posts, setPosts] = useState<Array<any>>([])
 
     useEffect(() => {
         if (!currentUser) return;
@@ -121,117 +126,74 @@ const Posts = (props: IPostsProps) => {
 
             const token = await currentUser.getIdToken(true);
 
+            //Get eligible posts for the user
             const result = await axios.get("http://localhost:5000/openpaarty/us-central1/api/v1/posts/users-eligible-post", {
                 headers: {
                     authorization: `Bearer ${token}`
                 }
-            })
+            });
 
-            // console.log(result.data);
-
-
-            // await Promise.all()
-
-            let temp: any = [];
-
+            let temp: any = {};
             await bluebird.map(result.data.uFP, async (obj: { uidRef: string, postRef: string }, index: number) => {
-                await firebase.database().ref("Postsv2").child(obj.uidRef).child(obj.postRef).once("value", ssh => {
-                    console.log("@SSH SSH: ", ssh.val());
+                firebase.database().ref("Postsv2").child(obj.uidRef).child(obj.postRef).on("value", async ssh => {
 
-                    if (ssh.val().privacy !== "hard-closed") {
-                        temp.push(ssh.val())
+                    //No need to check post privacy again because all posts we have access to are here
+                    temp[ssh.key!] = ssh.val();
+                    temp[ssh.key!].key = ssh.key!;
+
+                    if (localStorage.getItem("postsSet")) {
+                        temp[ssh.key!] = ssh.val();
+                        temp[ssh.key!].key = ssh.key!;
+
+                        setPosts(Object.values(temp));
                     }
-                    // temp.push(ssh.val());
-                    // if (index === result.data.uFP.length - 1) {
-                    //     console.log("@POSTS DEBUG: ", temp);
 
+                    if (index === result.data.uFP.length - 1 && !localStorage.getItem("postsSet")) {
 
-                    //     setTestPosts(temp);
-                    // }
+                        setPosts(Object.values(temp));
+
+                        console.log("@POSTS DEBUG: ", Object.values(temp));
+
+                        localStorage.setItem("postsSet", "true");
+                    }
+
                 }, (error: any) => {
                     console.log("@SSH ERROR: ", error);
-                    // console.log();
+                    if (error.code) {
+                        if (error.code === "PERMISSION_DENIED") {
+                            const lastKey = error.message.split(":")[0].split("/")[3];
+
+                            delete temp[lastKey];
+
+                            setPosts(Object.values(temp));
+
+                            //TODO: Maybe show 'post not available message'?
+                        }
+                    }
 
                 })
-            }, { concurrency: result.data.uFP.length })
-
-            // result.data.uFP.map((obj: { uidRef: string, postRef: string }, index: number) => {
-            //     // return console.log(obj);
-
-            //     return firebase.database().ref("Postsv2").child(obj.uidRef).child(obj.postRef).on("value", ssh => {
-            //         console.log("@SSH SSH: ", ssh.val());
-
-            //         if (ssh.val().privacy !== "hard-closed") {
-            //             temp.push(ssh.val())
-            //         }
-            //         // temp.push(ssh.val());
-            //         // if (index === result.data.uFP.length - 1) {
-            //         //     console.log("@POSTS DEBUG: ", temp);
-
-
-            //         //     setTestPosts(temp);
-            //         // }
-            //     }, (error: any) => {
-            //         console.log("@SSH ERROR: ", error);
-            //         // console.log();
-
-            //     })
-
-            // })
-
-            setTestPosts(temp)
-
-            console.log("@TEMP : ", temp);
+            }, { concurrency: result.data.uFP.length }).then(() => {
+                console.log("DONE MAPPING");
+            })
 
         }
 
         getEligible();
-    }, [currentUser])
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [])
 
     return (
         <div className='posts__container'>
             {
-                testPosts.map((val) =>
-                    <span key={JSON.stringify(val)}>{JSON.stringify(val)}</span>
+
+                posts.map((val) => <MyPost key={val.key} post={val} />
                 )
             }
 
         </div>
     );
 
-    // useEffect(() => {
 
-    //     if (!currentUser) {
-    //         setLoading(false);
-    //         return;
-    //     }
-
-    //     //limit to 50 or som-n...
-    //     const unSub = firebase.database().ref("Posts").limitToLast(50).on("value", async (snapshot) => {
-    //         if (snapshot.exists()) {
-    //             // console.log("USE EFFECT RUNNING ", snapshot.val());
-
-    //             let ttt: Array<firebase.database.DataSnapshot> = [];
-    //             snapshot.forEach((post) => {
-    //                 if (post.val().privacy === PostPrivacy.PUBLIC || post.val().uid === currentUser!.uid) {
-    //                     ttt.push(post);
-    //                 }
-    //             });
-
-    //             const newPosts = await awaitFillPosts(ttt);
-
-    //             setPosts(newPosts)
-    //             setLoading(false);
-    //         }
-    //         else {
-    //             setPosts([]);
-    //             setLoading(false);
-    //         }
-    //     })
-
-    //     return () => firebase.database().ref("Posts").off("value", unSub);
-
-    // }, [currentUser])
 
     // if (loading) {
     //     return (

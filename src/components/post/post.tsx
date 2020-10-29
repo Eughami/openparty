@@ -143,7 +143,7 @@ const Post = (props: IPostProps) => {
 
                 {/* <p style={{ fontWeight: "bold" }}>Comments</p><br /> */}
                 {
-                    comments && comments.map((comment: Comment, index: number) =>
+                    comments && Object.values(comments).map((comment: Comment, index: number) =>
                         <Row style={{ alignContent: "center" }} key={index}>
                             <span style={{ fontWeight: "bold" }}>{comment.user.username} </span>
                             <span style={{ marginLeft: 10 }}>{comment.comment}</span><br />

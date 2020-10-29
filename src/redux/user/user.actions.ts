@@ -44,6 +44,7 @@ export const emailSignInStart = (emailAndPassword: { email: string, password: st
 
 export const setCurrentUserListener = () => (dispatch: any) =>
   new Promise(async (resolve, reject) => {
+    localStorage.removeItem("postsSet");
 
     try {
       firebase.auth().onAuthStateChanged(async (user) => {

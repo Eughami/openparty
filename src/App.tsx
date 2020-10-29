@@ -30,63 +30,51 @@ const App = (props: IAppProps) => {
 
   useEffect(() => {
     if (!currentUser)
-      setCurrentUserListener!().then(() => {
-        setLoadingCredentials(false)
-      }).catch(() => {
-        setLoadingCredentials(false)
-      });
+      setCurrentUserListener!()
 
   }, [currentUser, setCurrentUserListener])
 
   useEffect(() => {
-    if (!currentUserInfo && currentUser)
-      setCurrentUserRootDatabaseListener!(currentUser.uid);
+    // if (!currentUserInfo && currentUser)
+    //   setCurrentUserRootDatabaseListener!(currentUser.uid);
   }, [currentUserInfo, setCurrentUserRootDatabaseListener, currentUser])
+
+
   console.log("APP.TSX PROPS:  ", currentUser);
 
   // useEffect(() => {
   //   if (!currentUser) return;
-  //   console.log("@DB TEST EFFECT ", currentUser.email);
+  //   console.log("@DB TEST EFFECT ", currentUser?.email);
 
-  //   firebase.database().ref("Postsv2").child("422Yk0hzciT3UwwIUocDivVlJRL2/0").once("value", snapshot => {
+  //   firebase.database().ref("Postsv2").child("iILfbJyqoPaoV5yjPZuMwIBXCVn1/0").on("value", snapshot => {
   //     console.log("@DB DEBUG ", snapshot.val());
 
-  //   }, error => {
+  //   }, (error: any) => {
   //     console.log(error);
 
   //   })
   // }, [currentUser])
 
-  const [loadingCredentials, setLoadingCredentials] = useState<boolean>(true);
+  // return (
+  //   <div>
+  //     {
+  //       currentUser ?
+  //         currentUser.uid : "TESTING"
 
-  // useEffect(() => {
-  //   setTimeout(() => {
-  //     setLoadingCredentials(false)
-  //   }, 1000);
-  // }, []);
-
-
-  // useEffect(() => {
-  //   setCurrentUserListener!();
-  //   setLoadingCredentials(true);
-  // }, [setCurrentUserListener, currentUser]);
-
-  // useEffect(() => {
-  //   if (currentUser !== null) {
-  //     console.log("CALLING DB LISTENER WITH CURRENT USER: ", currentUser);
-
-  //     setCurrentUserRootDatabaseListener!(currentUser!.uid);
-  //   }
-  // }, [setCurrentUserRootDatabaseListener, currentUser]);
+  //     }
+  //   </div>
+  // );
 
 
-  if (loadingCredentials) {
-    return (
-      <Col span="12" style={{ marginLeft: "20%", marginRight: "20%", marginTop: "5%", textAlign: "center" }}>
-        <Spin size="large" />
-      </Col>
-    );
-  }
+  // const [loadingCredentials, setLoadingCredentials] = useState<boolean>(true);
+
+  // if (loadingCredentials) {
+  //   return (
+  //     <Col span="12" style={{ marginLeft: "20%", marginRight: "20%", marginTop: "5%", textAlign: "center" }}>
+  //       <Spin size="large" />
+  //     </Col>
+  //   );
+  // }
 
   return (
     <div className="App">
