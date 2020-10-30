@@ -7,6 +7,7 @@ import { connect } from 'react-redux';
 import { setCurrentUserListener, setCurrentUserRootDatabaseListener } from '../redux/user/user.actions';
 // import { awaitFillPosts } from "./post/posts";
 import Header from "./header/header";
+import axios from "axios"
 
 interface IUserProps {
     setCurrentUserListener?: () => Promise<any>,
@@ -21,8 +22,9 @@ const UserProfile = (props: IUserProps) => {
     const { currentUser, currentUserInfo } = props;
     const { username } = props.match.params;
 
-    const [selfUser, setSelfUser] = useState<boolean | null>(null);
+    const [selfUser, setSelfUser] = useState<boolean | null>(false);
     const [otherUserInfo, setOtherUserInfo] = useState<RegistrationObject | null>(null);
+    const [otherUserPrivacy, setOtherUserPrivacy] = useState<boolean>(false);
 
     const [loading, setLoading] = useState<boolean>(true);
     const [realUser, setRealUser] = useState<boolean>(true);
@@ -73,164 +75,285 @@ const UserProfile = (props: IUserProps) => {
 
     };
 
+    // useEffect(() => {
+
+    //     console.log("CHECKING IN!", selfUser);
+
+    //     if (!currentUser || selfUser === null) {
+    //         // setLoading(false);
+    //         // setRealUser(false);
+    //         return;
+    //     }
+    //     // let unSub_1: any = null;
+    //     // let unSub_2: any = null;
+    //     // let unSub_3: any = null;
+
+    //     if (selfUser) {
+    //         console.log("GOING IN!");
+
+    //         //to make it real time, when some action happens in main post node, push/ovw data to this loc
+    //         const unSub_1 = firebase.database().ref("Users").child(currentUser!.uid).child("Posts").on("value", async (snapshot) => {
+    //             if (snapshot.exists()) {
+    //                 // console.log("USE EFFECT RUNNING ", snapshot.val());
+
+    //                 let ttt: Array<firebase.database.DataSnapshot> = [];
+    //                 let postIds: Array<string> = [];
+    //                 snapshot.forEach((userPost) => {
+    //                     postIds.push(userPost.key!);
+    //                 });
+
+    //                 const awaitPushPostIds = async () => {
+    //                     for (let i = 0; i < postIds.length; i++) {
+    //                         await firebase.database().ref("Posts").child(postIds[i]).once("value", mainPost => {
+    //                             if (mainPost.exists()) {
+    //                                 ttt.push(mainPost);
+    //                             }
+    //                             // console.log("======TTTTT======", currentUserTtt);
+    //                         })
+    //                     }
+    //                 }
+
+    //                 await awaitPushPostIds();
+
+
+    //                 // postIds.map(async (postId) => {
+    //                 //     await firebase.database().ref("Posts").child(postId).once("value", mainPost => {
+    //                 //         currentUserTtt.push(mainPost);
+    //                 //         console.log("======TTTTT======", currentUserTtt);
+    //                 //     })
+    //                 // });
+
+
+    //                 console.log("======TTTTT======", ttt);
+
+
+    //                 const newPosts = await awaitFillPosts(ttt, currentUserInfo!);
+
+    //                 setPosts(newPosts)
+    //                 setLoading(false);
+    //                 setRealUser(true);
+
+    //                 ttt = [];
+    //             }
+    //             else {
+    //                 setPosts([]);
+    //                 setLoading(false);
+    //                 setRealUser(false);
+    //             }
+    //         })
+
+    //         return () => firebase.database().ref("Posts").off("value", unSub_1);
+    //     }
+    //     else {
+    //         try {
+
+    //             //to make it real time, when some action happens in main users node, push/ovw data to this loc
+    //             const unSub_2 = firebase.database().ref("Credentials").child("Usernames").child(username).on("value", otherUser => {
+    //                 if (otherUser.exists()) {
+    //                     const otherUid = otherUser.val().uid;
+    //                     console.log("OTHER UID: ", otherUid);
+
+    //                     firebase.database().ref("Users").child(otherUid).once("value", async userInfo => {
+    //                         if (userInfo.exists()) {
+    //                             setOtherUserInfo(userInfo.val());
+
+    //                             let ttt: Array<firebase.database.DataSnapshot> = [];
+    //                             let postIds: Array<string> = [];
+    //                             userInfo.child("Posts").forEach((otherUserPost) => {
+    //                                 postIds.push(otherUserPost.key!);
+    //                             });
+
+    //                             const awaitPushPostIds = async () => {
+    //                                 for (let i = 0; i < postIds.length; i++) {
+    //                                     await firebase.database().ref("Posts").child(postIds[i]).once("value", mainPost => {
+    //                                         if (mainPost.exists()) {
+    //                                             if (mainPost.val().privacy === PostPrivacy.PUBLIC) {
+    //                                                 ttt.push(mainPost);
+    //                                             }
+    //                                         }
+    //                                     })
+    //                                 }
+    //                             }
+
+    //                             await awaitPushPostIds();
+
+    //                             console.log("==== POST IDS: ", postIds);
+
+
+    //                             // postIds.map((postId) => {
+    //                             //     return firebase.database().ref("Posts").child(postId).once("value", mainPost => {
+    //                             //         if (mainPost.val().privacy === PostPrivacy.PUBLIC) {
+    //                             //             ttt.push(mainPost);
+    //                             //         }
+
+    //                             //     })
+    //                             // })
+
+    //                             // const newPosts = await awaitFillPosts(ttt, otherUserInfo!);
+    //                             const newPosts = await awaitFillPosts(ttt, userInfo.val());
+
+    //                             setPosts(newPosts)
+    //                             setLoading(false);
+    //                             setRealUser(true);
+
+    //                             ttt = [];
+    //                         }
+    //                         else {
+    //                             setPosts(false);
+    //                             setLoading(false);
+    //                             setRealUser(false);
+    //                         }
+    //                     })
+    //                 }
+    //                 else {
+    //                     setPosts(false);
+    //                     setLoading(false);
+    //                     setRealUser(false);
+    //                 }
+    //             })
+
+    //             return () => firebase.database().ref("Credentials").child("Usernames").child(username).off("value", unSub_2);
+
+    //         } catch (error) {
+    //             console.log(error);
+    //             // unSub_2 = null;
+    //             setPosts(false);
+    //             setLoading(false);
+    //             setRealUser(false);
+    //         }
+
+    //     }
+
+    // }, [currentUser, selfUser, username, currentUserInfo])
+
+    // useEffect(() => {
+    //     if (currentUserInfo)
+    //         setSelfUser(username === currentUserInfo.username);
+    // }, [currentUserInfo, username]);
+
+    // if (!realUser || (!loading && posts === false)) {
+    //     // setLoading(false);
+    //     return (
+    //         <div>
+    //             <Header />
+    //             <div style={{ textAlign: "center", marginLeft: "20%", marginRight: "20%", marginTop: "5%" }}>
+    //                 <Result
+    //                     status="404"
+    //                     title="That's weird :\"
+    //                     subTitle="The page you visited does not exist."
+    //                 // extra={<Button type="primary">Back Home</Button>}
+    //                 />
+    //             </div>
+    //         </div>
+    //     )
+    // }
+
+    // if ((loading || !currentUserInfo || !currentUser)) {
+    //     return (
+    //         <div>
+    //             <Header />
+    //             <Col span="12" style={{ marginLeft: "20%", marginRight: "20%", marginTop: "5%", textAlign: "center" }}>
+    //                 <Spin size="large" />
+    //             </Col>
+    //         </div>
+    //     );
+    // }
+    // else {
+    //     console.log("LOADING DONE!111 ", otherUserInfo);
+    //     console.log("LOADING DONE!222 ", currentUserInfo);
+    //     console.log("LOADING DONE!333 ", posts);
+
+    //     // console.log('')
+    // }
+
     useEffect(() => {
+        if (currentUserInfo?.username === username) {
+            setLoading(false);
+            setSelfUser(true);
+            firebase.database().ref("Postsv2").child(currentUser?.uid!).on("value", async ssh => {
+                // console.log(ssh.val());
 
-        console.log("CHECKING IN!", selfUser);
-
-        if (!currentUser || selfUser === null) {
-            // setLoading(false);
-            // setRealUser(false);
-            return;
-        }
-        // let unSub_1: any = null;
-        // let unSub_2: any = null;
-        // let unSub_3: any = null;
-
-        if (selfUser) {
-            console.log("GOING IN!");
-
-            //to make it real time, when some action happens in main post node, push/ovw data to this loc
-            const unSub_1 = firebase.database().ref("Users").child(currentUser!.uid).child("Posts").on("value", async (snapshot) => {
-                if (snapshot.exists()) {
-                    // console.log("USE EFFECT RUNNING ", snapshot.val());
-
+                if (ssh.exists()) {
                     let ttt: Array<firebase.database.DataSnapshot> = [];
-                    let postIds: Array<string> = [];
-                    snapshot.forEach((userPost) => {
-                        postIds.push(userPost.key!);
+
+                    ssh.forEach(post => {
+                        ttt.push(post)
+
                     });
 
-                    const awaitPushPostIds = async () => {
-                        for (let i = 0; i < postIds.length; i++) {
-                            await firebase.database().ref("Posts").child(postIds[i]).once("value", mainPost => {
-                                if (mainPost.exists()) {
-                                    ttt.push(mainPost);
-                                }
-                                // console.log("======TTTTT======", currentUserTtt);
-                            })
-                        }
-                    }
 
-                    await awaitPushPostIds();
+                    console.log("==== POST IDS: ", ttt);
 
+                    setPosts(await awaitFillPosts(ttt, currentUserInfo!))
 
-                    // postIds.map(async (postId) => {
-                    //     await firebase.database().ref("Posts").child(postId).once("value", mainPost => {
-                    //         currentUserTtt.push(mainPost);
-                    //         console.log("======TTTTT======", currentUserTtt);
-                    //     })
-                    // });
-
-
-                    console.log("======TTTTT======", ttt);
-
-
-                    const newPosts = await awaitFillPosts(ttt, currentUserInfo!);
-
-                    setPosts(newPosts)
-                    setLoading(false);
-                    setRealUser(true);
-
-                    ttt = [];
                 }
                 else {
                     setPosts([]);
-                    setLoading(false);
-                    setRealUser(false);
                 }
+            }, (error: any) => {
+                console.log(error);
+
             })
-
-            return () => firebase.database().ref("Posts").off("value", unSub_1);
         }
-        else {
-            try {
 
-                //to make it real time, when some action happens in main users node, push/ovw data to this loc
-                const unSub_2 = firebase.database().ref("Credentials").child("Usernames").child(username).on("value", otherUser => {
-                    if (otherUser.exists()) {
-                        const otherUid = otherUser.val().uid;
-                        console.log("OTHER UID: ", otherUid);
+    }, [currentUserInfo, username])
 
-                        firebase.database().ref("Users").child(otherUid).once("value", async userInfo => {
-                            if (userInfo.exists()) {
-                                setOtherUserInfo(userInfo.val());
+    useEffect(() => {
+        const decodeProfile = async () => {
+            if (!currentUser) return;
 
-                                let ttt: Array<firebase.database.DataSnapshot> = [];
-                                let postIds: Array<string> = [];
-                                userInfo.child("Posts").forEach((otherUserPost) => {
-                                    postIds.push(otherUserPost.key!);
-                                });
+            const token = await currentUser.getIdToken(true);
 
-                                const awaitPushPostIds = async () => {
-                                    for (let i = 0; i < postIds.length; i++) {
-                                        await firebase.database().ref("Posts").child(postIds[i]).once("value", mainPost => {
-                                            if (mainPost.exists()) {
-                                                if (mainPost.val().privacy === PostPrivacy.PUBLIC) {
-                                                    ttt.push(mainPost);
-                                                }
-                                            }
-                                        })
-                                    }
-                                }
+            //Get eligible posts for the user
+            const result = await axios.post("http://localhost:5000/openpaarty/us-central1/api/v1/users/can-view-user-profile", {
+                targetUsername: username
+            }, {
+                headers: {
+                    authorization: `Bearer ${token}`
+                }
+            });
 
-                                await awaitPushPostIds();
+            console.log(result.data);
 
-                                console.log("==== POST IDS: ", postIds);
-                                
+            if (result.data.success) {
+                if (result.data.selfUser) {
+                    setLoading(false)
+                    setSelfUser(true)
+                }
+                else {
+                    if (result.data.privacy === "following") {
+                        firebase.database().ref("Users").child(result.data.targetUid).on("value", ssh => {
+                            console.log(ssh.val());
 
-                                // postIds.map((postId) => {
-                                //     return firebase.database().ref("Posts").child(postId).once("value", mainPost => {
-                                //         if (mainPost.val().privacy === PostPrivacy.PUBLIC) {
-                                //             ttt.push(mainPost);
-                                //         }
+                            setLoading(false)
+                            setOtherUserInfo(ssh.val());
+                        }, (error: any) => {
+                            console.log(error);
 
-                                //     })
-                                // })
-
-                                // const newPosts = await awaitFillPosts(ttt, otherUserInfo!);
-                                const newPosts = await awaitFillPosts(ttt, userInfo.val());
-
-                                setPosts(newPosts)
-                                setLoading(false);
-                                setRealUser(true);
-
-                                ttt = [];
-                            }
-                            else {
-                                setPosts(false);
-                                setLoading(false);
-                                setRealUser(false);
-                            }
                         })
+
                     }
-                    else {
-                        setPosts(false);
-                        setLoading(false);
+                    else if (result.data.privacy === "closed") {
+                        setLoading(false)
+                        setOtherUserInfo(result.data.targetUser)
+                        setOtherUserPrivacy(true)
+
+                    }
+                    else if (result.data.code === 404) {
+                        setLoading(false)
                         setRealUser(false);
                     }
-                })
-
-                return () => firebase.database().ref("Credentials").child("Usernames").child(username).off("value", unSub_2);
-
-            } catch (error) {
-                console.log(error);
-                // unSub_2 = null;
-                setPosts(false);
-                setLoading(false);
-                setRealUser(false);
+                }
             }
 
         }
 
-    }, [currentUser, selfUser, username, currentUserInfo])
 
-    useEffect(() => {
-        if (currentUserInfo)
-            setSelfUser(username === currentUserInfo.username);
-    }, [currentUserInfo, username]);
+        decodeProfile();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [currentUser, username])
 
-    if (!realUser || (!loading && posts === false)) {
-        // setLoading(false);
+    if (!realUser) {
         return (
             <div>
                 <Header />
@@ -246,7 +369,7 @@ const UserProfile = (props: IUserProps) => {
         )
     }
 
-    if ((loading || !currentUserInfo || !currentUser)) {
+    if (loading) {
         return (
             <div>
                 <Header />
@@ -255,13 +378,6 @@ const UserProfile = (props: IUserProps) => {
                 </Col>
             </div>
         );
-    }
-    else {
-        console.log("LOADING DONE!111 ", otherUserInfo);
-        console.log("LOADING DONE!222 ", currentUserInfo);
-        console.log("LOADING DONE!333 ", posts);
-
-        // console.log('')
     }
 
 
@@ -273,98 +389,101 @@ const UserProfile = (props: IUserProps) => {
             <Header />
             <div style={{ marginLeft: "20%", marginRight: "20%", marginTop: "10%" }}>
                 {
-                    selfUser === true && currentUserInfo ?
+                    selfUser && currentUserInfo ?
                         (
                             <div>
 
-                            <Row style={{ alignItems: "center" }}>
-                                <Avatar
-                                    src={currentUserInfo!.image_url}
-                                    size={150}
-                                />
-                                <div style={{ marginLeft: 50 }}>
-                                    <Col style={{ justifyContent: "space-between", alignItems: "center" }}>
-                                        <h1 style={{ marginBottom: 5, marginTop: 15, fontWeight: "bold", }}>
-                                            {currentUserInfo!.username}
-                                        </h1>
-                                        <h1>
-                                            Edit
+                                <Row style={{ alignItems: "center" }}>
+                                    <Avatar
+                                        src={currentUserInfo!.image_url}
+                                        size={150}
+                                    />
+                                    <div style={{ marginLeft: 50 }}>
+                                        <Col style={{ justifyContent: "space-between", alignItems: "center" }}>
+                                            <h1 style={{ marginBottom: 5, marginTop: 15, fontWeight: "bold", }}>
+                                                {currentUserInfo!.username}
+                                            </h1>
+                                            <h1>
+                                                Edit
                                     </h1>
-                                    </Col>
+                                        </Col>
 
-                                    <Row style={{ justifyContent: "space-between", alignItems: "center" }}>
-                                        <p style={{ marginRight: 20 }}>{(posts as Post[]).length} Posts</p>
-                                        <p style={{ marginRight: 20 }}>{currentUserInfo!.followers_count} Followers</p>
-                                        <p>{currentUserInfo!.following_count} Following</p>
-                                    </Row>
+                                        <Row style={{ justifyContent: "space-between", alignItems: "center" }}>
+                                            <p style={{ marginRight: 20 }}>{(posts as Post[]).length} Posts</p>
+                                            <p style={{ marginRight: 20 }}>{currentUserInfo!.followers_count} Followers</p>
+                                            <p>{currentUserInfo!.following_count} Following</p>
+                                        </Row>
+                                    </div>
+                                </Row>
+
+                                <hr />
+                                <div className='posts__container'>
+                                    {(posts as Post[]).length > 0 ? (
+                                        (posts as Post[]).map((post, index) =>
+                                            <MyPost key={index} post={post} />
+                                        )
+                                    ) : (
+                                            <h1 style={{ textAlign: "center" }}>You Have No Posts</h1>
+                                        )
+                                    }
                                 </div>
-                            </Row>
-
-                            <hr />
-                            <div className='posts__container'>
-                                {(posts as Post[]).length > 0 ? (
-                                    (posts as Post[]).map((post, index) =>
-                                        <MyPost key={index} post={post} />
-                                    )
-                                ) : (
-                                        <h1 style={{ textAlign: "center" }}>"You Have No Posts</h1>
-                                    )
-                                }
-                            </div>
 
                             </div>
 
                         )
                         :
-                        selfUser === false && otherUserInfo ? (
+                        !selfUser && otherUserInfo ? (
                             <div>
 
-                            <Row style={{ alignItems: "center" }}>
-                                <Avatar
-                                    src={otherUserInfo!.image_url}
-                                    size={150}
-                                />
-                                <div style={{ marginLeft: 50 }}>
-                                    <Col style={{ justifyContent: "space-between", alignItems: "center" }}>
-                                        <h1 style={{ marginBottom: 5, marginTop: 15, fontWeight: "bold", }}>
-                                            {otherUserInfo!.username}
-                                        </h1>
-                                        <h1>
-                                            Follow
+                                <Row style={{ alignItems: "center" }}>
+                                    <Avatar
+                                        src={otherUserInfo!.image_url}
+                                        size={150}
+                                    />
+                                    <div style={{ marginLeft: 50 }}>
+                                        <Col style={{ justifyContent: "space-between", alignItems: "center" }}>
+                                            <h1 style={{ marginBottom: 5, marginTop: 15, fontWeight: "bold", }}>
+                                                {otherUserInfo!.username}
+                                            </h1>
+                                            <h1>
+                                                Follow
                                     </h1>
-                                    </Col>
+                                        </Col>
 
-                                    <Row style={{ justifyContent: "space-between", alignItems: "center" }}>
-                                        <p style={{ marginRight: 20 }}>{(posts as Post[]).length} Posts</p>
-                                        <p style={{ marginRight: 20 }}>{otherUserInfo!.followers_count} Followers</p>
-                                        <p>{otherUserInfo!.following_count} Following</p>
-                                    </Row>
+                                        <Row style={{ justifyContent: "space-between", alignItems: "center" }}>
+                                            <p style={{ marginRight: 20 }}>{(posts as Post[]).length} Posts</p>
+                                            <p style={{ marginRight: 20 }}>{otherUserInfo!.followers_count} Followers</p>
+                                            <p>{otherUserInfo!.following_count} Following</p>
+                                        </Row>
+                                    </div>
+                                </Row>
+
+                                <hr />
+                                <div className='posts__container'>
+                                    {!otherUserPrivacy ?
+                                        (posts as Post[]).length > 0 ? (
+                                            (posts as Post[]).map((post, index) =>
+                                                <MyPost key={index} post={post} />
+                                            )
+                                        ) : (
+                                                <h1 style={{ textAlign: "center" }}><Empty /></h1>
+                                            )
+                                        : <p>This user's profile is private. Follow them to see more</p>
+                                    }
                                 </div>
-                            </Row>
-
-                            <hr />
-                            <div className='posts__container'>
-                                {(posts as Post[]).length > 0 ? (
-                                    (posts as Post[]).map((post, index) =>
-                                        <MyPost key={index} post={post} />
-                                    )
-                                ) : (
-                                        <h1 style={{ textAlign: "center" }}><Empty /></h1>
-                                    )
-                                }
-                             </div>
 
                             </div>
 
                         )
                             :
                             (
-                                <Result
-                                    status="403"
-                                    title="That's weird :\"
-                                    subTitle="The page you visited does not exist."
-                                // extra={<Button type="primary">Back Home</Button>}
-                                />
+                                <Spin />
+                                // <Result
+                                //     status="403"
+                                //     title="That's weird :\"
+                                //     subTitle="The page you visited does not exist."
+                                // // extra={<Button type="primary">Back Home</Button>}
+                                // />
                             )
                 }
             </div>

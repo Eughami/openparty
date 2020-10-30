@@ -20,6 +20,8 @@ firebase.initializeApp({
   measurementId: "G-1GCM1NG8CM"
 });
 
+localStorage.removeItem("postsSet");
+
 ReactDOM.render(
   <Provider store={store}>
     <BrowserRouter>

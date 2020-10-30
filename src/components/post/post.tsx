@@ -9,6 +9,7 @@ import firebase from 'firebase';
 
 import { setCurrentUserListener, setCurrentUserRootDatabaseListener } from '../../redux/user/user.actions';
 import { RegistrationObject } from '../../components/interfaces/user.interface';
+import { Link } from "react-router-dom";
 interface IPostProps {
     setCurrentUserListener?: () => Promise<any>,
     setCurrentUserRootDatabaseListener?: (uid: string) => Promise<any>,
@@ -98,7 +99,14 @@ const Post = (props: IPostProps) => {
                         <img src={avatar_url} alt={username} />
                     </div>
                     <div className="Post-user-nickname">
-                        <span> {username} </span>
+                        <Link
+                            to={{
+                                pathname: `/profile/${username}`,
+                            }}
+                        >
+                            <span> {username} </span>
+                        </Link>
+
                     </div>
                 </div>
             </header>
@@ -145,7 +153,14 @@ const Post = (props: IPostProps) => {
                 {
                     comments && Object.values(comments).map((comment: Comment, index: number) =>
                         <Row style={{ alignContent: "center" }} key={index}>
-                            <span style={{ fontWeight: "bold" }}>{comment.user.username} </span>
+                            <Link
+                                to={{
+                                    pathname: `/profile/${comment.user.username}`,
+                                }}
+                            >
+                                <span style={{ fontWeight: "bold" }}>{comment.user.username} </span>
+                            </Link>
+
                             <span style={{ marginLeft: 10 }}>{comment.comment}</span><br />
                             {/* <span style={{ marginLeft: 10, float: "right" }}>{"16 Oct 2020"}</span><br /> */}
                         </Row>

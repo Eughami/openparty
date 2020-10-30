@@ -12,7 +12,7 @@ const Homepage = ({ currentUserInfo }: any) => {
 
   return (
     <>
-      {/* <Header /> */}
+      <Header />
       <Row className='body__container'>
         <Col xs={{ span: 0 }} xl={{ span: 4, offset: 0 }} span={6}>
           {/* <div style={{border: 'black solid', height: '300px',width: '100%'}}></div> */}

@@ -174,6 +174,7 @@ const Posts = (props: IPostsProps) => {
                 })
             }, { concurrency: result.data.uFP.length }).then(() => {
                 console.log("DONE MAPPING");
+                setLoading(false)
             })
 
         }
@@ -181,6 +182,16 @@ const Posts = (props: IPostsProps) => {
         getEligible();
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
+
+
+    if (loading) {
+        return (
+            <Col span="12" style={{ marginLeft: "20%", marginRight: "20%", marginTop: "5%", textAlign: "center" }}>
+                <Spin size="large" />
+            </Col>
+        )
+    }
+
 
     return (
         <div className='posts__container'>
@@ -195,13 +206,7 @@ const Posts = (props: IPostsProps) => {
 
 
 
-    // if (loading) {
-    //     return (
-    //         <Col span="12" style={{ marginLeft: "20%", marginRight: "20%", marginTop: "5%", textAlign: "center" }}>
-    //             <Spin size="large" />
-    //         </Col>
-    //     )
-    // }
+
 
     // return (
     //     <div className='posts__container'>

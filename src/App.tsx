@@ -35,8 +35,8 @@ const App = (props: IAppProps) => {
   }, [currentUser, setCurrentUserListener])
 
   useEffect(() => {
-    // if (!currentUserInfo && currentUser)
-    //   setCurrentUserRootDatabaseListener!(currentUser.uid);
+    if (!currentUserInfo && currentUser)
+      setCurrentUserRootDatabaseListener!(currentUser.uid);
   }, [currentUserInfo, setCurrentUserRootDatabaseListener, currentUser])
 
 
