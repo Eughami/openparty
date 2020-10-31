@@ -71,4 +71,5 @@ export interface RegistrationObject {
   image_url: string,
   posts_count: number,
   Posts: Array<string>,
+  privacy: string,
 } 

@@ -5,6 +5,7 @@ import { API_BASE_URL, REGISTRATION_ENDPOINT } from '../../service/api';
 import { toast } from 'react-toastify';
 import { resolve } from 'dns';
 
+
 export const googleSignInStart = () => ({
   type: UserActionTypes.GOOGLE_SIGN_IN_START,
 });
@@ -58,6 +59,11 @@ export const setCurrentUserListener = () => (dispatch: any) =>
         console.log('AUTH STATE CHANGED! ', user);
 
         if (user) {
+          const token = await user.getIdToken(true);
+          console.log(token);
+
+          localStorage.setItem("userToken", token);
+
           dispatch({ type: UserActionTypes.SET_CURRENT_USER, payload: user });
         } else {
           dispatch({ type: UserActionTypes.SIGN_OUT_SUCCESS });

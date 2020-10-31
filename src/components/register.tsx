@@ -19,6 +19,7 @@ import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
 import { toast, ToastContainer } from 'react-toastify';
 import { RegistrationObject } from './interfaces/user.interface';
 
+
 const { Option } = Select;
 
 const formItemLayout = {
@@ -54,8 +55,9 @@ const tailFormItemLayout = {
 };
 
 const RegistrationForm = ({ emailSignInStart, signUpStart, history }: any) => {
+
   const [form] = Form.useForm();
-  const [registerWorking, setRegisterWorking] = useState(false);
+  const [registerWorking, setRegisterWorking] = useState<boolean>(false);
 
   // console.log('REGISTRATION FORM PROPS: ', props);
 
@@ -80,6 +82,7 @@ const RegistrationForm = ({ emailSignInStart, signUpStart, history }: any) => {
       console.log('REGISTRATION FAILED');
       setRegisterWorking(false);
     }
+
   };
 
   const prefixSelector = (
@@ -250,3 +253,4 @@ const mapsDispatchToProps = (dispatch: any) => ({
 });
 
 export default connect(null, mapsDispatchToProps)(RegistrationForm);
+

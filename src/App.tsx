@@ -22,6 +22,7 @@ import RegistrationForm from './components/register';
 import UserProfile from './components/user-info';
 import { RegistrationObject } from './components/interfaces/user.interface';
 import { Col, Spin } from 'antd';
+import firebase from 'firebase';
 
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -35,49 +36,55 @@ interface IAppProps extends RouteComponentProps<any> {
 }
 
 const App = (props: IAppProps) => {
-  const {
-    currentUser,
-    currentUserInfo,
-    setCurrentUserListener,
-    setCurrentUserRootDatabaseListener,
-  } = props;
-
-  console.log('APP.TSX PROPS:  ', currentUser);
-
-  const [loadingCredentials, setLoadingCredentials] = useState<boolean>(true);
+  const { currentUser, currentUserInfo, setCurrentUserListener, setCurrentUserRootDatabaseListener } = props;
 
   useEffect(() => {
     if (!currentUser)
       setCurrentUserListener!()
-        .then(() => {
-          setLoadingCredentials(false);
-        })
-        .catch(() => {
-          setLoadingCredentials(false);
-        });
-  }, [currentUser, setCurrentUserListener]);
+
+  }, [currentUser, setCurrentUserListener])
 
   useEffect(() => {
     if (!currentUserInfo && currentUser)
       setCurrentUserRootDatabaseListener!(currentUser.uid);
-  }, [currentUserInfo, setCurrentUserRootDatabaseListener, currentUser]);
-  console.log('APP.TSX PROPS:  ', currentUser?.getIdToken());
+  }, [currentUserInfo, setCurrentUserRootDatabaseListener, currentUser])
 
-  if (loadingCredentials) {
-    return (
-      <Col
-        span="12"
-        style={{
-          marginLeft: '20%',
-          marginRight: '20%',
-          marginTop: '5%',
-          textAlign: 'center',
-        }}
-      >
-        <Spin size="large" />
-      </Col>
-    );
-  }
+
+  console.log("APP.TSX PROPS:  ", currentUser);
+
+  // useEffect(() => {
+  //   if (!currentUser) return;
+  //   console.log("@DB TEST EFFECT ", currentUser?.email);
+
+  //   firebase.database().ref("Postsv2").child("iILfbJyqoPaoV5yjPZuMwIBXCVn1/0").on("value", snapshot => {
+  //     console.log("@DB DEBUG ", snapshot.val());
+
+  //   }, (error: any) => {
+  //     console.log(error);
+
+  //   })
+  // }, [currentUser])
+
+  // return (
+  //   <div>
+  //     {
+  //       currentUser ?
+  //         currentUser.uid : "TESTING"
+
+  //     }
+  //   </div>
+  // );
+
+
+  // const [loadingCredentials, setLoadingCredentials] = useState<boolean>(true);
+
+  // if (loadingCredentials) {
+  //   return (
+  //     <Col span="12" style={{ marginLeft: "20%", marginRight: "20%", marginTop: "5%", textAlign: "center" }}>
+  //       <Spin size="large" />
+  //     </Col>
+  //   );
+  // }
 
   return (
     <div className="App">
@@ -117,10 +124,6 @@ const App = (props: IAppProps) => {
     </div>
   );
 };
-
-// const mapStateToProps = createStructuredSelector({
-//   currentUser: selectCurrentUser,
-// });
 
 const mapStateToProps = (state: any) => {
   return {

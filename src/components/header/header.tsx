@@ -7,6 +7,7 @@ import { connect } from 'react-redux';
 import { setCurrentUserListener, setCurrentUserRootDatabaseListener } from '../../redux/user/user.actions';
 import { RegistrationObject } from "../interfaces/user.interface";
 import firebase from "firebase";
+import { Link } from "react-router-dom";
 
 interface IHeaderProps {
     setCurrentUserListener?: () => Promise<any>,
@@ -20,22 +21,45 @@ const Header = (props: IHeaderProps) => {
         <nav className="Nav">
             <div className="Nav-menus">
                 <div className="Nav-brand">
-                    <a href="/">
+                    <Link
+                        to={{
+                            pathname: "/",
+                        }}
+                    >
+
                         <img style={{ height: "100%", width: "40%" }} src={OpenPartyLogo} alt="open-party" />
-                    </a>
+                    </Link>
+                    {/* <a href="/">
+                    </a> */}
                 </div>
                 <Col className='' xs={{ span: 0 }} lg={{ span: 6, offset: 2 }} xxl={{ span: 5, offset: 1 }}>SearchBar</Col>
                 <Col className='' offset={1} span={6}>
                     <Row style={{ alignItems: "center", justifyContent: "space-around" }}>
                         <Col span="4">
-                            <span>
+                            <Link
+                                className="nav-link"
+                                to={{
+                                    pathname: `/`,
+                                }}
+                            >
                                 <HomeOutlined size={25} />
-                            </span>
+                            </Link>
+                            {/* <span>
+                                <HomeOutlined size={25} />
+                            </span> */}
                         </Col>
                         <Col span="4">
-                            <span>
+                            <Link
+                                className="nav-link"
+                                to={{
+                                    pathname: `/profile/${props.currentUserInfo?.username}`,
+                                }}
+                            >
+                                <UserOutlined size={25} />
+                            </Link>
+                            {/* <span>
                                 <UserOutlined size={25} onClick={() => window.location.replace(`/profile/${props.currentUserInfo!.username}`)} />
-                            </span>
+                            </span> */}
                         </Col>
                         <Col span="4">
                             <span>
