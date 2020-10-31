@@ -1,9 +1,18 @@
 import React, { useEffect, useState } from 'react';
-import { Switch, Route, Redirect } from "react-router-dom";
+import {
+  Switch,
+  Route,
+  Redirect,
+  withRouter,
+  RouteComponentProps,
+} from 'react-router-dom';
 import { connect } from 'react-redux';
 // import { createStructuredSelector } from 'reselect';
 // import { selectCurrentUser } from './redux/user/user.selectors';
-import { setCurrentUserListener, setCurrentUserRootDatabaseListener } from './redux/user/user.actions';
+import {
+  setCurrentUserListener,
+  setCurrentUserRootDatabaseListener,
+} from './redux/user/user.actions';
 
 import './App.css';
 import Homepage from './components/homepage';
@@ -15,14 +24,15 @@ import { RegistrationObject } from './components/interfaces/user.interface';
 import { Col, Spin } from 'antd';
 import firebase from 'firebase';
 
+import 'react-toastify/dist/ReactToastify.css';
+
 // const currentUser = true
 
-
-interface IAppProps {
-  setCurrentUserListener?: () => Promise<any>,
-  setCurrentUserRootDatabaseListener?: (uid: string) => Promise<any>,
-  currentUser?: firebase.User,
-  currentUserInfo?: RegistrationObject
+interface IAppProps extends RouteComponentProps<any> {
+  setCurrentUserListener?: () => Promise<any>;
+  setCurrentUserRootDatabaseListener?: (uid: string) => Promise<any>;
+  currentUser?: firebase.User;
+  currentUserInfo?: RegistrationObject;
 }
 
 const App = (props: IAppProps) => {
@@ -82,29 +92,38 @@ const App = (props: IAppProps) => {
         <Switch>
           <Route exact path="/" component={Homepage} />
           <Route exact path="/profile/:username" component={UserProfile} />
-          {/* <Route
+          <Route
             exact
             path="/login"
-            render={() => (currentUser ? <Redirect to="/" /> : <Redirect to="/" />)}
-          /> */}
-          <Route component={Homepage} />
+            render={() =>
+              currentUser ? <Redirect to="/" /> : <Redirect to="/" />
+            }
+          />
+          {/* <Route component={Homepage} /> */}
         </Switch>
       ) : (
-          <Switch>
-            {/* <Route path='/login' component={Login} />
-              <Route path='/register' component={RegistrationForm} />
+        <Switch>
+          <Route
+            exact
+            path="/"
+            render={() =>
+              !currentUser ? <Redirect to="/login" /> : <Redirect to="/" />
+            }
+          />
+          <Route path="/login" component={Login} />
+          {/* <Route path='/register' component={RegistrationForm} />
               <Redirect
                 to={{
                   pathname: window.location.pathname === "/register" ? '/register' : "/login"
                 }}
               /> */}
-            <Route exact path='/register' component={RegistrationForm} />
-            <Route component={Login} />
-          </Switch>
-        )}
+          <Route exact path="/register" component={RegistrationForm} />
+          <Route component={Login} />
+        </Switch>
+      )}
     </div>
   );
-}
+};
 
 const mapStateToProps = (state: any) => {
   return {
@@ -116,9 +135,9 @@ const mapStateToProps = (state: any) => {
 const mapDispatchToProps = (dispatch: any) => {
   return {
     setCurrentUserListener: () => dispatch(setCurrentUserListener()),
-    setCurrentUserRootDatabaseListener: (uid: string) => dispatch(setCurrentUserRootDatabaseListener(uid))
-  }
+    setCurrentUserRootDatabaseListener: (uid: string) =>
+      dispatch(setCurrentUserRootDatabaseListener(uid)),
+  };
+};
 
-}
-
-export default connect(mapStateToProps, mapDispatchToProps)(App);
+export default connect(mapStateToProps, mapDispatchToProps)(withRouter(App));
