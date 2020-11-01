@@ -2174,6 +2174,13 @@
     "@types/history" "*"
     "@types/react" "*"
 
+"@types/react-timeago@^4.1.1":
+  version "4.1.1"
+  resolved "https://registry.yarnpkg.com/@types/react-timeago/-/react-timeago-4.1.1.tgz#14c24cb8c1299379d9c2941ca3373f849d8bc78a"
+  integrity sha512-Rokr09qNqkKXpKwrDVYzGz/mGlmgX5ZdxAJToUehMyRHXEwtXUUNaAZur5RoZ5JtukBwXKzDevS72Axtjm+yKg==
+  dependencies:
+    "@types/react" "*"
+
 "@types/react@*", "@types/react@^16.9.0":
   version "16.9.53"
   resolved "https://registry.yarnpkg.com/@types/react/-/react-16.9.53.tgz#40cd4f8b8d6b9528aedd1fff8fcffe7a112a3d23"
@@ -11680,6 +11687,11 @@ react-scripts@3.4.3:
     workbox-webpack-plugin "4.3.1"
   optionalDependencies:
     fsevents "2.1.2"
+
+react-timeago@^5.2.0:
+  version "5.2.0"
+  resolved "https://registry.yarnpkg.com/react-timeago/-/react-timeago-5.2.0.tgz#d655d40aa55e4fe08a92234481a6aea7f656ab5d"
+  integrity sha512-wCEEDGQHMdFh/PLp+Hj5vk9ZoC4KjQ5u0u6+KrrY9rny5LqJ2gZvNNEAS4mhSZDV1i7JLgQI5VQTAux7f+vj2w==
 
 react@^16.14.0:
   version "16.14.0"

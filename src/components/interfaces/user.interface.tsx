@@ -38,7 +38,7 @@ export interface PostTags_v2 {
 export interface Post {
   user_id: string, //ID of the user owning the post
   location?: Map<number, number> //Lat & Lng of the location of the post
-  likes: number,
+  likes: Array<string>,
   age_rating?: AgeRating,
   image_url?: string,
   caption: string,

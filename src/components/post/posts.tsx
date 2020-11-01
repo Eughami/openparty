@@ -14,6 +14,7 @@ interface IPostsProps {
     currentUser?: firebase.User,
     currentUserInfo?: RegistrationObject,
     fromProfile?: boolean,
+    currentUserEligiblePosts?: Array<any> ,
 }
 
 /**
@@ -113,8 +114,8 @@ export const awaitFillPosts = async (posts: Array<firebase.database.DataSnapshot
 };
 
 const Posts = (props: IPostsProps) => {
-    const { currentUser, currentUserInfo } = props;
-
+    const { currentUser, currentUserInfo, currentUserEligiblePosts } = props;
+ 
     console.log("CARDS.TSX PROPS: ", props);
 
     const [loading, setLoading] = useState<boolean>(true)
@@ -123,32 +124,23 @@ const Posts = (props: IPostsProps) => {
     useEffect(() => {
         if (!currentUser) return;
         const getEligible = async () => {
-
-            const token = await currentUser.getIdToken(true);
-
-            //Get eligible posts for the user
-            const result = await axios.get("http://localhost:5000/openpaarty/us-central1/api/v1/posts/users-eligible-post", {
-                headers: {
-                    authorization: `Bearer ${token}`
-                }
-            });
-
+            
             let temp: any = {};
-            await bluebird.map(result.data.uFP, async (obj: { uidRef: string, postRef: string }, index: number) => {
+            await bluebird.map(currentUserEligiblePosts!, async (obj: { uidRef: string, postRef: string }, index: number) => {
                 firebase.database().ref("Postsv2").child(obj.uidRef).child(obj.postRef).on("value", async ssh => {
 
-                    //No need to check post privacy again because all posts we have access to are here
-                    temp[ssh.key!] = ssh.val();
-                    temp[ssh.key!].key = ssh.key!;
+                    //No need to check post privacy again because all posts we have access to are here?
+                    temp[`${obj.uidRef + obj.postRef}`] = ssh.val();
+                    temp[`${obj.uidRef + obj.postRef}`].key = `${obj.uidRef + obj.postRef}`;
 
                     if (localStorage.getItem("postsSet")) {
-                        temp[ssh.key!] = ssh.val();
-                        temp[ssh.key!].key = ssh.key!;
+                        temp[`${obj.uidRef + obj.postRef}`] = ssh.val();
+                        temp[`${obj.uidRef + obj.postRef}`].key = `${obj.uidRef + obj.postRef}`;
 
                         setPosts(Object.values(temp));
                     }
 
-                    if (index === result.data.uFP.length - 1 && !localStorage.getItem("postsSet")) {
+                    if (index === currentUserEligiblePosts!.length - 1 && !localStorage.getItem("postsSet")) {
 
                         setPosts(Object.values(temp));
 
@@ -172,7 +164,7 @@ const Posts = (props: IPostsProps) => {
                     }
 
                 })
-            }, { concurrency: result.data.uFP.length }).then(() => {
+            }, { concurrency: currentUserEligiblePosts!.length }).then(() => {
                 console.log("DONE MAPPING");
                 setLoading(false)
             })
@@ -181,7 +173,7 @@ const Posts = (props: IPostsProps) => {
 
         getEligible();
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [])
+    }, [currentUserEligiblePosts])
 
 
     if (loading) {
@@ -226,6 +218,7 @@ const mapStateToProps = (state: any) => {
     return {
         currentUser: state.user.currentUser,
         currentUserInfo: state.user.userInfo,
+        currentUserEligiblePosts: state.user.currentUserEligiblePosts,
     };
 };
 

@@ -51,7 +51,7 @@ export const setCurrentUserListener = () => (dispatch: any) =>
         console.log("AUTH STATE CHANGED! ", user);
 
         if (user) {
-          const token = await user.getIdToken(true);
+          const token = await user.getIdToken();
           console.log(token);
 
           localStorage.setItem("userToken", token);
@@ -81,6 +81,28 @@ export const setCurrentUserRootDatabaseListener = (uid: string) => (dispatch: (a
         dispatch({ type: UserActionTypes.DATABASE_LISTENER_START, payload: userSnap.val() });
         resolve(userSnap.val());
       })
+
+    } catch (error) {
+      reject(error)
+    }
+
+  });
+
+  export const setCurrentUserEligiblePosts = (currentUser: firebase.User) => (dispatch: (arg0: { type: string; payload: any; }) => void) =>
+  new Promise(async (resolve, reject) => {
+
+    try {
+      const token = await currentUser.getIdToken();
+
+      //Get eligible posts for the user
+      const result = await axios.get("http://localhost:5000/openpaarty/us-central1/api/v1/posts/users-eligible-post", {
+          headers: {
+              authorization: `Bearer ${token}`
+          }
+      });
+
+      dispatch({ type: UserActionTypes.SET_CURRENT_USER_ELIGIBLE_POSTS, payload: result.data.uFP });
+      resolve(result);
 
     } catch (error) {
       reject(error)

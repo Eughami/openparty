@@ -3,7 +3,7 @@ import { Switch, Route, Redirect } from "react-router-dom";
 import { connect } from 'react-redux';
 // import { createStructuredSelector } from 'reselect';
 // import { selectCurrentUser } from './redux/user/user.selectors';
-import { setCurrentUserListener, setCurrentUserRootDatabaseListener } from './redux/user/user.actions';
+import { setCurrentUserListener, setCurrentUserRootDatabaseListener, setCurrentUserEligiblePosts } from './redux/user/user.actions';
 
 import './App.css';
 import Homepage from './components/homepage';
@@ -12,7 +12,8 @@ import Login from './components/login';
 import RegistrationForm from './components/register';
 import UserProfile from './components/user-info';
 import { RegistrationObject } from './components/interfaces/user.interface';
-import { Col, Spin } from 'antd';
+import { Tabs } from 'antd';
+
 import firebase from 'firebase';
 
 // const currentUser = true
@@ -21,12 +22,14 @@ import firebase from 'firebase';
 interface IAppProps {
   setCurrentUserListener?: () => Promise<any>,
   setCurrentUserRootDatabaseListener?: (uid: string) => Promise<any>,
+  setCurrentUserEligiblePosts?: (currentUser: firebase.User) => Promise<any>,
   currentUser?: firebase.User,
   currentUserInfo?: RegistrationObject
 }
 
 const App = (props: IAppProps) => {
-  const { currentUser, currentUserInfo, setCurrentUserListener, setCurrentUserRootDatabaseListener } = props;
+  const { currentUser, currentUserInfo, setCurrentUserListener, setCurrentUserRootDatabaseListener, setCurrentUserEligiblePosts } = props;
+  const { TabPane } = Tabs;
 
   useEffect(() => {
     if (!currentUser)
@@ -35,10 +38,12 @@ const App = (props: IAppProps) => {
   }, [currentUser, setCurrentUserListener])
 
   useEffect(() => {
-    if (!currentUserInfo && currentUser)
+    if (!currentUserInfo && currentUser) {
       setCurrentUserRootDatabaseListener!(currentUser.uid);
-  }, [currentUserInfo, setCurrentUserRootDatabaseListener, currentUser])
+      setCurrentUserEligiblePosts!(currentUser)
 
+    }
+  }, [currentUserInfo, setCurrentUserRootDatabaseListener, currentUser, setCurrentUserEligiblePosts])
 
   console.log("APP.TSX PROPS:  ", currentUser);
 
@@ -76,12 +81,14 @@ const App = (props: IAppProps) => {
   //   );
   // }
 
+
+
   return (
     <div className="App">
       {currentUser ? (
         <Switch>
           <Route exact path="/" component={Homepage} />
-          <Route exact path="/profile/:username" component={UserProfile} />
+          <Route exact path="/:username" component={UserProfile} />
           {/* <Route
             exact
             path="/login"
@@ -116,9 +123,9 @@ const mapStateToProps = (state: any) => {
 const mapDispatchToProps = (dispatch: any) => {
   return {
     setCurrentUserListener: () => dispatch(setCurrentUserListener()),
-    setCurrentUserRootDatabaseListener: (uid: string) => dispatch(setCurrentUserRootDatabaseListener(uid))
+    setCurrentUserRootDatabaseListener: (uid: string) => dispatch(setCurrentUserRootDatabaseListener(uid)),
+    setCurrentUserEligiblePosts: (currentUser: firebase.User) => dispatch(setCurrentUserEligiblePosts(currentUser)),
   }
-
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(App);

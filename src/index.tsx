@@ -21,6 +21,7 @@ firebase.initializeApp({
 });
 
 localStorage.removeItem("postsSet");
+localStorage.removeItem("otherUserPostsSet");
 
 ReactDOM.render(
   <Provider store={store}>

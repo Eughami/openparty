@@ -1,30 +1,34 @@
 import React, { useEffect, useState } from 'react';
-import { Avatar, Row, Spin, Col, Result, Button, Empty } from 'antd';
+import { Avatar, Row, Spin, Col, Result, Button, Empty, Popconfirm, message } from 'antd';
 import firebase from "firebase";
 import MyPost from './post/post';
 import { Post, PostPrivacy, RegistrationObject, Comment } from './interfaces/user.interface';
 import { connect } from 'react-redux';
-import { setCurrentUserListener, setCurrentUserRootDatabaseListener } from '../redux/user/user.actions';
+import { setCurrentUserListener, setCurrentUserRootDatabaseListener, setCurrentUserEligiblePosts } from '../redux/user/user.actions';
 // import { awaitFillPosts } from "./post/posts";
 import Header from "./header/header";
 import axios from "axios"
+import bluebird from "bluebird"
 
 interface IUserProps {
     setCurrentUserListener?: () => Promise<any>,
     setCurrentUserRootDatabaseListener?: (uid: string) => Promise<any>,
+    setCurrentUserEligiblePosts?: (currentUser: firebase.User) => Promise<any>,
     currentUser?: firebase.User,
     currentUserInfo?: RegistrationObject,
-    match?: any
+    match?: any,
+    currentUserEligiblePosts?: Array<any> ,
 }
 
 const UserProfile = (props: IUserProps) => {
     console.log("UserProfile Props: ", props);
-    const { currentUser, currentUserInfo } = props;
+    const { currentUser, currentUserInfo, currentUserEligiblePosts, setCurrentUserEligiblePosts } = props;
     const { username } = props.match.params;
 
     const [selfUser, setSelfUser] = useState<boolean | null>(false);
     const [otherUserInfo, setOtherUserInfo] = useState<RegistrationObject | null>(null);
     const [otherUserPrivacy, setOtherUserPrivacy] = useState<boolean>(false);
+    const [requestedFollow, setRequestedFollow] = useState<boolean>(false);
 
     const [loading, setLoading] = useState<boolean>(true);
     const [realUser, setRealUser] = useState<boolean>(true);
@@ -75,196 +79,6 @@ const UserProfile = (props: IUserProps) => {
 
     };
 
-    // useEffect(() => {
-
-    //     console.log("CHECKING IN!", selfUser);
-
-    //     if (!currentUser || selfUser === null) {
-    //         // setLoading(false);
-    //         // setRealUser(false);
-    //         return;
-    //     }
-    //     // let unSub_1: any = null;
-    //     // let unSub_2: any = null;
-    //     // let unSub_3: any = null;
-
-    //     if (selfUser) {
-    //         console.log("GOING IN!");
-
-    //         //to make it real time, when some action happens in main post node, push/ovw data to this loc
-    //         const unSub_1 = firebase.database().ref("Users").child(currentUser!.uid).child("Posts").on("value", async (snapshot) => {
-    //             if (snapshot.exists()) {
-    //                 // console.log("USE EFFECT RUNNING ", snapshot.val());
-
-    //                 let ttt: Array<firebase.database.DataSnapshot> = [];
-    //                 let postIds: Array<string> = [];
-    //                 snapshot.forEach((userPost) => {
-    //                     postIds.push(userPost.key!);
-    //                 });
-
-    //                 const awaitPushPostIds = async () => {
-    //                     for (let i = 0; i < postIds.length; i++) {
-    //                         await firebase.database().ref("Posts").child(postIds[i]).once("value", mainPost => {
-    //                             if (mainPost.exists()) {
-    //                                 ttt.push(mainPost);
-    //                             }
-    //                             // console.log("======TTTTT======", currentUserTtt);
-    //                         })
-    //                     }
-    //                 }
-
-    //                 await awaitPushPostIds();
-
-
-    //                 // postIds.map(async (postId) => {
-    //                 //     await firebase.database().ref("Posts").child(postId).once("value", mainPost => {
-    //                 //         currentUserTtt.push(mainPost);
-    //                 //         console.log("======TTTTT======", currentUserTtt);
-    //                 //     })
-    //                 // });
-
-
-    //                 console.log("======TTTTT======", ttt);
-
-
-    //                 const newPosts = await awaitFillPosts(ttt, currentUserInfo!);
-
-    //                 setPosts(newPosts)
-    //                 setLoading(false);
-    //                 setRealUser(true);
-
-    //                 ttt = [];
-    //             }
-    //             else {
-    //                 setPosts([]);
-    //                 setLoading(false);
-    //                 setRealUser(false);
-    //             }
-    //         })
-
-    //         return () => firebase.database().ref("Posts").off("value", unSub_1);
-    //     }
-    //     else {
-    //         try {
-
-    //             //to make it real time, when some action happens in main users node, push/ovw data to this loc
-    //             const unSub_2 = firebase.database().ref("Credentials").child("Usernames").child(username).on("value", otherUser => {
-    //                 if (otherUser.exists()) {
-    //                     const otherUid = otherUser.val().uid;
-    //                     console.log("OTHER UID: ", otherUid);
-
-    //                     firebase.database().ref("Users").child(otherUid).once("value", async userInfo => {
-    //                         if (userInfo.exists()) {
-    //                             setOtherUserInfo(userInfo.val());
-
-    //                             let ttt: Array<firebase.database.DataSnapshot> = [];
-    //                             let postIds: Array<string> = [];
-    //                             userInfo.child("Posts").forEach((otherUserPost) => {
-    //                                 postIds.push(otherUserPost.key!);
-    //                             });
-
-    //                             const awaitPushPostIds = async () => {
-    //                                 for (let i = 0; i < postIds.length; i++) {
-    //                                     await firebase.database().ref("Posts").child(postIds[i]).once("value", mainPost => {
-    //                                         if (mainPost.exists()) {
-    //                                             if (mainPost.val().privacy === PostPrivacy.PUBLIC) {
-    //                                                 ttt.push(mainPost);
-    //                                             }
-    //                                         }
-    //                                     })
-    //                                 }
-    //                             }
-
-    //                             await awaitPushPostIds();
-
-    //                             console.log("==== POST IDS: ", postIds);
-
-
-    //                             // postIds.map((postId) => {
-    //                             //     return firebase.database().ref("Posts").child(postId).once("value", mainPost => {
-    //                             //         if (mainPost.val().privacy === PostPrivacy.PUBLIC) {
-    //                             //             ttt.push(mainPost);
-    //                             //         }
-
-    //                             //     })
-    //                             // })
-
-    //                             // const newPosts = await awaitFillPosts(ttt, otherUserInfo!);
-    //                             const newPosts = await awaitFillPosts(ttt, userInfo.val());
-
-    //                             setPosts(newPosts)
-    //                             setLoading(false);
-    //                             setRealUser(true);
-
-    //                             ttt = [];
-    //                         }
-    //                         else {
-    //                             setPosts(false);
-    //                             setLoading(false);
-    //                             setRealUser(false);
-    //                         }
-    //                     })
-    //                 }
-    //                 else {
-    //                     setPosts(false);
-    //                     setLoading(false);
-    //                     setRealUser(false);
-    //                 }
-    //             })
-
-    //             return () => firebase.database().ref("Credentials").child("Usernames").child(username).off("value", unSub_2);
-
-    //         } catch (error) {
-    //             console.log(error);
-    //             // unSub_2 = null;
-    //             setPosts(false);
-    //             setLoading(false);
-    //             setRealUser(false);
-    //         }
-
-    //     }
-
-    // }, [currentUser, selfUser, username, currentUserInfo])
-
-    // useEffect(() => {
-    //     if (currentUserInfo)
-    //         setSelfUser(username === currentUserInfo.username);
-    // }, [currentUserInfo, username]);
-
-    // if (!realUser || (!loading && posts === false)) {
-    //     // setLoading(false);
-    //     return (
-    //         <div>
-    //             <Header />
-    //             <div style={{ textAlign: "center", marginLeft: "20%", marginRight: "20%", marginTop: "5%" }}>
-    //                 <Result
-    //                     status="404"
-    //                     title="That's weird :\"
-    //                     subTitle="The page you visited does not exist."
-    //                 // extra={<Button type="primary">Back Home</Button>}
-    //                 />
-    //             </div>
-    //         </div>
-    //     )
-    // }
-
-    // if ((loading || !currentUserInfo || !currentUser)) {
-    //     return (
-    //         <div>
-    //             <Header />
-    //             <Col span="12" style={{ marginLeft: "20%", marginRight: "20%", marginTop: "5%", textAlign: "center" }}>
-    //                 <Spin size="large" />
-    //             </Col>
-    //         </div>
-    //     );
-    // }
-    // else {
-    //     console.log("LOADING DONE!111 ", otherUserInfo);
-    //     console.log("LOADING DONE!222 ", currentUserInfo);
-    //     console.log("LOADING DONE!333 ", posts);
-
-    //     // console.log('')
-    // }
 
     useEffect(() => {
         if (currentUserInfo?.username === username) {
@@ -295,16 +109,20 @@ const UserProfile = (props: IUserProps) => {
 
             })
         }
+        else {
+            setPosts([]);
+            // setOtherUserInfo(null)
+            setSelfUser(false);
+        }
 
-    }, [currentUserInfo, username])
+    }, [currentUserInfo, currentUser, username])
 
     useEffect(() => {
         const decodeProfile = async () => {
             if (!currentUser) return;
 
-            const token = await currentUser.getIdToken(true);
+            const token = await currentUser.getIdToken();
 
-            //Get eligible posts for the user
             const result = await axios.post("http://localhost:5000/openpaarty/us-central1/api/v1/users/can-view-user-profile", {
                 targetUsername: username
             }, {
@@ -322,21 +140,85 @@ const UserProfile = (props: IUserProps) => {
                 }
                 else {
                     if (result.data.privacy === "following") {
-                        firebase.database().ref("Users").child(result.data.targetUid).on("value", ssh => {
+                        //Get data from user root profile
+                        firebase.database().ref("Users").child(result.data.targetUid).on("value", async ssh => {
                             console.log(ssh.val());
 
                             setLoading(false)
                             setOtherUserInfo(ssh.val());
+
                         }, (error: any) => {
-                            console.log(error);
+                            if (error.code) {
+                                if (error.code === "PERMISSION_DENIED") {
+                                    setLoading(false);
+                                    setOtherUserInfo(result.data.targetUser);
+                                    setOtherUserPrivacy(true);
+                                    
+                                }
+                            }
 
                         })
+
+                        //Get data from user's posts
+                        let temp: any = {};
+                        
+                        // console.log("@SETTLED COMDS: ", currentUserEligiblePosts!.filter(eligible => eligible.uidRef === username));
+                        await bluebird.map(currentUserEligiblePosts!.filter(eligible => eligible.username === username), async (obj: { uidRef: string, postRef: string }, index: number) => {
+                            firebase.database().ref("Postsv2").child(obj.uidRef).child(obj.postRef).on("value", async ssh => {
+                                
+                                
+                                //No need to check post privacy again because all posts we have access to are here?
+                                temp[`${obj.uidRef + obj.postRef}`] = ssh.val();
+                                temp[`${obj.uidRef + obj.postRef}`].key = `${obj.uidRef + obj.postRef}`;
+                                
+                                if (localStorage.getItem("otherUserPostsSet")) {
+                                    temp[`${obj.uidRef + obj.postRef}`] = ssh.val();
+                                    temp[`${obj.uidRef + obj.postRef}`].key = `${obj.uidRef + obj.postRef}`;
+                                    
+                                    setPosts(Object.values(temp));
+                                }
+                                
+                                
+                                if (index === currentUserEligiblePosts!.filter(eligible => eligible.username === username).length - 1 && !localStorage.getItem("otherUserPostsSet")) {
+                                    console.log("IN COND: ", Object.values(temp));
+
+                                    setPosts(Object.values(temp));
+            
+                                    console.log("@POSTS DEBUG: ", Object.values(temp));
+            
+                                    localStorage.setItem("otherUserPostsSet", "true");
+                                }
+            
+                            }, (error: any) => {
+                                console.log("@SSH ERROR: ", error);
+                                if (error.code) {
+                                    if (error.code === "PERMISSION_DENIED") {
+                                        const lastKey = error.message.split(":")[0].split("/")[3];
+            
+                                        // delete temp[lastKey];
+            
+                                        setPosts(Object.values(temp));
+            
+                                        //TODO: Maybe show 'post not available message'?
+                                    }
+                                }
+            
+                            })
+                        }, { concurrency: currentUserEligiblePosts!.filter(eligible => eligible.username === username).length }).then(() => {
+                            console.log("DONE MAPPING"); 
+                        })
+
+
 
                     }
                     else if (result.data.privacy === "closed") {
                         setLoading(false)
                         setOtherUserInfo(result.data.targetUser)
                         setOtherUserPrivacy(true)
+
+                        firebase.database().ref("FollowRequests").child(result.data.targetUser.uid).child(currentUser.uid).on("value", ssh => {
+                            setRequestedFollow(ssh.exists());
+                        })
 
                     }
                     else if (result.data.code === 404) {
@@ -350,8 +232,9 @@ const UserProfile = (props: IUserProps) => {
 
 
         decodeProfile();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [currentUser, username])
+
+        // return () => localStorage.removeItem("otherUserProfileLoaded") 
+    }, [currentUserEligiblePosts, username, currentUser])
 
     if (!realUser) {
         return (
@@ -378,6 +261,69 @@ const UserProfile = (props: IUserProps) => {
                 </Col>
             </div>
         );
+    }
+
+    const confirm = async (otherUserInfo: RegistrationObject) => { 
+
+        const token = await currentUser!.getIdToken();
+        
+        const result = await axios.post("http://localhost:5000/openpaarty/us-central1/api/v1/users/unfollow-user", {
+            targetUser: otherUserInfo.uid
+        }, {
+            headers: {
+                authorization: `Bearer ${token}`
+            }
+        });
+
+        console.log(result.data);
+
+        await setCurrentUserEligiblePosts!(currentUser!)
+
+        message.success('Unfollow successful');
+      }
+      
+      const cancel = (e:any) => {
+        console.log(e);
+        // message.error('Click on No');
+      }
+
+    const handleFollowRequest = async (otherUserInfo: RegistrationObject) => {
+        const token = await currentUser!.getIdToken();
+        
+        const result = await axios.post("http://localhost:5000/openpaarty/us-central1/api/v1/users/send-follow-request", {
+            targetUsername: otherUserInfo.username,
+            username: currentUserInfo?.username,
+            image_url: currentUserInfo?.image_url,
+        }, {
+            headers: {
+                authorization: `Bearer ${token}`
+            }
+        });
+
+        console.log(result.data);
+
+        // await setCurrentUserEligiblePosts!(currentUser!)
+
+        message.success('Follow request sent');
+
+    }    
+    
+    const handleCancelFollowRequest = async (otherUserInfo: RegistrationObject) => {
+        
+        const token = await currentUser!.getIdToken();
+        
+        const result = await axios.post("http://localhost:5000/openpaarty/us-central1/api/v1/users/cancel-follow-request", {
+            targetUser: otherUserInfo.uid,
+        }, {
+            headers: {
+                authorization: `Bearer ${token}`
+            }
+        });
+
+        console.log(result.data);
+
+        message.success('Follow request canceled');
+
     }
 
 
@@ -433,7 +379,7 @@ const UserProfile = (props: IUserProps) => {
                         )
                         :
                         !selfUser && otherUserInfo ? (
-                            <div>
+                            <div> 
 
                                 <Row style={{ alignItems: "center" }}>
                                     <Avatar
@@ -445,9 +391,19 @@ const UserProfile = (props: IUserProps) => {
                                             <h1 style={{ marginBottom: 5, marginTop: 15, fontWeight: "bold", }}>
                                                 {otherUserInfo!.username}
                                             </h1>
-                                            <h1>
-                                                Follow
-                                    </h1>
+                                            <span style={{cursor: "pointer"}}>
+                                                {otherUserPrivacy ? requestedFollow ? <p onClick={() => handleCancelFollowRequest(otherUserInfo)}>Cancel Request</p> :  <p onClick={() => handleFollowRequest(otherUserInfo)}>Follow</p> :  
+                                                <Popconfirm
+                                                    title="You will have to send a request to follow again."
+                                                    onConfirm={() => confirm(otherUserInfo)}
+                                                    onCancel={cancel}
+                                                    okText="Unfollow"
+                                                    cancelText="Cancel"
+                                                >
+                                                    <p>Unfollow</p>
+                                                </Popconfirm>}
+
+                                            </span>
                                         </Col>
 
                                         <Row style={{ justifyContent: "space-between", alignItems: "center" }}>
@@ -468,7 +424,7 @@ const UserProfile = (props: IUserProps) => {
                                         ) : (
                                                 <h1 style={{ textAlign: "center" }}><Empty /></h1>
                                             )
-                                        : <p>This user's profile is private. Follow them to see more</p>
+                                        : <p style={{ textAlign: "center" }}>This user's profile is private. Follow them to see more</p>
                                     }
                                 </div>
 
@@ -497,13 +453,15 @@ const mapStateToProps = (state: any) => {
     return {
         currentUser: state.user.currentUser,
         currentUserInfo: state.user.userInfo,
+        currentUserEligiblePosts: state.user.currentUserEligiblePosts,
     };
 };
 
 const mapDispatchToProps = (dispatch: any) => {
     return {
         setCurrentUserListener: () => dispatch(setCurrentUserListener()),
-        setCurrentUserRootDatabaseListener: (uid: string) => dispatch(setCurrentUserRootDatabaseListener(uid))
+        setCurrentUserRootDatabaseListener: (uid: string) => dispatch(setCurrentUserRootDatabaseListener(uid)),
+        setCurrentUserEligiblePosts: (currentUser: firebase.User) => dispatch(setCurrentUserEligiblePosts(currentUser)),
     }
 
 }

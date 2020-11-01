@@ -1,12 +1,13 @@
-import React from "react";
+import React, {useEffect, useState} from "react";
 import './header.css';
-import { Col, Row } from 'antd'
-import { UserOutlined, LogoutOutlined, HomeOutlined } from '@ant-design/icons';
+import { Col, Row, Badge, Modal, Button, List, Avatar  } from 'antd'
+import { UserOutlined, LogoutOutlined, HomeOutlined, UsergroupAddOutlined } from '@ant-design/icons';
 import OpenPartyLogo from '../images/openpaarty.logo.png'
 import { connect } from 'react-redux';
 import { setCurrentUserListener, setCurrentUserRootDatabaseListener } from '../../redux/user/user.actions';
 import { RegistrationObject } from "../interfaces/user.interface";
 import firebase from "firebase";
+import axios from "axios";
 import { Link } from "react-router-dom";
 
 interface IHeaderProps {
@@ -17,8 +18,85 @@ interface IHeaderProps {
 }
 
 const Header = (props: IHeaderProps) => {
+    const [modalVisible, setModalVisible] = useState<boolean>(false);
+    const [followRequests, setFollowRequests] = useState([]);
+
+    useEffect(() => {
+        firebase.database().ref("FollowRequests").child(props.currentUser?.uid!).on("value", ssh => {
+            if(ssh.exists()) {
+                setFollowRequests(Object.values(ssh.val()));
+                
+                console.log("@R-REQ ", Object.values(ssh.val()));
+                
+            }
+            else {
+                setFollowRequests([])
+            }
+        }, (error: any) => {
+            console.log(error);
+            
+        });
+
+
+    }, [])
+
+    const handleOk = () => {
+        setModalVisible(false);
+      };
+    
+      const handleCancel = () => {
+          setModalVisible(false);
+      };
+
+      const onFollowApproved = async (uid: string) => {
+        const token = await props.currentUser!.getIdToken(false);
+        await axios.post("http://localhost:5000/openpaarty/us-central1/api/v1/users/approve-follow", {
+            
+                targetUid: uid
+            }, {
+                headers: {
+                    authorization: `Bearer ${token}`
+                }
+            });
+      }
+
+      const onFollowIgnored = async (uid: string) => {
+        const token = await props.currentUser!.getIdToken(false);
+        await axios.post("http://localhost:5000/openpaarty/us-central1/api/v1/users/ignore-follow", {
+            
+                targetUid: uid
+            }, {
+                headers: {
+                    authorization: `Bearer ${token}`
+                }
+            });
+      }
+
     return (
         <nav className="Nav">
+            <Modal 
+                style={{height: "50%", }}
+                title="Approve or Ignore Follow Requests"
+                visible={modalVisible}
+                onOk={handleOk}
+                footer={null} 
+                onCancel={handleCancel}  >
+                <List 
+                
+                    itemLayout="horizontal"
+                    dataSource={followRequests}
+                    renderItem={(item: any) => (
+                    <List.Item
+                     actions={[<p onClick={() => onFollowApproved(item.uid)} style={{color: "green", cursor: "pointer"}} key={JSON.stringify(item)}>Approve</p>, <p onClick={() => onFollowIgnored(item.uid)} style={{color: "red", cursor: "pointer"}} key={JSON.stringify(item)} >Ignore</p>]}>
+                        <List.Item.Meta
+                            avatar={<Avatar src={item.image_url} />}
+                            title={<Link to={{pathname:`/${item.username}` }}>{item.username}</Link>}
+                            description={item.username}
+                        />
+                    </List.Item>
+                    )}
+                />
+        </Modal>
             <div className="Nav-menus">
                 <div className="Nav-brand">
                     <Link
@@ -35,7 +113,7 @@ const Header = (props: IHeaderProps) => {
                 <Col className='' xs={{ span: 0 }} lg={{ span: 6, offset: 2 }} xxl={{ span: 5, offset: 1 }}>SearchBar</Col>
                 <Col className='' offset={1} span={6}>
                     <Row style={{ alignItems: "center", justifyContent: "space-around" }}>
-                        <Col span="4">
+                        <Col span="3">
                             <Link
                                 className="nav-link"
                                 to={{
@@ -48,11 +126,26 @@ const Header = (props: IHeaderProps) => {
                                 <HomeOutlined size={25} />
                             </span> */}
                         </Col>
-                        <Col span="4">
+                        
+                        <Col span="3">
+                            <Link
+                            onClick={() => setModalVisible(true)}
+                                className="nav-link"
+                                to={{
+                                    
+                                }} 
+                            >
+                               
+                                <Badge size="small" count={followRequests && followRequests.length}>  
+                                    <UsergroupAddOutlined size={25} />
+                                </Badge>
+                            </Link> 
+                        </Col>
+                        <Col span="3">
                             <Link
                                 className="nav-link"
                                 to={{
-                                    pathname: `/profile/${props.currentUserInfo?.username}`,
+                                    pathname: `/${props.currentUserInfo?.username}`,
                                 }}
                             >
                                 <UserOutlined size={25} />
@@ -61,7 +154,7 @@ const Header = (props: IHeaderProps) => {
                                 <UserOutlined size={25} onClick={() => window.location.replace(`/profile/${props.currentUserInfo!.username}`)} />
                             </span> */}
                         </Col>
-                        <Col span="4">
+                        <Col span="3">
                             <span>
                                 <LogoutOutlined onClick={() => firebase.auth().signOut()} size={25} />
                             </span>
