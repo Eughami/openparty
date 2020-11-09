@@ -1,14 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import { Avatar, Row, Spin, Col, Result, Button, Empty, Popconfirm, message } from 'antd';
+import { Avatar, Row, Spin, Col, Result, Button, Tabs, Empty, Popconfirm, message, Divider } from 'antd';
 import firebase from "firebase";
 import MyPost from './post/post';
 import { Post, PostPrivacy, RegistrationObject, Comment } from './interfaces/user.interface';
 import { connect } from 'react-redux';
 import { setCurrentUserListener, setCurrentUserRootDatabaseListener, setCurrentUserEligiblePosts } from '../redux/user/user.actions';
-// import { awaitFillPosts } from "./post/posts";
-import Header from "./header/header";
 import axios from "axios"
 import bluebird from "bluebird"
+import { AppleOutlined, AndroidOutlined } from '@ant-design/icons';
 
 interface IUserProps {
     setCurrentUserListener?: () => Promise<any>,
@@ -16,14 +15,16 @@ interface IUserProps {
     setCurrentUserEligiblePosts?: (currentUser: firebase.User) => Promise<any>,
     currentUser?: firebase.User,
     currentUserInfo?: RegistrationObject,
+    currentUserToken?: string,
     match?: any,
-    currentUserEligiblePosts?: Array<any> ,
+    currentUserEligiblePosts?: Array<any>,
 }
 
 const UserProfile = (props: IUserProps) => {
     console.log("UserProfile Props: ", props);
-    const { currentUser, currentUserInfo, currentUserEligiblePosts, setCurrentUserEligiblePosts } = props;
+    const { currentUser, currentUserInfo, currentUserEligiblePosts, setCurrentUserEligiblePosts, currentUserToken } = props;
     const { username } = props.match.params;
+    const { TabPane } = Tabs;
 
     const [selfUser, setSelfUser] = useState<boolean | null>(false);
     const [otherUserInfo, setOtherUserInfo] = useState<RegistrationObject | null>(null);
@@ -113,6 +114,7 @@ const UserProfile = (props: IUserProps) => {
             setPosts([]);
             // setOtherUserInfo(null)
             setSelfUser(false);
+            setLoading(true)
         }
 
     }, [currentUserInfo, currentUser, username])
@@ -121,13 +123,11 @@ const UserProfile = (props: IUserProps) => {
         const decodeProfile = async () => {
             if (!currentUser) return;
 
-            const token = await currentUser.getIdToken();
-
             const result = await axios.post("http://localhost:5000/openpaarty/us-central1/api/v1/users/can-view-user-profile", {
                 targetUsername: username
             }, {
                 headers: {
-                    authorization: `Bearer ${token}`
+                    authorization: `Bearer ${currentUserToken}`
                 }
             });
 
@@ -153,7 +153,7 @@ const UserProfile = (props: IUserProps) => {
                                     setLoading(false);
                                     setOtherUserInfo(result.data.targetUser);
                                     setOtherUserPrivacy(true);
-                                    
+
                                 }
                             }
 
@@ -161,51 +161,51 @@ const UserProfile = (props: IUserProps) => {
 
                         //Get data from user's posts
                         let temp: any = {};
-                        
+
                         // console.log("@SETTLED COMDS: ", currentUserEligiblePosts!.filter(eligible => eligible.uidRef === username));
                         await bluebird.map(currentUserEligiblePosts!.filter(eligible => eligible.username === username), async (obj: { uidRef: string, postRef: string }, index: number) => {
                             firebase.database().ref("Postsv2").child(obj.uidRef).child(obj.postRef).on("value", async ssh => {
-                                
-                                
+
+
                                 //No need to check post privacy again because all posts we have access to are here?
                                 temp[`${obj.uidRef + obj.postRef}`] = ssh.val();
                                 temp[`${obj.uidRef + obj.postRef}`].key = `${obj.uidRef + obj.postRef}`;
-                                
+
                                 if (localStorage.getItem("otherUserPostsSet")) {
                                     temp[`${obj.uidRef + obj.postRef}`] = ssh.val();
                                     temp[`${obj.uidRef + obj.postRef}`].key = `${obj.uidRef + obj.postRef}`;
-                                    
+
                                     setPosts(Object.values(temp));
                                 }
-                                
-                                
+
+
                                 if (index === currentUserEligiblePosts!.filter(eligible => eligible.username === username).length - 1 && !localStorage.getItem("otherUserPostsSet")) {
                                     console.log("IN COND: ", Object.values(temp));
 
                                     setPosts(Object.values(temp));
-            
+
                                     console.log("@POSTS DEBUG: ", Object.values(temp));
-            
+
                                     localStorage.setItem("otherUserPostsSet", "true");
                                 }
-            
+
                             }, (error: any) => {
                                 console.log("@SSH ERROR: ", error);
                                 if (error.code) {
                                     if (error.code === "PERMISSION_DENIED") {
                                         const lastKey = error.message.split(":")[0].split("/")[3];
-            
+
                                         // delete temp[lastKey];
-            
+
                                         setPosts(Object.values(temp));
-            
+
                                         //TODO: Maybe show 'post not available message'?
                                     }
                                 }
-            
+
                             })
                         }, { concurrency: currentUserEligiblePosts!.filter(eligible => eligible.username === username).length }).then(() => {
-                            console.log("DONE MAPPING"); 
+                            console.log("DONE MAPPING");
                         })
 
 
@@ -234,44 +234,17 @@ const UserProfile = (props: IUserProps) => {
         decodeProfile();
 
         // return () => localStorage.removeItem("otherUserProfileLoaded") 
-    }, [currentUserEligiblePosts, username, currentUser])
+    }, [currentUserEligiblePosts, username, currentUser, currentUserToken])
 
-    if (!realUser) {
-        return (
-            <div>
-                <Header />
-                <div style={{ textAlign: "center", marginLeft: "20%", marginRight: "20%", marginTop: "5%" }}>
-                    <Result
-                        status="404"
-                        title="That's weird :\"
-                        subTitle="The page you visited does not exist."
-                    // extra={<Button type="primary">Back Home</Button>}
-                    />
-                </div>
-            </div>
-        )
-    }
 
-    if (loading) {
-        return (
-            <div>
-                <Header />
-                <Col span="12" style={{ marginLeft: "20%", marginRight: "20%", marginTop: "5%", textAlign: "center" }}>
-                    <Spin size="large" />
-                </Col>
-            </div>
-        );
-    }
 
-    const confirm = async (otherUserInfo: RegistrationObject) => { 
+    const confirm = async (otherUserInfo: RegistrationObject) => {
 
-        const token = await currentUser!.getIdToken();
-        
         const result = await axios.post("http://localhost:5000/openpaarty/us-central1/api/v1/users/unfollow-user", {
             targetUser: otherUserInfo.uid
         }, {
             headers: {
-                authorization: `Bearer ${token}`
+                authorization: `Bearer ${currentUserToken}`
             }
         });
 
@@ -280,23 +253,22 @@ const UserProfile = (props: IUserProps) => {
         await setCurrentUserEligiblePosts!(currentUser!)
 
         message.success('Unfollow successful');
-      }
-      
-      const cancel = (e:any) => {
+    }
+
+    const cancel = (e: any) => {
         console.log(e);
         // message.error('Click on No');
-      }
+    }
 
     const handleFollowRequest = async (otherUserInfo: RegistrationObject) => {
-        const token = await currentUser!.getIdToken();
-        
+
         const result = await axios.post("http://localhost:5000/openpaarty/us-central1/api/v1/users/send-follow-request", {
             targetUsername: otherUserInfo.username,
             username: currentUserInfo?.username,
             image_url: currentUserInfo?.image_url,
         }, {
             headers: {
-                authorization: `Bearer ${token}`
+                authorization: `Bearer ${currentUserToken}`
             }
         });
 
@@ -306,17 +278,14 @@ const UserProfile = (props: IUserProps) => {
 
         message.success('Follow request sent');
 
-    }    
-    
+    }
+
     const handleCancelFollowRequest = async (otherUserInfo: RegistrationObject) => {
-        
-        const token = await currentUser!.getIdToken();
-        
         const result = await axios.post("http://localhost:5000/openpaarty/us-central1/api/v1/users/cancel-follow-request", {
             targetUser: otherUserInfo.uid,
         }, {
             headers: {
-                authorization: `Bearer ${token}`
+                authorization: `Bearer ${currentUserToken}`
             }
         });
 
@@ -326,14 +295,35 @@ const UserProfile = (props: IUserProps) => {
 
     }
 
+    if (!realUser) {
+        return (
+            <div>
+                <div style={{ textAlign: "center", marginTop: "5%", overflow: "unset" }}>
+                    <Result
+                        status="404"
+                        title="That's weird :\"
+                        subTitle="The page you visited does not exist."
+                    />
+                </div>
+            </div>
+        )
+    }
+
+    if (loading) {
+        return (
+            <div style={{ textAlign: "center", marginTop: "15%" }}>
+                <Spin size="small" />
+            </div>
+        );
+    }
 
 
     return (
 
 
         <div>
-            <Header />
-            <div style={{ marginLeft: "20%", marginRight: "20%", marginTop: "10%" }}>
+            {/* <Header /> */}
+            <div style={{ marginLeft: "20%", marginRight: "20%", marginTop: "7%" }}>
                 {
                     selfUser && currentUserInfo ?
                         (
@@ -362,15 +352,48 @@ const UserProfile = (props: IUserProps) => {
                                     </div>
                                 </Row>
 
-                                <hr />
+                                <Divider />
                                 <div className='posts__container'>
-                                    {(posts as Post[]).length > 0 ? (
-                                        (posts as Post[]).map((post, index) =>
-                                            <MyPost key={index} post={post} />
-                                        )
-                                    ) : (
-                                            <h1 style={{ textAlign: "center" }}>You Have No Posts</h1>
-                                        )
+                                    {
+
+                                        <Tabs defaultActiveKey="1">
+                                            <TabPane
+                                                tab={
+                                                    <span>
+                                                        <AppleOutlined />
+                                                    Posts
+                                                </span>
+                                                }
+                                                key="self-user-tab-1"
+                                            >
+                                                {
+                                                    (posts as Post[]).length > 0 ? (
+                                                        (posts as Post[]).map((post, index) =>
+
+                                                            <MyPost key={index} post={post} />
+
+
+                                                        )
+                                                    ) : (
+                                                            <h1 style={{ textAlign: "center" }}>You Have No Posts</h1>
+                                                        )
+
+                                                }
+                                            </TabPane>
+                                            <TabPane
+                                                tab={
+                                                    <span>
+                                                        <AndroidOutlined />
+                                                Tab 2
+                                                </span>
+                                                }
+                                                key="self-user-tab-2"
+                                            >
+                                                Tab 2
+                                            </TabPane>
+                                        </Tabs>
+
+
                                     }
                                 </div>
 
@@ -379,7 +402,7 @@ const UserProfile = (props: IUserProps) => {
                         )
                         :
                         !selfUser && otherUserInfo ? (
-                            <div> 
+                            <div>
 
                                 <Row style={{ alignItems: "center" }}>
                                     <Avatar
@@ -391,40 +414,82 @@ const UserProfile = (props: IUserProps) => {
                                             <h1 style={{ marginBottom: 5, marginTop: 15, fontWeight: "bold", }}>
                                                 {otherUserInfo!.username}
                                             </h1>
-                                            <span style={{cursor: "pointer"}}>
-                                                {otherUserPrivacy ? requestedFollow ? <p onClick={() => handleCancelFollowRequest(otherUserInfo)}>Cancel Request</p> :  <p onClick={() => handleFollowRequest(otherUserInfo)}>Follow</p> :  
-                                                <Popconfirm
-                                                    title="You will have to send a request to follow again."
-                                                    onConfirm={() => confirm(otherUserInfo)}
-                                                    onCancel={cancel}
-                                                    okText="Unfollow"
-                                                    cancelText="Cancel"
-                                                >
-                                                    <p>Unfollow</p>
-                                                </Popconfirm>}
+                                            <span style={{ cursor: "pointer" }}>
+                                                {otherUserPrivacy ? requestedFollow ? <p onClick={() => handleCancelFollowRequest(otherUserInfo)}>Cancel Request</p> : <p onClick={() => handleFollowRequest(otherUserInfo)}>Follow</p> :
+                                                    <Popconfirm
+                                                        title="You will have to send a request to follow again."
+                                                        onConfirm={() => confirm(otherUserInfo)}
+                                                        onCancel={cancel}
+                                                        okText="Unfollow"
+                                                        cancelText="Cancel"
+                                                    >
+                                                        <p>Unfollow</p>
+                                                    </Popconfirm>}
 
                                             </span>
                                         </Col>
+                                        {
+                                            !otherUserPrivacy ?
+                                                (
+                                                    <Row style={{ justifyContent: "space-between", alignItems: "center" }}>
+                                                        <p style={{ marginRight: 20 }}>{(posts as Post[]).length} Posts</p>
+                                                        <p style={{ marginRight: 20 }}>{otherUserInfo!.followers_count} Followers</p>
+                                                        <p>{otherUserInfo!.following_count} Following</p>
+                                                    </Row>
+                                                )
+                                                :
+                                                (
+                                                    <Row style={{ justifyContent: "space-between", alignItems: "center" }}>
+                                                        <p style={{ marginRight: 20 }}>{otherUserInfo.posts_count} Posts</p>
+                                                        <p style={{ marginRight: 20 }}>{otherUserInfo.followers_count} Followers</p>
+                                                        <p>{otherUserInfo.following_count} Following</p>
+                                                    </Row>
+                                                )
+                                        }
 
-                                        <Row style={{ justifyContent: "space-between", alignItems: "center" }}>
-                                            <p style={{ marginRight: 20 }}>{(posts as Post[]).length} Posts</p>
-                                            <p style={{ marginRight: 20 }}>{otherUserInfo!.followers_count} Followers</p>
-                                            <p>{otherUserInfo!.following_count} Following</p>
-                                        </Row>
+
                                     </div>
                                 </Row>
 
-                                <hr />
+                                <Divider />
                                 <div className='posts__container'>
                                     {!otherUserPrivacy ?
-                                        (posts as Post[]).length > 0 ? (
-                                            (posts as Post[]).map((post, index) =>
-                                                <MyPost key={index} post={post} />
-                                            )
-                                        ) : (
-                                                <h1 style={{ textAlign: "center" }}><Empty /></h1>
-                                            )
-                                        : <p style={{ textAlign: "center" }}>This user's profile is private. Follow them to see more</p>
+
+                                        (
+                                            <Tabs defaultActiveKey="1">
+                                                <TabPane
+                                                    tab={
+                                                        <span>
+                                                            <AppleOutlined />
+                                                            Posts
+                                                        </span>
+                                                    }
+                                                    key="other-user-tab-1"
+                                                >
+                                                    {
+                                                        (posts as Post[]).length > 0 ? (
+                                                            (posts as Post[]).map((post, index) =>
+                                                                <MyPost key={index} post={post} />
+                                                            )
+                                                        ) : (
+                                                                <h1 style={{ textAlign: "center" }}><Empty /></h1>
+                                                            )
+                                                    }
+                                                </TabPane>
+                                                <TabPane
+                                                    tab={
+                                                        <span>
+                                                            <AndroidOutlined />
+                                                        Tab 2
+                                                        </span>
+                                                    }
+                                                    key="other-user-tab-2"
+                                                >
+                                                    Tab 2
+                                                    </TabPane>
+                                            </Tabs>
+
+                                        ) : <p style={{ textAlign: "center" }}>This user's profile is private. Follow them to see more</p>
                                     }
                                 </div>
 
@@ -433,7 +498,9 @@ const UserProfile = (props: IUserProps) => {
                         )
                             :
                             (
-                                <Spin />
+                                <div style={{ textAlign: "center", marginTop: "15%" }}>
+                                    <Spin size="small" />
+                                </div>
                                 // <Result
                                 //     status="403"
                                 //     title="That's weird :\"
@@ -453,6 +520,7 @@ const mapStateToProps = (state: any) => {
     return {
         currentUser: state.user.currentUser,
         currentUserInfo: state.user.userInfo,
+        currentUserToken: state.user.currentUserToken,
         currentUserEligiblePosts: state.user.currentUserEligiblePosts,
     };
 };

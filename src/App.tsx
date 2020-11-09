@@ -3,7 +3,7 @@ import { Switch, Route, Redirect } from "react-router-dom";
 import { connect } from 'react-redux';
 // import { createStructuredSelector } from 'reselect';
 // import { selectCurrentUser } from './redux/user/user.selectors';
-import { setCurrentUserListener, setCurrentUserRootDatabaseListener, setCurrentUserEligiblePosts } from './redux/user/user.actions';
+import { setCurrentUserListener, setCurrentUserRootDatabaseListener, setCurrentUserEligiblePosts, setCurrentUserToken } from './redux/user/user.actions';
 
 import './App.css';
 import Homepage from './components/homepage';
@@ -12,7 +12,8 @@ import Login from './components/login';
 import RegistrationForm from './components/register';
 import UserProfile from './components/user-info';
 import { RegistrationObject } from './components/interfaces/user.interface';
-import { Tabs } from 'antd';
+import { Col, Spin, Tabs } from 'antd';
+import Header from './components/header/header'
 
 import firebase from 'firebase';
 
@@ -23,19 +24,21 @@ interface IAppProps {
   setCurrentUserListener?: () => Promise<any>,
   setCurrentUserRootDatabaseListener?: (uid: string) => Promise<any>,
   setCurrentUserEligiblePosts?: (currentUser: firebase.User) => Promise<any>,
+  setCurrentUserToken?: (currentUser: firebase.User) => Promise<string | null>,
   currentUser?: firebase.User,
-  currentUserInfo?: RegistrationObject
+  currentUserInfo?: RegistrationObject,
+  currentUserToken?: string | null,
 }
 
 const App = (props: IAppProps) => {
-  const { currentUser, currentUserInfo, setCurrentUserListener, setCurrentUserRootDatabaseListener, setCurrentUserEligiblePosts } = props;
+  const { currentUser, currentUserToken, currentUserInfo, setCurrentUserListener, setCurrentUserRootDatabaseListener, setCurrentUserEligiblePosts, setCurrentUserToken } = props;
   const { TabPane } = Tabs;
 
   useEffect(() => {
-    if (!currentUser)
-      setCurrentUserListener!()
-
-  }, [currentUser, setCurrentUserListener])
+    if (!currentUser) {
+      setCurrentUserListener!().then((currentUser: any) => { setCurrentUserToken!(currentUser); setLoadingCredentials(false) }).catch(() => setLoadingCredentials(false))
+    }
+  }, [currentUser, setCurrentUserListener, setCurrentUserToken])
 
   useEffect(() => {
     if (!currentUserInfo && currentUser) {
@@ -45,7 +48,18 @@ const App = (props: IAppProps) => {
     }
   }, [currentUserInfo, setCurrentUserRootDatabaseListener, currentUser, setCurrentUserEligiblePosts])
 
-  console.log("APP.TSX PROPS:  ", currentUser);
+
+
+  useEffect(() => {
+
+    setTimeout(() => {
+      if (currentUser)
+        setCurrentUserToken!(currentUser!)
+    }, 3300);
+  }, [])
+
+
+  console.log("APP.TSX PROPS:  ", props.currentUserToken);
 
   // useEffect(() => {
   //   if (!currentUser) return;
@@ -71,31 +85,33 @@ const App = (props: IAppProps) => {
   // );
 
 
-  // const [loadingCredentials, setLoadingCredentials] = useState<boolean>(true);
+  const [loadingCredentials, setLoadingCredentials] = useState<boolean>(true);
 
-  // if (loadingCredentials) {
-  //   return (
-  //     <Col span="12" style={{ marginLeft: "20%", marginRight: "20%", marginTop: "5%", textAlign: "center" }}>
-  //       <Spin size="large" />
-  //     </Col>
-  //   );
-  // }
+  if (loadingCredentials) {
+    return (
+      <div style={{ textAlign: "center" }}>
+
+        <Spin size="small" />
+      </div>
+    );
+  }
 
 
 
   return (
-    <div className="App">
+    <div className="">
       {currentUser ? (
-        <Switch>
-          <Route exact path="/" component={Homepage} />
-          <Route exact path="/:username" component={UserProfile} />
-          {/* <Route
-            exact
-            path="/login"
-            render={() => (currentUser ? <Redirect to="/" /> : <Redirect to="/" />)}
-          /> */}
-          <Route component={Homepage} />
-        </Switch>
+        <div>
+          <div style={{ marginBottom: 60 }}>
+            <Header />
+          </div>
+          <Switch>
+            <Route exact path="/" component={Homepage} />
+            <Route exact path="/:username" component={UserProfile} />
+            <Route component={Homepage} />
+          </Switch>
+        </div>
+
       ) : (
           <Switch>
             {/* <Route path='/login' component={Login} />
@@ -117,12 +133,14 @@ const mapStateToProps = (state: any) => {
   return {
     currentUser: state.user.currentUser,
     currentUserInfo: state.user.userInfo,
+    currentUserToken: state.user.currentUserToken,
   };
 };
 
 const mapDispatchToProps = (dispatch: any) => {
   return {
     setCurrentUserListener: () => dispatch(setCurrentUserListener()),
+    setCurrentUserToken: (currentUser: firebase.User) => dispatch(setCurrentUserToken(currentUser)),
     setCurrentUserRootDatabaseListener: (uid: string) => dispatch(setCurrentUserRootDatabaseListener(uid)),
     setCurrentUserEligiblePosts: (currentUser: firebase.User) => dispatch(setCurrentUserEligiblePosts(currentUser)),
   }

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import MyPost from './post';
 import firebase from "firebase";
 import { Comment, Post, PostPrivacy, RegistrationObject } from '../interfaces/user.interface';
-import { Spin, Empty, Col } from "antd";
+import { Spin, Empty, Col, Skeleton, BackTop } from "antd";
 import { connect } from 'react-redux';
 import { setCurrentUserListener, setCurrentUserRootDatabaseListener } from '../../redux/user/user.actions';
 import axios from "axios"
@@ -14,7 +14,7 @@ interface IPostsProps {
     currentUser?: firebase.User,
     currentUserInfo?: RegistrationObject,
     fromProfile?: boolean,
-    currentUserEligiblePosts?: Array<any> ,
+    currentUserEligiblePosts?: Array<any>,
 }
 
 /**
@@ -115,7 +115,7 @@ export const awaitFillPosts = async (posts: Array<firebase.database.DataSnapshot
 
 const Posts = (props: IPostsProps) => {
     const { currentUser, currentUserInfo, currentUserEligiblePosts } = props;
- 
+
     console.log("CARDS.TSX PROPS: ", props);
 
     const [loading, setLoading] = useState<boolean>(true)
@@ -124,7 +124,7 @@ const Posts = (props: IPostsProps) => {
     useEffect(() => {
         if (!currentUser) return;
         const getEligible = async () => {
-            
+
             let temp: any = {};
             await bluebird.map(currentUserEligiblePosts!, async (obj: { uidRef: string, postRef: string }, index: number) => {
                 firebase.database().ref("Postsv2").child(obj.uidRef).child(obj.postRef).on("value", async ssh => {
@@ -137,7 +137,7 @@ const Posts = (props: IPostsProps) => {
                         temp[`${obj.uidRef + obj.postRef}`] = ssh.val();
                         temp[`${obj.uidRef + obj.postRef}`].key = `${obj.uidRef + obj.postRef}`;
 
-                        setPosts(Object.values(temp));
+                        setPosts(Object.values(temp)); setLoading(false)
                     }
 
                     if (index === currentUserEligiblePosts!.length - 1 && !localStorage.getItem("postsSet")) {
@@ -147,6 +147,8 @@ const Posts = (props: IPostsProps) => {
                         console.log("@POSTS DEBUG: ", Object.values(temp));
 
                         localStorage.setItem("postsSet", "true");
+
+                        setLoading(false)
                     }
 
                 }, (error: any) => {
@@ -166,8 +168,17 @@ const Posts = (props: IPostsProps) => {
                 })
             }, { concurrency: currentUserEligiblePosts!.length }).then(() => {
                 console.log("DONE MAPPING");
-                setLoading(false)
+                // setTimeout(() => {
+                //     setLoading(false)
+
+                // }, 1000);
+                // setLoading(false)
             })
+
+            // setTimeout(() => {
+            //     setLoading(false)
+
+            // }, 1000);
 
         }
 
@@ -179,7 +190,8 @@ const Posts = (props: IPostsProps) => {
     if (loading) {
         return (
             <Col span="12" style={{ marginLeft: "20%", marginRight: "20%", marginTop: "5%", textAlign: "center" }}>
-                <Spin size="large" />
+                {/* <Spin size="large" /> */}
+                <Skeleton avatar active paragraph={{ rows: 4 }} />
             </Col>
         )
     }
@@ -187,6 +199,7 @@ const Posts = (props: IPostsProps) => {
 
     return (
         <div className='posts__container'>
+            <BackTop />
             {
 
                 posts.map((val) => <MyPost key={val.key} post={val} />

@@ -25,13 +25,13 @@ const Login = (props: IAppProps) => {
 
   console.log("LOGIN PROPS: ", props.history);
 
-  useEffect(() => {
-    if (currentUser) {
-      console.log("REDIRECTING TO... HOME!");
+  // useEffect(() => {
+  //   if (currentUser) {
+  //     console.log("REDIRECTING TO... HOME!");
 
-      props.history.replace("/");
-    }
-  }, [currentUser, props.history]);
+  //     props.history.replace("/");
+  //   }
+  // }, [currentUser, props.history]);
 
 
   const onFinish = (values: any) => {
@@ -66,10 +66,6 @@ const Login = (props: IAppProps) => {
         rules={[{ required: true, message: 'Please input your password!' }]}
       >
         <Input.Password />
-      </Form.Item>
-
-      <Form.Item {...tailLayout} name="remember" valuePropName="checked">
-        <Checkbox>Remember me</Checkbox>
       </Form.Item>
 
       <Form.Item {...tailLayout}>

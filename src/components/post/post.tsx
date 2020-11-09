@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import "./post.css"
-import { Input, Row, Form, Button, Avatar, Tag } from 'antd';
+import { Input, Row, Form, Button, Avatar, Tag, message } from 'antd';
 import { ShareAltOutlined, HeartTwoTone, CommentOutlined, SwapRightOutlined } from '@ant-design/icons';
 import { Comment, Post as PostInterface, PostTags } from "../interfaces/user.interface";
 import TimeAgo from 'react-timeago';
@@ -16,6 +16,7 @@ interface IPostProps {
     setCurrentUserRootDatabaseListener?: (uid: string) => Promise<any>,
     currentUser?: firebase.User,
     currentUserInfo?: RegistrationObject,
+    currentUserToken?: string,
     post: PostInterface
 }
 
@@ -48,7 +49,7 @@ const Post = (props: IPostProps) => {
 
     const { image_url: avatar_url, username } = props.post.user;
 
-    const { currentUser, currentUserInfo } = props;
+    const { currentUser, currentUserInfo, currentUserToken } = props;
 
     const [userLikePost, setUserLikePost] = useState<boolean>(props.post.likes.indexOf(currentUser?.uid!) !== -1);
 
@@ -60,8 +61,6 @@ const Post = (props: IPostProps) => {
 
         setPostCommentLoading(true);
 
-        const token = await currentUser!.getIdToken(false);
-
         const result = await axios.post("http://localhost:5000/openpaarty/us-central1/api/v1/posts/add-comment", {
             postId: post_id,
             user: {
@@ -72,7 +71,7 @@ const Post = (props: IPostProps) => {
             comment: comment.comment,
         }, {
             headers: {
-                authorization: `Bearer ${token}`
+                authorization: `Bearer ${currentUserToken}`
             }
         });
 
@@ -81,7 +80,7 @@ const Post = (props: IPostProps) => {
         setPostCommentLoading(false)
         resetCommentForm()
         if (result.status !== 201) {
-            alert('Your comment could not be added at this time.')
+            message.error('Your comment could not be added at this time.')
         }
     };
 
@@ -120,40 +119,35 @@ const Post = (props: IPostProps) => {
     //number of likes-- before posting to our endpoint. We can catch any errors afterwards and
     // act appropriately
     const handlePostLike = async () => {
-        const token = await currentUser!.getIdToken(false);
         if (userLikePost) {
-
-
-
-            const result = await axios.post("http://localhost:5000/openpaarty/us-central1/api/v1/posts/unlike-post", {
+            await axios.post("http://localhost:5000/openpaarty/us-central1/api/v1/posts/unlike-post", {
                 id: post_id,
                 targetUsername: username
             }, {
                 headers: {
-                    authorization: `Bearer ${token}`
+                    authorization: `Bearer ${currentUserToken}`
                 }
             });
 
             setUserLikePost(false);
 
-            console.log("@LIKE POST RESULT: ", result);
+            message.success("You dislike this post");
 
         }
         else {
-            console.log("YOU ARE LIKING POST", post_id);
 
-            const result = await axios.post("http://localhost:5000/openpaarty/us-central1/api/v1/posts/like-post", {
+            await axios.post("http://localhost:5000/openpaarty/us-central1/api/v1/posts/like-post", {
                 id: post_id,
                 targetUsername: username,
             }, {
                 headers: {
-                    authorization: `Bearer ${token}`
+                    authorization: `Bearer ${currentUserToken}`
                 }
             });
 
             setUserLikePost(true);
 
-            console.log("@UNLIKE POST RESULT: ", result);
+            message.success("You 💖 this post");
         }
 
     }
@@ -285,6 +279,7 @@ const mapStateToProps = (state: any) => {
     return {
         currentUser: state.user.currentUser,
         currentUserInfo: state.user.userInfo,
+        currentUserToken: state.user.currentUserToken,
     };
 };
 

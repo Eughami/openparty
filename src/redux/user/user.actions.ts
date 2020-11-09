@@ -48,17 +48,13 @@ export const setCurrentUserListener = () => (dispatch: any) =>
 
     try {
       firebase.auth().onAuthStateChanged(async (user) => {
-        console.log("AUTH STATE CHANGED! ", user);
+        // console.log("AUTH STATE CHANGED! ", user);
 
         if (user) {
-          const token = await user.getIdToken();
-          console.log(token);
-
-          localStorage.setItem("userToken", token);
-
           dispatch({ type: UserActionTypes.SET_CURRENT_USER, payload: user });
         }
         else {
+
           dispatch({ type: UserActionTypes.SIGN_OUT_SUCCESS });
         }
 
@@ -69,6 +65,17 @@ export const setCurrentUserListener = () => (dispatch: any) =>
       reject(error)
     }
 
+  });
+
+export const setCurrentUserToken = (currentUser: firebase.User) => (dispatch: any) =>
+  new Promise(async (resolve, reject) => {
+    try {
+      const token = await currentUser.getIdToken();
+      dispatch({ type: UserActionTypes.SET_CURRENT_USER_TOKEN, payload: token });
+      resolve(token);
+    } catch (error) {
+      reject(error)
+    }
   });
 
 export const setCurrentUserRootDatabaseListener = (uid: string) => (dispatch: (arg0: { type: string; payload: any; }) => void) =>
@@ -88,7 +95,7 @@ export const setCurrentUserRootDatabaseListener = (uid: string) => (dispatch: (a
 
   });
 
-  export const setCurrentUserEligiblePosts = (currentUser: firebase.User) => (dispatch: (arg0: { type: string; payload: any; }) => void) =>
+export const setCurrentUserEligiblePosts = (currentUser: firebase.User) => (dispatch: (arg0: { type: string; payload: any; }) => void) =>
   new Promise(async (resolve, reject) => {
 
     try {
@@ -96,9 +103,9 @@ export const setCurrentUserRootDatabaseListener = (uid: string) => (dispatch: (a
 
       //Get eligible posts for the user
       const result = await axios.get("http://localhost:5000/openpaarty/us-central1/api/v1/posts/users-eligible-post", {
-          headers: {
-              authorization: `Bearer ${token}`
-          }
+        headers: {
+          authorization: `Bearer ${token}`
+        }
       });
 
       dispatch({ type: UserActionTypes.SET_CURRENT_USER_ELIGIBLE_POSTS, payload: result.data.uFP });
