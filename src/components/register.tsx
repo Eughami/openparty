@@ -100,13 +100,14 @@ const RegistrationForm = (props: IRegisterProps) => {
   );
 
   return (
-    <Col span="12" style={{ marginLeft: "20%", marginRight: "20%", marginTop: "5%" }}>
+    <Col span="12" style={{ marginLeft: "20%", marginRight: "20%" }}>
       {/* <Alert
         message="Error"
         description="This is an error message about copywriting."
         type="error"
         showIcon
       /> */}
+      <h1 style={{ textAlign: "center" }}>Register</h1>
       <Form
         {...formItemLayout}
         form={form}

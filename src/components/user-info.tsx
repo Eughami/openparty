@@ -85,6 +85,7 @@ const UserProfile = (props: IUserProps) => {
         if (currentUserInfo?.username === username) {
             setLoading(false);
             setSelfUser(true);
+            setRealUser(true);
             firebase.database().ref("Postsv2").child(currentUser?.uid!).on("value", async ssh => {
                 // console.log(ssh.val());
 
@@ -144,6 +145,7 @@ const UserProfile = (props: IUserProps) => {
                         firebase.database().ref("Users").child(result.data.targetUid).on("value", async ssh => {
                             console.log(ssh.val());
 
+                            setOtherUserPrivacy(false)
                             setLoading(false)
                             setOtherUserInfo(ssh.val());
 
@@ -197,7 +199,7 @@ const UserProfile = (props: IUserProps) => {
 
                                         // delete temp[lastKey];
 
-                                        setPosts(Object.values(temp));
+                                        // setPosts(Object.values(temp));
 
                                         //TODO: Maybe show 'post not available message'?
                                     }

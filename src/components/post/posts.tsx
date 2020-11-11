@@ -157,9 +157,9 @@ const Posts = (props: IPostsProps) => {
                         if (error.code === "PERMISSION_DENIED") {
                             const lastKey = error.message.split(":")[0].split("/")[3];
 
-                            delete temp[lastKey];
+                            // delete temp[lastKey];
 
-                            setPosts(Object.values(temp));
+                            // setPosts(Object.values(temp));
 
                             //TODO: Maybe show 'post not available message'?
                         }
@@ -202,8 +202,10 @@ const Posts = (props: IPostsProps) => {
             <BackTop />
             {
 
-                posts.map((val) => <MyPost key={val.key} post={val} />
+                posts.length > 0 ? posts.map((val) => <MyPost key={val.key} post={val} />
                 )
+                    :
+                    <p style={{ textAlign: "center" }}>You are not following anyone. To see posts here go follow people.</p>
             }
 
         </div>

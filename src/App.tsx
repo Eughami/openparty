@@ -50,13 +50,13 @@ const App = (props: IAppProps) => {
 
 
 
-  useEffect(() => {
+  // useEffect(() => {
 
-    setTimeout(() => {
-      if (currentUser)
-        setCurrentUserToken!(currentUser!)
-    }, 3300);
-  }, [])
+  //   setTimeout(() => {
+  //     if (currentUser)
+  //       setCurrentUserToken!(currentUser!)
+  //   }, 3300);
+  // }, [currentUser, setCurrentUserToken])
 
 
   console.log("APP.TSX PROPS:  ", props.currentUserToken);

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import './header.css';
-import { Col, Row, Badge, Modal, Button, List, Avatar, Tooltip } from 'antd'
-import { UserOutlined, LogoutOutlined, HomeOutlined, UsergroupAddOutlined, AppstoreAddOutlined } from '@ant-design/icons';
+import { Col, Row, Badge, Modal, Menu, Button, Dropdown, List, Avatar, Form, Input, Select, Upload, message, Progress, } from 'antd'
+import { UserOutlined, LogoutOutlined, HomeOutlined, UsergroupAddOutlined, VideoCameraAddOutlined, AlertOutlined, UploadOutlined } from '@ant-design/icons';
 import OpenPartyLogo from '../images/openpaarty.logo.png'
 import { connect } from 'react-redux';
 import { setCurrentUserListener, setCurrentUserRootDatabaseListener } from '../../redux/user/user.actions';
@@ -9,6 +9,8 @@ import { RegistrationObject } from "../interfaces/user.interface";
 import firebase from "firebase";
 import axios from "axios";
 import { Link } from "react-router-dom";
+import { RcFile } from "antd/lib/upload/interface";
+import { makeId } from "../post/post";
 
 interface IHeaderProps {
     setCurrentUserListener?: () => Promise<any>,
@@ -21,6 +23,9 @@ interface IHeaderProps {
 const Header = (props: IHeaderProps) => {
     const [modalVisible, setModalVisible] = useState<boolean>(false);
     const [postModalVisible, setPostModalVisible] = useState<boolean>(false);
+    const [imageUploaded, setImageUploaded] = useState<boolean>(false);
+    const [postWorking, setPostWorking] = useState<boolean>(false);
+    const [uploadedImageUrl, setUploadedImageUrl] = useState<string>("");
     const [followRequests, setFollowRequests] = useState([]);
 
     //Set listener for active follow requests
@@ -43,7 +48,7 @@ const Header = (props: IHeaderProps) => {
         return () => firebase.database().ref("FollowingRequests").off("value", unsub);
 
 
-    }, [])
+    }, [props.currentUser])
 
     const handleOk = () => {
         setModalVisible(false);
@@ -73,6 +78,100 @@ const Header = (props: IHeaderProps) => {
                 authorization: `Bearer ${props.currentUserToken}`
             }
         });
+    }
+
+
+    const handleMenuClick = (e: any) => {
+        message.info('Click on menu item.');
+        console.log('click', e);
+    }
+
+    const menu = (props: IHeaderProps) => (
+        <Menu onClick={handleMenuClick}>
+            <Menu.Item key="1" icon={<UserOutlined />}>
+                <Link
+                    className="nav-link"
+                    to={{
+                        pathname: `/${props.currentUserInfo?.username}`,
+                    }}
+                >
+                    Profile <span role="img" aria-label="muah" >👄</span>
+                </Link>
+            </Menu.Item>
+            <Menu.Item key="2" icon={<AlertOutlined />}>
+                Notifications <span role="img" aria-label="smurth" >🧐</span>
+            </Menu.Item>
+            <Menu.Item onClick={() => setPostModalVisible(true)} key="3" icon={<VideoCameraAddOutlined />}>
+                Add a new Post <span role="img" aria-label="selfie">🤳</span>
+            </Menu.Item>
+        </Menu>
+    );
+
+
+    const { Option } = Select;
+
+    const formItemLayout = {
+        labelCol: { span: 6 },
+        wrapperCol: { span: 14 },
+    };
+
+    const normFile = (e: any) => {
+        console.log('Upload event:', e);
+        if (Array.isArray(e)) {
+            return e;
+        }
+        return e && e.fileList;
+    };
+
+    const onFinish = async (values: any) => {
+        const postData = {
+            caption: values.caption,
+            privacy: values.privacy,
+            tags: values.tags.match(/#\S+/g).map((str: string) => str.replace(/#/g, "")),
+            image_url: uploadedImageUrl,
+            user: {
+                username: props.currentUserInfo?.username,
+                image_url: props.currentUserInfo?.image_url,
+            }
+
+        }
+
+        // console.log("POST DATA:: ", postData);
+
+        setPostWorking(true);
+
+        await axios.post("http://localhost:5000/openpaarty/us-central1/api/v1/posts/", postData, {
+            headers: {
+                authorization: `Bearer ${props.currentUserToken}`
+            }
+        }).then((data) => {
+            console.log("DATA: ", data.data);
+            message.success("Post uploaded");
+            setPostWorking(false);
+            setPostModalVisible(false)
+        }).catch((error) => {
+            setPostWorking(false);
+            setPostModalVisible(false)
+            message.error("Post upload failed");
+            console.log("@UPLOAD POST ERROR: ", error);
+
+        });
+
+
+    };
+
+    const uploadFile = async (file: RcFile) => {
+        const ref = firebase.storage().ref("user-generated-content").child(props.currentUser!.uid).child("uploads").child("post-images")
+            .child(makeId(30));
+        const uploaded = await ref.put(file, {
+            contentType: "image/png"
+        });
+
+        setImageUploaded(true);
+
+        setUploadedImageUrl(await uploaded.ref.getDownloadURL());
+
+        return "http://localhost:5000/openpaarty/us-central1/api1/v1/ping";
     }
 
     return (
@@ -105,10 +204,68 @@ const Header = (props: IHeaderProps) => {
                 title="Add a new post 💖"
                 visible={postModalVisible}
                 okText={null}
-                // onOk={handleOk}
-                footer={null}
-                onCancel={handleCancel} >
+                onOk={() => setPostModalVisible(false)}
+                onCancel={() => setPostModalVisible(false)}
+                footer={null}  >
+                {/* TODO: ADD OPTION FOR AGE, PREVIEW BEFORE UPLOAD POST */}
+                <Form
+                    name="validate_other"
+                    {...formItemLayout}
+                    onFinish={onFinish}
+                    initialValues={{
+                        // 'caption': "Livin' the life",
+                        // 'tags': "#freedom",
+                        // privacy: "Followers",
+                    }}
+                >
 
+                    <Form.Item
+                        label="Caption"
+                        name="caption"
+                        rules={[{ required: true, message: 'Please type a caption' }]}
+                    >
+                        <Input placeholder="Provide a caption for this post" />
+                    </Form.Item>
+
+                    <Form.Item
+                        name="privacy"
+                        label="Privacy"
+                        hasFeedback
+                        rules={[{ required: true, message: 'Please select privacy' }]}
+                    >
+                        <Select placeholder="Please select post privacy">
+                            <Option value="open">Public</Option>
+                            <Option value="hard-closed">Private</Option>
+                            <Option value="followers">Followers</Option>
+                        </Select>
+                    </Form.Item>
+
+                    <Form.Item
+                        label="Tags"
+                        name="tags"
+                    >
+                        <Input placeholder="(Use # to separate tags)" />
+                    </Form.Item>
+
+                    <Form.Item
+                        name="upload"
+                        label="Image"
+                        valuePropName="fileList"
+                        getValueFromEvent={normFile}
+                        extra="Or drop image into box (Max: 1)"
+                        rules={[{ required: true, message: 'Please select an image' }]}
+                    >
+                        <Upload disabled={imageUploaded} name="logo" action={(file) => uploadFile(file)} progress={{ status: "success" }} listType="picture">
+                            <Button icon={<UploadOutlined />}>Click to upload</Button>
+                        </Upload>
+                    </Form.Item>
+
+                    <Form.Item wrapperCol={{ span: 12, offset: 6 }}>
+                        <Button loading={postWorking} type="primary" htmlType="submit">
+                            Post
+                        </Button>
+                    </Form.Item>
+                </Form>
             </Modal>
             <div className="Nav-menus">
                 <div className="Nav-brand">
@@ -126,9 +283,9 @@ const Header = (props: IHeaderProps) => {
                 <Col className='' xs={{ span: 0 }} lg={{ span: 6, offset: 2 }} xxl={{ span: 5, offset: 1 }}>SearchBar</Col>
                 <Col className='' offset={1} span={6}>
                     <Row style={{ alignItems: "center", justifyContent: "space-around" }}>
-                        <Tooltip title="Add a new post 🤳">
+                        {/* <Tooltip title="Add a new post 🤳">
                             <a> <AppstoreAddOutlined onClick={() => setPostModalVisible(true)} size={25} /> </a>
-                        </Tooltip>
+                        </Tooltip> */}
 
                         <Col span="3">
                             <Link
@@ -158,23 +315,20 @@ const Header = (props: IHeaderProps) => {
                         </Col>
                         <Col span="3">
                             <Link
-                                className="nav-link"
                                 to={{
-                                    pathname: `/${props.currentUserInfo?.username}`,
                                 }}
                             >
-                                <UserOutlined size={25} />
+                                <Dropdown overlay={menu(props)}>
+                                    <UserOutlined />
+                                </Dropdown>
                             </Link>
 
-                            {/* <span>
-                                <UserOutlined size={25} onClick={() => window.location.replace(`/profile/${props.currentUserInfo!.username}`)} />
-                            </span> */}
                         </Col>
                         <Col span="3">
-                            <span>
+                            <a>
 
                                 <LogoutOutlined onClick={() => firebase.auth().signOut()} size={25} />
-                            </span>
+                            </a>
                         </Col>
                     </Row>
                 </Col>

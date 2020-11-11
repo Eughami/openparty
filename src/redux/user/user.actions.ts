@@ -3,9 +3,22 @@ import UserActionTypes from './user.types';
 import firebase from "firebase";
 import axios from 'axios'
 
-export const googleSignInStart = () => ({
-  type: UserActionTypes.GOOGLE_SIGN_IN_START
-});
+export const googleSignInStart = () => (dispatch: any) =>
+  new Promise(async (resolve, reject) => {
+    dispatch({ type: UserActionTypes.GOOGLE_SIGN_IN_START });
+    try {
+      firebase.auth().signInWithPopup(new firebase.auth.GoogleAuthProvider()).then((user) => {
+        dispatch({ type: UserActionTypes.SIGN_IN_SUCCESS });
+        resolve(user.user);
+      }).catch((error) => {
+        dispatch({ type: UserActionTypes.SIGN_IN_FAILURE });
+        reject(error)
+      });
+    } catch (error) {
+      dispatch({ type: UserActionTypes.SIGN_IN_FAILURE });
+      reject(error)
+    }
+  });
 
 export const signInSuccess = (user: any) => ({
   type: UserActionTypes.SIGN_IN_SUCCESS,
@@ -70,7 +83,8 @@ export const setCurrentUserListener = () => (dispatch: any) =>
 export const setCurrentUserToken = (currentUser: firebase.User) => (dispatch: any) =>
   new Promise(async (resolve, reject) => {
     try {
-      const token = await currentUser.getIdToken();
+      if (!currentUser) { resolve(""); return };
+      const token = await currentUser.getIdToken(true);
       dispatch({ type: UserActionTypes.SET_CURRENT_USER_TOKEN, payload: token });
       resolve(token);
     } catch (error) {

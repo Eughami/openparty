@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import "./post.css"
-import { Input, Row, Form, Button, Avatar, Tag, message } from 'antd';
-import { ShareAltOutlined, HeartTwoTone, CommentOutlined, SwapRightOutlined } from '@ant-design/icons';
+import { Input, Row, Form, Button, Avatar, Tag, message, Tooltip } from 'antd';
+import { ShareAltOutlined, HeartTwoTone, CommentOutlined, LockTwoTone } from '@ant-design/icons';
 import { Comment, Post as PostInterface, PostTags } from "../interfaces/user.interface";
 import TimeAgo from 'react-timeago';
 import { connect } from 'react-redux';
@@ -45,7 +45,7 @@ const Post = (props: IPostProps) => {
 
     props.post.likes = Object.keys(props.post.likes ? props.post.likes : {});
 
-    const { user_id, likes, image_url, caption, comments, users_showing_up, date_of_event, date_of_post, tags, id: post_id } = props.post
+    const { user_id, likes, image_url, caption, comments, users_showing_up, date_of_event, date_of_post, tags, id: post_id, privacy } = props.post
 
     const { image_url: avatar_url, username } = props.post.user;
 
@@ -170,6 +170,17 @@ const Post = (props: IPostProps) => {
                         </Link>
 
                     </div>
+                    {
+                        (privacy as any) === "hard-closed" &&
+
+                        <Tooltip title="Only you can see this post 🙈 ">
+
+                            <span style={{ fontSize: "25px", marginLeft: "75%" }}>
+                                <LockTwoTone twoToneColor="#eb2f96" />
+                            </span>
+                        </Tooltip>
+
+                    }
                 </div>
             </header>
             <div className="Post-image">
@@ -225,6 +236,7 @@ const Post = (props: IPostProps) => {
                                 <span style={{ fontWeight: "bold" }}>{comment.user.username} </span>
                             </Link>
 
+                            {/* <span style={{ marginLeft: 10 }}>{comment.comment.match(/@\S+/g)?.map(str => `<a href="/${str}" />`)}</span><br /> */}
                             <span style={{ marginLeft: 10 }}>{comment.comment}</span><br />
                             {/* <span style={{ float: "right", fontSize: "small" }}>
                                 

@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Form, Input, Button, Checkbox } from 'antd';
+import { Form, Input, Button, message } from 'antd';
 
 import { emailSignInStart, googleSignInStart } from '../redux/user/user.actions'
 import { connect } from 'react-redux';
@@ -19,6 +19,7 @@ const tailLayout = {
   wrapperCol: { offset: 8, span: 16 },
 };
 
+//TODO: ADD SIGN IN WITH USERNAME && PHONE NUMBER
 const Login = (props: IAppProps) => {
 
   const { currentUser } = props;
@@ -37,7 +38,14 @@ const Login = (props: IAppProps) => {
   const onFinish = (values: any) => {
     const { username, password } = values
     console.log('Success:', values);
-    props.emailSignInStart!(username, password, props!.history);
+    props.emailSignInStart!(username, password, props!.history)
+      .then(() => {
+        message.success("Login successful")
+
+      })
+      .catch((error) => {
+        message.error(error.message)
+      });
   };
 
   const onFinishFailed = (errorInfo: any) => {
@@ -52,6 +60,7 @@ const Login = (props: IAppProps) => {
       onFinish={onFinish}
       onFinishFailed={onFinishFailed}
     >
+      <h1 style={{ textAlign: "center" }}>Login</h1>
       <Form.Item
         label="Username"
         name="username"
