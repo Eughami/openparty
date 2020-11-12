@@ -29,6 +29,7 @@ const Header = (props: IHeaderProps) => {
     const [postWorking, setPostWorking] = useState<boolean>(false);
     const [followRequests, setFollowRequests] = useState([]);
     const { Option } = Select;
+    const [form] = Form.useForm();
 
     //Set listener for active follow requests
     useEffect(() => {
@@ -121,11 +122,14 @@ const Header = (props: IHeaderProps) => {
         return e && e.fileList;
     };
 
+    const clearForm = () => form.resetFields();
+
     const onFinish = async (values: any) => {
         // console.log("POST DATA:: ", values['event-date'] && values['event-date'].unix());
         // if (values['event-date'].unix() > new Date().getTime()) {
         //     message.error("Selected time must be in the future");
         // }
+        // clearForm();
         // return
         let postData: any = {
             caption: values.caption,
@@ -158,7 +162,8 @@ const Header = (props: IHeaderProps) => {
             console.log("DATA: ", data.data);
             message.success("Post uploaded 🌟 ");
             setPostWorking(false);
-            setPostModalVisible(false)
+            setPostModalVisible(false);
+            clearForm();
         }).catch((error) => {
             setPostWorking(false);
             setPostModalVisible(false)
@@ -237,6 +242,7 @@ const Header = (props: IHeaderProps) => {
                 footer={null}  >
                 {/* TODO: ADD OPTION FOR AGE, PREVIEW BEFORE UPLOAD POST */}
                 <Form
+                    form={form}
                     name="validate_other"
                     {...formItemLayout}
                     onFinish={onFinish}
