@@ -254,7 +254,7 @@ const Header = (props: IHeaderProps) => {
                         name="caption"
                         rules={[{ required: true, message: 'Please type a caption' }]}
                     >
-                        <Input placeholder="Provide a caption for this post" />
+                        <Input multiple placeholder="Provide a caption for this post" />
                     </Form.Item>
 
                     <Form.Item

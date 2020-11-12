@@ -4,7 +4,7 @@ import firebase from "firebase";
 import MyPost from './post/post';
 import { Post, PostPrivacy, RegistrationObject, Comment } from './interfaces/user.interface';
 import { connect } from 'react-redux';
-import { setCurrentUserListener, setCurrentUserRootDatabaseListener, setCurrentUserEligiblePosts } from '../redux/user/user.actions';
+import { setCurrentUserListener, setCurrentUserRootDatabaseListener, setCurrentUserEligiblePosts, setCurrentUserToken } from '../redux/user/user.actions';
 import axios from "axios"
 import bluebird from "bluebird"
 import { AppleOutlined, AndroidOutlined } from '@ant-design/icons';
@@ -13,6 +13,7 @@ interface IUserProps {
     setCurrentUserListener?: () => Promise<any>,
     setCurrentUserRootDatabaseListener?: (uid: string) => Promise<any>,
     setCurrentUserEligiblePosts?: (currentUser: firebase.User) => Promise<any>,
+    setCurrentUserToken?: (currentUser: firebase.User) => Promise<string | null>,
     currentUser?: firebase.User,
     currentUserInfo?: RegistrationObject,
     currentUserToken?: string,
@@ -126,6 +127,13 @@ const UserProfile = (props: IUserProps) => {
         const decodeProfile = async () => {
             if (!currentUser) return;
 
+            if (!currentUserToken) {
+                props.setCurrentUserToken!(currentUser)
+                return;
+            }
+
+            console.log("@5555=========", currentUserToken);
+
             const result = await axios.post("http://localhost:5000/openpaarty/us-central1/api/v1/users/can-view-user-profile", {
                 targetUsername: username
             }, {
@@ -134,7 +142,7 @@ const UserProfile = (props: IUserProps) => {
                 }
             });
 
-            console.log(result.data);
+
 
             if (result.data.success) {
                 if (result.data.selfUser) {
@@ -235,7 +243,7 @@ const UserProfile = (props: IUserProps) => {
         decodeProfile();
 
         // return () => localStorage.removeItem("otherUserProfileLoaded") 
-    }, [currentUserEligiblePosts, username, currentUser, currentUserToken])
+    }, [currentUserEligiblePosts, username, currentUser, currentUserToken, props.setCurrentUserToken])
 
 
 
@@ -529,6 +537,7 @@ const mapStateToProps = (state: any) => {
 const mapDispatchToProps = (dispatch: any) => {
     return {
         setCurrentUserListener: () => dispatch(setCurrentUserListener()),
+        setCurrentUserToken: (currentUser: firebase.User) => dispatch(setCurrentUserToken(currentUser)),
         setCurrentUserRootDatabaseListener: (uid: string) => dispatch(setCurrentUserRootDatabaseListener(uid)),
         setCurrentUserEligiblePosts: (currentUser: firebase.User) => dispatch(setCurrentUserEligiblePosts(currentUser)),
     }

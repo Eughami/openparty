@@ -239,7 +239,14 @@ const Post = (props: IPostProps) => {
 
                 <Row style={{ marginBottom: 10 }} className='post__clikes__and__comments' align='middle'>
                     {
-                        tags && tags.map((tag: PostTags, index: number) => <Tag color={getPostTagColor(tag)} key={index}> {tag} </Tag>)
+                        tags && tags.map((tag: PostTags, index: number) => <Tag color={getPostTagColor(tag)} key={index}>
+                            <Link
+                                to={{
+                                    pathname: `/t/${tag}`,
+                                }}
+                            >
+                                {tag}
+                            </Link> </Tag>)
                     }
                     {/* <div><Tag color="processing">Beach Party</Tag> </div>
                     <div><Tag color="red">BYO-Coke</Tag> </div>

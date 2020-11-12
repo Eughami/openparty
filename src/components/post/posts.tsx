@@ -123,6 +123,10 @@ const Posts = (props: IPostsProps) => {
 
     useEffect(() => {
         if (!currentUser) return;
+        // if (currentUserEligiblePosts!.length === 0) {
+        //     setLoading(false);
+        //     return;
+        // }
         const getEligible = async () => {
 
             let temp: any = {};
@@ -207,10 +211,14 @@ const Posts = (props: IPostsProps) => {
             <BackTop />
             {
 
-                posts.length > 0 ? posts.map((val) => <MyPost key={val.key} post={val} />
+                posts.length > 0 && posts.map((val) => <MyPost key={val.key} post={val} />
                 )
-                    :
-                    <p style={{ textAlign: "center" }}>You are not following anyone. To see posts here go follow people.</p>
+                // :
+                // <p style={{ textAlign: "center" }}>You are not following anyone. To see posts here go follow people.</p>
+            }
+            {
+                props.currentUserEligiblePosts!.length === 0 && <p style={{ textAlign: "center" }}>You are not following anyone. To see posts here go follow people.</p>
+
             }
 
         </div>

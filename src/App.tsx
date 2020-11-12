@@ -11,6 +11,7 @@ import 'antd/dist/antd.css';
 import Login from './components/login';
 import RegistrationForm from './components/register';
 import UserProfile from './components/user-info';
+import Tags from './components/tags';
 import { RegistrationObject } from './components/interfaces/user.interface';
 import { Col, Spin, Tabs } from 'antd';
 import Header from './components/header/header'
@@ -108,6 +109,7 @@ const App = (props: IAppProps) => {
           <Switch>
             <Route exact path="/" component={Homepage} />
             <Route exact path="/:username" component={UserProfile} />
+            <Route exact path="/t/:tag" component={Tags} />
             <Route component={Homepage} />
           </Switch>
         </div>
