@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import './header.css';
-import { Col, Row, Badge, Modal, Menu, Button, Dropdown, List, Avatar, Form, Input, Select, Upload, message, Progress, } from 'antd'
+import { Col, Row, Badge, Modal, Menu, Button, Dropdown, List, Avatar, Form, Input, Select, Upload, message, Progress, DatePicker, } from 'antd'
 import { UserOutlined, LogoutOutlined, HomeOutlined, UsergroupAddOutlined, VideoCameraAddOutlined, AlertOutlined, UploadOutlined } from '@ant-design/icons';
 import OpenPartyLogo from '../images/openpaarty.logo.png'
 import { connect } from 'react-redux';
@@ -10,7 +10,10 @@ import firebase from "firebase";
 import axios from "axios";
 import { Link } from "react-router-dom";
 import { RcFile } from "antd/lib/upload/interface";
+import bluebird from "bluebird";
 import { makeId } from "../post/post";
+import ImgCrop from 'antd-img-crop';
+import { Moment } from "moment";
 
 interface IHeaderProps {
     setCurrentUserListener?: () => Promise<any>,
@@ -23,10 +26,9 @@ interface IHeaderProps {
 const Header = (props: IHeaderProps) => {
     const [modalVisible, setModalVisible] = useState<boolean>(false);
     const [postModalVisible, setPostModalVisible] = useState<boolean>(false);
-    const [imageUploaded, setImageUploaded] = useState<boolean>(false);
     const [postWorking, setPostWorking] = useState<boolean>(false);
-    const [uploadedImageUrl, setUploadedImageUrl] = useState<string>("");
     const [followRequests, setFollowRequests] = useState([]);
+    const { Option } = Select;
 
     //Set listener for active follow requests
     useEffect(() => {
@@ -80,7 +82,6 @@ const Header = (props: IHeaderProps) => {
         });
     }
 
-
     const handleMenuClick = (e: any) => {
         message.info('Click on menu item.');
         console.log('click', e);
@@ -107,9 +108,6 @@ const Header = (props: IHeaderProps) => {
         </Menu>
     );
 
-
-    const { Option } = Select;
-
     const formItemLayout = {
         labelCol: { span: 6 },
         wrapperCol: { span: 14 },
@@ -124,21 +122,33 @@ const Header = (props: IHeaderProps) => {
     };
 
     const onFinish = async (values: any) => {
-        const postData = {
+        // console.log("POST DATA:: ", values['event-date'] && values['event-date'].unix());
+        // if (values['event-date'].unix() > new Date().getTime()) {
+        //     message.error("Selected time must be in the future");
+        // }
+        // return
+        let postData: any = {
             caption: values.caption,
             privacy: values.privacy,
-            tags: values.tags.match(/#\S+/g).map((str: string) => str.replace(/#/g, "")),
-            image_url: uploadedImageUrl,
+            tags: values.tags ? values.tags.match(/#\S+/g).map((str: string) => str.replace(/#/g, "")) : [],
             user: {
                 username: props.currentUserInfo?.username,
                 image_url: props.currentUserInfo?.image_url,
-            }
+            },
+            date_of_event: values['event-date'].unix(),
 
         }
 
-        // console.log("POST DATA:: ", postData);
-
         setPostWorking(true);
+
+        const urls: string[] = [];
+
+        await bluebird.map(values.upload, async (file: any) => {
+            urls.push(await uploadFile(file.originFileObj));
+
+        }, { concurrency: values.upload.length });
+
+        postData.image_url = urls;
 
         await axios.post("http://localhost:5000/openpaarty/us-central1/api/v1/posts/", postData, {
             headers: {
@@ -146,7 +156,7 @@ const Header = (props: IHeaderProps) => {
             }
         }).then((data) => {
             console.log("DATA: ", data.data);
-            message.success("Post uploaded");
+            message.success("Post uploaded 🌟 ");
             setPostWorking(false);
             setPostModalVisible(false)
         }).catch((error) => {
@@ -157,21 +167,39 @@ const Header = (props: IHeaderProps) => {
 
         });
 
-
     };
 
-    const uploadFile = async (file: RcFile) => {
+    const uploadFile = async (file: RcFile): Promise<string> => {
         const ref = firebase.storage().ref("user-generated-content").child(props.currentUser!.uid).child("uploads").child("post-images")
             .child(makeId(30));
         const uploaded = await ref.put(file, {
             contentType: "image/png"
         });
 
-        setImageUploaded(true);
+        // setImageUploaded(true);
 
-        setUploadedImageUrl(await uploaded.ref.getDownloadURL());
+        // setUploadedImageUrl(await uploaded.ref.getDownloadURL());
 
-        return "http://localhost:5000/openpaarty/us-central1/api1/v1/ping";
+        return await uploaded.ref.getDownloadURL();
+    }
+
+    const onPreview = async (file: any) => {
+        let src = file.url;
+        if (!src) {
+            src = await new Promise(resolve => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file.originFileObj);
+                reader.onload = () => resolve(reader.result);
+            });
+        }
+        const image = new Image();
+        image.src = src;
+        const imgWindow = window.open(src);
+        imgWindow && imgWindow.document.write(image.outerHTML);
+    };
+
+    function onDateChange(date: Moment | null, __dateString?: string) {
+        // console.log("@OKOK : ", date && date.unix());
     }
 
     return (
@@ -212,11 +240,7 @@ const Header = (props: IHeaderProps) => {
                     name="validate_other"
                     {...formItemLayout}
                     onFinish={onFinish}
-                    initialValues={{
-                        // 'caption': "Livin' the life",
-                        // 'tags': "#freedom",
-                        // privacy: "Followers",
-                    }}
+                // initialValues={{ }}
                 >
 
                     <Form.Item
@@ -240,6 +264,10 @@ const Header = (props: IHeaderProps) => {
                         </Select>
                     </Form.Item>
 
+                    <Form.Item name="event-date" label="Date of Event" rules={[{ required: true, message: 'Please provide a date for this event' }]}>
+                        <DatePicker showTime format="YYYY-MM-DD HH:mm:ss" />
+                    </Form.Item>
+
                     <Form.Item
                         label="Tags"
                         name="tags"
@@ -252,12 +280,15 @@ const Header = (props: IHeaderProps) => {
                         label="Image"
                         valuePropName="fileList"
                         getValueFromEvent={normFile}
-                        extra="Or drop image into box (Max: 1)"
+                        extra="Or drop image into box"
                         rules={[{ required: true, message: 'Please select an image' }]}
                     >
-                        <Upload disabled={imageUploaded} name="logo" action={(file) => uploadFile(file)} progress={{ status: "success" }} listType="picture">
-                            <Button icon={<UploadOutlined />}>Click to upload</Button>
-                        </Upload>
+                        {/* <ImgCrop rotate > */}
+                        <Upload accept="image/*" onPreview={onPreview} name="logo" action={"http://localhost:5000/openpaarty/us-central1/api1/v1/ping"} progress={{ status: "success" }} listType="picture-card">
+                            {/* <Button icon={<UploadOutlined />}>Click to upload</Button> */}
+                                + Upload
+                            </Upload>
+                        {/* </ImgCrop> */}
                     </Form.Item>
 
                     <Form.Item wrapperCol={{ span: 12, offset: 6 }}>
@@ -333,7 +364,7 @@ const Header = (props: IHeaderProps) => {
                     </Row>
                 </Col>
             </div>
-        </nav>
+        </nav >
     );
 }
 const mapStateToProps = (state: any) => {

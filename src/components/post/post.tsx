@@ -1,6 +1,7 @@
+
 import React, { useEffect, useState } from "react";
 import "./post.css"
-import { Input, Row, Form, Button, Avatar, Tag, message, Tooltip } from 'antd';
+import { Input, Row, Form, Button, Avatar, Tag, message, Tooltip, Carousel } from 'antd';
 import { ShareAltOutlined, HeartTwoTone, CommentOutlined, LockTwoTone } from '@ant-design/icons';
 import { Comment, Post as PostInterface, PostTags } from "../interfaces/user.interface";
 import TimeAgo from 'react-timeago';
@@ -45,7 +46,7 @@ const Post = (props: IPostProps) => {
 
     props.post.likes = Object.keys(props.post.likes ? props.post.likes : {});
 
-    const { user_id, likes, image_url, caption, comments, users_showing_up, date_of_event, date_of_post, tags, id: post_id, privacy } = props.post
+    const { uid: user_id, likes, image_url, caption, comments, users_showing_up, date_of_event, date_of_post, tags, id: post_id, privacy } = props.post
 
     const { image_url: avatar_url, username } = props.post.user;
 
@@ -115,35 +116,48 @@ const Post = (props: IPostProps) => {
         }
     }
 
+    // useEffect(() => {
+    //     setUserLikePost(props.post.likes.indexOf(currentUser?.uid!) !== -1)
+
+    // }, [props.post.likes, currentUser])
+
     //TODO: Maybe to make things appear faster, we can fake increase/decrease the 
     //number of likes-- before posting to our endpoint. We can catch any errors afterwards and
     // act appropriately
     const handlePostLike = async () => {
         if (userLikePost) {
-            await axios.post("http://localhost:5000/openpaarty/us-central1/api/v1/posts/unlike-post", {
-                id: post_id,
-                targetUsername: username
-            }, {
-                headers: {
-                    authorization: `Bearer ${currentUserToken}`
-                }
-            });
+            await firebase.database().ref("Postsv2").child(user_id).child(post_id).child("likes").child(currentUser?.uid!).remove();
+
+            message.success("You dislike this post");
 
             setUserLikePost(false);
 
-            message.success("You dislike this post");
+            // delete props.post.likes[currentUser?.uid! as any];
+
+
+            // await axios.post("http://localhost:5000/openpaarty/us-central1/api/v1/posts/unlike-post", {
+            //     id: post_id,
+            //     targetUsername: username
+            // }, {
+            //     headers: {
+            //         authorization: `Bearer ${currentUserToken}`
+            //     }
+            // });
 
         }
         else {
 
-            await axios.post("http://localhost:5000/openpaarty/us-central1/api/v1/posts/like-post", {
-                id: post_id,
-                targetUsername: username,
-            }, {
-                headers: {
-                    authorization: `Bearer ${currentUserToken}`
-                }
-            });
+            await firebase.database().ref("Postsv2").child(user_id).child(post_id).child("likes").child(currentUser?.uid!).set(currentUser?.uid!);
+
+
+            // await axios.post("http://localhost:5000/openpaarty/us-central1/api/v1/posts/like-post", {
+            //     id: post_id,
+            //     targetUsername: username,
+            // }, {
+            //     headers: {
+            //         authorization: `Bearer ${currentUserToken}`
+            //     }
+            // });
 
             setUserLikePost(true);
 
@@ -170,12 +184,16 @@ const Post = (props: IPostProps) => {
                         </Link>
 
                     </div>
+                    <span style={{ marginLeft: "22%", fontWeight: "bold" }}>
+                        <TimeAgo live date={`${date_of_post ? new Date(date_of_post).toISOString() : ""}`} />
+
+                    </span>
                     {
                         (privacy as any) === "hard-closed" &&
 
                         <Tooltip title="Only you can see this post 🙈 ">
 
-                            <span style={{ fontSize: "25px", marginLeft: "75%" }}>
+                            <span style={{ fontSize: "25px", marginLeft: "35%", display: "flex", justifyContent: "right" }}>
                                 <LockTwoTone twoToneColor="#eb2f96" />
                             </span>
                         </Tooltip>
@@ -186,7 +204,16 @@ const Post = (props: IPostProps) => {
             <div className="Post-image">
                 <div className="Post-image-bg">
                     {/* How to handle posts w/out images?? */}
-                    <img alt={caption} src={image_url} />
+                    <Carousel adaptiveHeight swipeToSlide touchMove dotPosition="top"  >
+                        {
+                            image_url?.map((url, idx) => (
+                                <div key={idx} >
+                                    <img alt={caption} src={url} />
+                                </div>
+                            ))
+                        }
+
+                    </Carousel>
                 </div>
             </div>
             <div className="Post-caption">
@@ -202,7 +229,8 @@ const Post = (props: IPostProps) => {
                     </span>
 
                 </Row>
-                <TimeAgo live date={`${date_of_post ? new Date(date_of_post).toISOString() : ""}`} />
+                {date_of_event && <p>Event on <TimeAgo live date={`${new Date(date_of_event * 1000).toISOString()}`} /> </p>}
+
                 <Row style={{}} align='middle'>
                     <p style={{ textAlign: "left", fontWeight: "bold" }}> {likes.length} {likes.length <= 1 ? "like" : "likes"}</p>
                     {/* <span style={{ textAlign: "left" }} >

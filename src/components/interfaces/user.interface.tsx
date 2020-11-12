@@ -36,16 +36,16 @@ export interface PostTags_v2 {
 }
 
 export interface Post {
-  user_id: string, //ID of the user owning the post
+  uid: string, //ID of the user owning the post
   location?: Map<number, number> //Lat & Lng of the location of the post
   likes: Array<string>,
   age_rating?: AgeRating,
-  image_url?: string,
+  image_url?: Array<string>,
   caption: string,
   comments?: Array<Comment>,
   users_showing_up?: number, //Indicating how many users would be showing up to this event,
-  date_of_post?: Date,
-  date_of_event?: Date,
+  date_of_post?: number,
+  date_of_event?: number,
   privacy: PostPrivacy,
   tags?: Array<PostTags>,
   user: {

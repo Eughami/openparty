@@ -40,7 +40,7 @@ export const awaitFillPosts = async (posts: Array<firebase.database.DataSnapshot
                 },
                 likes: posts[i].val().likes,
                 privacy: posts[i].val().privacy,
-                user_id: user.uid,
+                uid: user.uid,
                 image_url: posts[i].val().image_url,
                 tags: posts[i].val().tags,
                 id: posts[i].key!,
@@ -83,7 +83,7 @@ export const awaitFillPosts = async (posts: Array<firebase.database.DataSnapshot
                     },
                     likes: posts[i].val().likes,
                     privacy: posts[i].val().privacy,
-                    user_id: userPosts.key!,
+                    uid: userPosts.key!,
                     image_url: posts[i].val().image_url,
                     tags: posts[i].val().tags,
                     id: posts[i].key!,
@@ -137,14 +137,19 @@ const Posts = (props: IPostsProps) => {
                         temp[`${obj.uidRef + obj.postRef}`] = ssh.val();
                         temp[`${obj.uidRef + obj.postRef}`].key = `${obj.uidRef + obj.postRef}`;
 
-                        setPosts(Object.values(temp)); setLoading(false)
+                        setPosts(Object.values(temp).sort((s1: any, s2: any) => s2.date_of_post - s1.date_of_post)); setLoading(false)
                     }
 
                     if (index === currentUserEligiblePosts!.length - 1 && !localStorage.getItem("postsSet")) {
 
-                        setPosts(Object.values(temp));
+                        setPosts(Object.values(temp).sort((s1: any, s2: any) => s2.date_of_post - s1.date_of_post));
 
-                        console.log("@POSTS DEBUG: ", Object.values(temp));
+                        console.log("@POSTS DEBUG: ", Object.values(temp).sort((s1: any, s2: any) => s2.date_of_post - s1.date_of_post));
+
+                        // Object.values(temp).map((temp: any) => {
+                        //     return console.log("THIS@TEMP: ", temp.date_of_post);
+
+                        // })
 
                         localStorage.setItem("postsSet", "true");
 

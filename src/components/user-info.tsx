@@ -52,10 +52,12 @@ const UserProfile = (props: IUserProps) => {
                 },
                 likes: posts[i].val().likes,
                 privacy: posts[i].val().privacy,
-                user_id: user.uid,
+                uid: user.uid,
                 image_url: posts[i].val().image_url,
                 tags: posts[i].val().tags,
                 id: posts[i].key!,
+                date_of_post: posts[i].val().date_of_post,
+                date_of_event: posts[i].val().date_of_event,
             });
             console.log("INNER COMMENT: ", posts[i].val());
             if (posts[i].val().comments) {
@@ -76,7 +78,7 @@ const UserProfile = (props: IUserProps) => {
 
         }
 
-        return temp;
+        return temp.sort((s1, s2) => s2.date_of_post! - s1.date_of_post!);
 
     };
 
@@ -98,7 +100,7 @@ const UserProfile = (props: IUserProps) => {
                     });
 
 
-                    console.log("==== POST IDS: ", ttt);
+                    console.log("====== POST IDS: ", ttt);
 
                     setPosts(await awaitFillPosts(ttt, currentUserInfo!))
 
@@ -177,14 +179,14 @@ const UserProfile = (props: IUserProps) => {
                                     temp[`${obj.uidRef + obj.postRef}`] = ssh.val();
                                     temp[`${obj.uidRef + obj.postRef}`].key = `${obj.uidRef + obj.postRef}`;
 
-                                    setPosts(Object.values(temp));
+                                    setPosts(Object.values(temp).sort((s1: any, s2: any) => s2.date_of_post - s1.date_of_post) as any[]);
                                 }
 
 
                                 if (index === currentUserEligiblePosts!.filter(eligible => eligible.username === username).length - 1 && !localStorage.getItem("otherUserPostsSet")) {
                                     console.log("IN COND: ", Object.values(temp));
 
-                                    setPosts(Object.values(temp));
+                                    setPosts(Object.values(temp).sort((s1: any, s2: any) => s2.date_of_post - s1.date_of_post) as any[]);
 
                                     console.log("@POSTS DEBUG: ", Object.values(temp));
 
@@ -209,9 +211,6 @@ const UserProfile = (props: IUserProps) => {
                         }, { concurrency: currentUserEligiblePosts!.filter(eligible => eligible.username === username).length }).then(() => {
                             console.log("DONE MAPPING");
                         })
-
-
-
                     }
                     else if (result.data.privacy === "closed") {
                         setLoading(false)
