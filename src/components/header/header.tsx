@@ -14,6 +14,7 @@ import bluebird from "bluebird";
 import { makeId } from "../post/post";
 import ImgCrop from 'antd-img-crop';
 import { Moment } from "moment";
+import AsyncMention from '../mentions/mentions.component';
 
 interface IHeaderProps {
     setCurrentUserListener?: () => Promise<any>,
@@ -203,10 +204,6 @@ const Header = (props: IHeaderProps) => {
         imgWindow && imgWindow.document.write(image.outerHTML);
     };
 
-    function onDateChange(date: Moment | null, __dateString?: string) {
-        // console.log("@OKOK : ", date && date.unix());
-    }
-
     return (
         <nav className="Nav">
             <Modal
@@ -254,7 +251,8 @@ const Header = (props: IHeaderProps) => {
                         name="caption"
                         rules={[{ required: true, message: 'Please type a caption' }]}
                     >
-                        <Input multiple placeholder="Provide a caption for this post" />
+                        <AsyncMention autoSize placeholder="Provide a caption for this post" />
+                        {/* <Input multiple placeholder="Provide a caption for this post" /> */}
                     </Form.Item>
 
                     <Form.Item

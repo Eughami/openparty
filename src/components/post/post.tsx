@@ -1,6 +1,7 @@
 
 import React, { useEffect, useState } from "react";
 import "./post.css"
+import AsyncMention from '../mentions/mentions.component';
 import { Input, Row, Form, Button, Avatar, Tag, message, Tooltip, Carousel } from 'antd';
 import { ShareAltOutlined, HeartTwoTone, CommentOutlined, LockTwoTone } from '@ant-design/icons';
 import { Comment, Post as PostInterface, PostTags } from "../interfaces/user.interface";
@@ -98,9 +99,11 @@ const Post = (props: IPostProps) => {
         }
     }
 
-    const handleCommentChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        event.preventDefault();
-        const { value } = event.target;
+    const handleCommentChange = (value: string) => {
+        // event.preventDefault();
+        // const { value } = event.target;
+        console.log("COMM V: ", value);
+
         if (value.length > 0) {
             setComment({
                 comment: value,
@@ -239,19 +242,18 @@ const Post = (props: IPostProps) => {
 
                 <Row style={{ marginBottom: 10 }} className='post__clikes__and__comments' align='middle'>
                     {
-                        tags && tags.map((tag: PostTags, index: number) => <Tag color={getPostTagColor(tag)} key={index}>
-                            <Link
-                                to={{
-                                    pathname: `/t/${tag}`,
-                                }}
-                            >
-                                {tag}
-                            </Link> </Tag>)
+                        tags && <Tooltip title="Click to view posts with this tags">
+                            {tags && tags.map((tag: PostTags, index: number) => <Tag color={getPostTagColor(tag)} key={index}>
+                                <Link
+                                    to={{
+                                        pathname: `/t/${tag}`,
+                                    }}
+                                >
+                                    {tag}
+                                </Link> </Tag>
+                            )}
+                        </Tooltip>
                     }
-                    {/* <div><Tag color="processing">Beach Party</Tag> </div>
-                    <div><Tag color="red">BYO-Coke</Tag> </div>
-                    <div><Tag color="green">Drinks</Tag> </div>
-                    <div><Tag>Bikini</Tag> </div> */}
                 </Row>
 
                 {/* <Row className='post__captions' align='middle'>
@@ -313,7 +315,8 @@ const Post = (props: IPostProps) => {
             {/* </Row> */}
             <Row>
                 <Row style={{ flex: 1 }} className='post__add__comment'>
-                    <Input value={comment.comment} onChange={(event) => handleCommentChange(event)} placeholder="Add a comment..." />
+                    <AsyncMention onChange={handleCommentChange} placeholder="Add a comment..." />
+                    {/* <Input value={comment.comment} onChange={(event) => handleCommentChange(event)} placeholder="Add a comment..." /> */}
                 </Row>
                 <Button loading={postCommentLoading} onClick={onPostComment} disabled={comment.comment.length === 0} style={{ height: 50 }} >Post</Button>
             </Row>
