@@ -2,12 +2,72 @@ import React from 'react'
 import { Mentions } from 'antd';
 import debounce from 'lodash/debounce';
 import './mentions.style.css'
+import { Link } from 'react-router-dom';
+import reactStringReplace from 'react-string-replace';
+
 
 const { Option } = Mentions;
+
+export const replaceAtMentionsWithLinks = (text: string) => {
+    return text.replace(/@([a-z\d_]+)/ig, '<a  onclick="() => history.replace(`/ares`)" >@$1</a>');
+    // if (res.includes("@")) {
+    //     return {
+    //         f: true,
+    //         r: res,
+    //     }
+    // }
+    // return { f: false, r: res };
+}
+
+export const replaceAtMentionsWithLinks2 = (text: string, replace?: string | string[] | null) => {
+    return <div>
+        {reactStringReplace(text, /@([a-z\d_]+)/ig, (match, i) => (
+            <Link key={i} to={`/${match}`}>@{match}</Link>
+        ))}
+    </div>
+}
+
+/**
+ * Find and highlight relevant keywords within a block of text
+ * @param  label - The text to parse
+ * @param  value - The search keyword to highlight
+ * @return A JSX object containing an array of alternating strings and JSX
+ */
+export const formatLabel = (label: string, value: string) => {
+    if (!value) {
+        return label;
+    }
+    return (
+        <span>
+            {label.split(value)
+                .reduce((prev: any, current: any, i: any) => {
+                    if (!i) {
+                        return [current];
+                    }
+                    return prev.concat(<Link to={{}} key={value + current}>{"@jinxed".match(/@\S+/g)?.map(str => `${str}`)}</Link>, current);
+                }, [])
+            }
+            {/* <Link to={{}}>
+                {label.split(value)
+                    .reduce((prev: any, current: any, i: any) => {
+                        if (!i) {
+                            return [current];
+                        }
+                        return prev.concat(<b key={value + current}>{value}</b>, current);
+                    }, [])
+                }
+            </Link> */}
+        </span>
+
+
+    );
+};
 
 interface IMentionsProps {
     placeholder?: string,
     autoSize?: boolean,
+    rows?: number,
+    value?: string,
     onChange?: any
 }
 
@@ -63,7 +123,7 @@ class AsyncMention extends React.Component<IMentionsProps, IMentionsState> {
         const { users, loading } = this.state;
 
         return (
-            <Mentions autoSize={this.props.autoSize} onChange={this.props.onChange && this.props.onChange} placeholder={this.props.placeholder && this.props.placeholder} style={{ width: '100%' }} loading={loading} onSearch={this.onSearch}>
+            <Mentions value={this.props.value && this.props.value} rows={this.props.rows && this.props.rows} autoSize={this.props.autoSize} onChange={this.props.onChange && this.props.onChange} placeholder={this.props.placeholder && this.props.placeholder} style={{ width: '100%' }} loading={loading} onSearch={this.onSearch}>
                 {users.map(({ username, image_url: avatar }) => (
                     <Option className="antd-demo-dynamic-option" key={username} value={username}   >
                         <img src={avatar} alt={username} />

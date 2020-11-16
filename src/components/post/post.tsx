@@ -1,7 +1,7 @@
 
 import React, { useEffect, useState } from "react";
 import "./post.css"
-import AsyncMention from '../mentions/mentions.component';
+import AsyncMention, { formatLabel, replaceAtMentionsWithLinks, replaceAtMentionsWithLinks2 } from '../mentions/mentions.component';
 import { Input, Row, Form, Button, Avatar, Tag, message, Tooltip, Carousel } from 'antd';
 import { ShareAltOutlined, HeartTwoTone, CommentOutlined, LockTwoTone } from '@ant-design/icons';
 import { Comment, Post as PostInterface, PostTags } from "../interfaces/user.interface";
@@ -37,6 +37,7 @@ export const makeId = (length: number) => {
     }
     return result;
 };
+
 
 const Post = (props: IPostProps) => {
     console.log("POST.TSX PROPS: ", (props.post.likes));
@@ -258,7 +259,7 @@ const Post = (props: IPostProps) => {
 
                 {/* <Row className='post__captions' align='middle'>
                 </Row> */}
-                <strong>{username}</strong> {caption}
+                <strong >{username}</strong> {caption}
                 <br />
 
                 {/* <p style={{ fontWeight: "bold" }}>Comments</p><br /> */}
@@ -273,8 +274,16 @@ const Post = (props: IPostProps) => {
                                 <span style={{ fontWeight: "bold" }}>{comment.user.username} </span>
                             </Link>
 
+
+                            <span style={{ marginLeft: 10 }}>
+                                {replaceAtMentionsWithLinks2(comment.comment)}
+                            </span>
+
+
+
+                            {/* <span style={{ marginLeft: 10 }}> {formatLabel(comment.comment, "@")}</span><br /> */}
                             {/* <span style={{ marginLeft: 10 }}>{comment.comment.match(/@\S+/g)?.map(str => `<a href="/${str}" />`)}</span><br /> */}
-                            <span style={{ marginLeft: 10 }}>{comment.comment}</span><br />
+                            {/* <span dangerouslySetInnerHTML={{ __html: (replaceAtMentionsWithLinks(comment.comment)) }} style={{ marginLeft: 10 }}></span><br /> */}
                             {/* <span style={{ float: "right", fontSize: "small" }}>
                                 
                             </span> */}
@@ -315,7 +324,7 @@ const Post = (props: IPostProps) => {
             {/* </Row> */}
             <Row>
                 <Row style={{ flex: 1 }} className='post__add__comment'>
-                    <AsyncMention onChange={handleCommentChange} placeholder="Add a comment..." />
+                    <AsyncMention value={comment.comment} onChange={handleCommentChange} placeholder="Add a comment..." />
                     {/* <Input value={comment.comment} onChange={(event) => handleCommentChange(event)} placeholder="Add a comment..." /> */}
                 </Row>
                 <Button loading={postCommentLoading} onClick={onPostComment} disabled={comment.comment.length === 0} style={{ height: 50 }} >Post</Button>

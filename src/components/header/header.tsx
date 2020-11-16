@@ -12,7 +12,7 @@ import { Link } from "react-router-dom";
 import { RcFile } from "antd/lib/upload/interface";
 import bluebird from "bluebird";
 import { makeId } from "../post/post";
-import ImgCrop from 'antd-img-crop';
+// import ImgCrop from 'antd-img-crop';
 import { Moment } from "moment";
 import AsyncMention from '../mentions/mentions.component';
 
@@ -251,7 +251,7 @@ const Header = (props: IHeaderProps) => {
                         name="caption"
                         rules={[{ required: true, message: 'Please type a caption' }]}
                     >
-                        <AsyncMention autoSize placeholder="Provide a caption for this post" />
+                        <AsyncMention rows={4} autoSize placeholder="Provide a caption for this post" />
                         {/* <Input multiple placeholder="Provide a caption for this post" /> */}
                     </Form.Item>
 
