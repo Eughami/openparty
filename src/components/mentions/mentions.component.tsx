@@ -10,6 +10,7 @@ interface IMentionsProps {
   placeholder?: string;
   autoSize?: boolean;
   onChange?: any;
+  value?: string;
 }
 
 interface IMentionsState {
@@ -67,11 +68,12 @@ class AsyncMention extends React.Component<IMentionsProps, IMentionsState> {
     return (
       <Mentions
         autoSize={this.props.autoSize}
-        onChange={this.props.onChange && this.props.onChange}
-        placeholder={this.props.placeholder && this.props.placeholder}
+        onChange={this.props.onChange}
+        placeholder={this.props.placeholder}
         style={{ width: '100%' }}
         loading={loading}
         onSearch={this.onSearch}
+        value={this.props.value}
       >
         {users.map(({ username, image_url: avatar }) => (
           <Option

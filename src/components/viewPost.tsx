@@ -34,7 +34,11 @@ const ViewPost = (props: ViewPostProps) => {
   // console.log('VIEW POST PROPS.', id.postId);
 
   const { history, match } = props;
-  return <>{post ? <MyPost post={post} /> : <h1>404 NOT FOUND!</h1>}</>;
+  return (
+    <>
+      {post ? <MyPost post={post} fullPage={true} /> : <h1>404 NOT FOUND!</h1>}
+    </>
+  );
 };
 
 export default ViewPost;

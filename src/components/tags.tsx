@@ -170,7 +170,9 @@ const Tags = (props: ITagsProps) => {
         <BackTop />
         {
           posts.length > 0 &&
-            posts.map((val: any) => <MyPost key={val.key} post={val} />)
+            posts.map((val: any) => (
+              <MyPost key={val.key} post={val} fullPage={false} />
+            ))
           // :
           // <p style={{ textAlign: "center" }}>You are not following anyone. To see posts here go follow people.</p>
         }

@@ -490,7 +490,7 @@ const UserProfile = (props: IUserProps) => {
                   >
                     {(posts as Post[]).length > 0 ? (
                       (posts as Post[]).map((post, index) => (
-                        <MyPost key={index} post={post} />
+                        <MyPost key={index} post={post} fullPage={false} />
                       ))
                     ) : (
                       <h1 style={{ textAlign: 'center' }}>You Have No Posts</h1>
@@ -608,7 +608,7 @@ const UserProfile = (props: IUserProps) => {
                   >
                     {(posts as Post[]).length > 0 ? (
                       (posts as Post[]).map((post, index) => (
-                        <MyPost key={index} post={post} />
+                        <MyPost key={index} post={post} fullPage={false} />
                       ))
                     ) : (
                       <h1 style={{ textAlign: 'center' }}>

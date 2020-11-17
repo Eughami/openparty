@@ -11,6 +11,7 @@ import {
   message,
   Tooltip,
   Carousel,
+  Col,
 } from 'antd';
 import {
   ShareAltOutlined,
@@ -35,6 +36,10 @@ import {
 import { RegistrationObject } from '../../components/interfaces/user.interface';
 import { Link } from 'react-router-dom';
 import { ADD_COMMENT_ENDPOINT, API_BASE_URL } from '../../service/api';
+import PerfectScrollbar from 'react-perfect-scrollbar';
+import 'react-perfect-scrollbar/dist/css/styles.css';
+import ViewComment from '../viewComment';
+
 interface IPostProps {
   setCurrentUserListener?: () => Promise<any>;
   setCurrentUserRootDatabaseListener?: (uid: string) => Promise<any>;
@@ -42,6 +47,7 @@ interface IPostProps {
   currentUserInfo?: RegistrationObject;
   currentUserToken?: string;
   post: PostInterface;
+  fullPage: boolean;
 }
 
 /**
@@ -237,7 +243,75 @@ const Post = (props: IPostProps) => {
     }
   };
 
-  return (
+  return props.fullPage ? (
+    <div className="full__page__post">
+      {console.log('full page View')}
+      <Row justify="center" align="middle" style={{ height: '100%' }}>
+        <div className="full__page__post__divider">
+          <Carousel dotPosition="top">
+            {image_url?.map((url, idx) => (
+              <div key={idx}>
+                {/* Caroussel is shit and couldn't made that shit responsive through css
+                  but do we really need it ?
+                */}
+                <img alt={caption} src={url} width="100%" height="600px" />
+              </div>
+            ))}
+          </Carousel>
+        </div>
+        {/* <div className="full__page__post__divider">
+          {image_url && <img alt="" src={image_url[1]} />}
+        </div> */}
+        <div className="full__page__post__divider avatar__comment__container">
+          <Row
+            justify="start"
+            align="middle"
+            className="full__post__avatar__container"
+          >
+            <Avatar alt="user Avatar" src={avatar_url} size={64} />
+            <div className="Post-user-nickname">
+              <Link
+                to={{
+                  pathname: `/${username}`,
+                }}
+              >
+                <span> {username} </span>
+              </Link>
+            </div>
+          </Row>
+          <Row className="full__post__comments__container">
+            <PerfectScrollbar>
+              {comments &&
+                Object.values(comments).map(
+                  (comment: Comment, index: number) => (
+                    <Row justify="start" key={index}>
+                      <ViewComment comment={comment} />
+                    </Row>
+                  )
+                )}
+            </PerfectScrollbar>
+          </Row>
+          <Row className="full__post__add__comment__container">
+            <Row style={{ flex: 1 }} className="post__add__comment">
+              <AsyncMention
+                onChange={handleCommentChange}
+                placeholder="Add a comment..."
+                value={comment.comment}
+              />
+            </Row>
+            <Button
+              loading={postCommentLoading}
+              onClick={onPostComment}
+              disabled={comment.comment.length === 0}
+              style={{ height: 50 }}
+            >
+              Post
+            </Button>
+          </Row>
+        </div>
+      </Row>
+    </div>
+  ) : (
     <article className="Post">
       <header>
         <div className="Post-user">
@@ -318,8 +392,6 @@ const Post = (props: IPostProps) => {
             {' '}
             {likes.length} {likes.length <= 1 ? 'like' : 'likes'}
           </p>
-          {/* <span style={{ textAlign: "left" }} >
-                    </span> */}
         </Row>
         <Row
           style={{ marginBottom: 10 }}
@@ -343,11 +415,8 @@ const Post = (props: IPostProps) => {
             </Tooltip>
           )}
         </Row>
-        {/* <Row className='post__captions' align='middle'>
-                </Row> */}
         <strong>{username}</strong> {caption}
         <br />
-        {/* <p style={{ fontWeight: "bold" }}>Comments</p><br /> */}
         {comments &&
           Object.values(comments).map((comment: Comment, index: number) => (
             <Row style={{ alignContent: 'center' }} key={index}>
@@ -361,51 +430,18 @@ const Post = (props: IPostProps) => {
                 </span>
               </Link>
 
-              {/* <span style={{ marginLeft: 10 }}>{comment.comment.match(/@\S+/g)?.map(str => `<a href="/${str}" />`)}</span><br /> */}
               <span style={{ marginLeft: 10 }}>{comment.comment}</span>
               <br />
-              {/* <span style={{ float: "right", fontSize: "small" }}>
-                                
-                            </span> */}
-              {/* <span style={{ marginLeft: 10, float: "right" }}>{"16 Oct 2020"}</span><br /> */}
             </Row>
           ))}
       </div>
-      {/* <Row className=''> */}
-      {/* <Form form={form} name="horizontal_comment" onFinish={onFinish}>
-                <Row  >
-                    <Form.Item
-                        style={{ flex: 1, }}
-                        name="comment"
-                        rules={[{ required: true, message: 'Please input your comment' }]}
-                    >
-                        <Input height={300} prefix={<SwapRightOutlined className="site-form-item-icon" />} placeholder="Add a comment..." />
-                    </Form.Item>
-                    <Form.Item shouldUpdate={true}>
-                        {() => (
-                            <Button
-
-                                type="primary"
-                                htmlType="submit"
-                                disabled={
-                                    !form.isFieldsTouched(true) ||
-                                    Boolean(form.getFieldsError().filter(({ errors }) => errors.length).length)
-                                }
-                            >
-                                Post
-                            </Button>
-                        )}
-                    </Form.Item>
-                </Row>
-            </Form> */}
-      {/* </Row> */}
       <Row>
         <Row style={{ flex: 1 }} className="post__add__comment">
           <AsyncMention
             onChange={handleCommentChange}
             placeholder="Add a comment..."
+            value={comment.comment}
           />
-          {/* <Input value={comment.comment} onChange={(event) => handleCommentChange(event)} placeholder="Add a comment..." /> */}
         </Row>
         <Button
           loading={postCommentLoading}
