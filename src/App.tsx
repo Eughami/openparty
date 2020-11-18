@@ -1,9 +1,14 @@
 import React, { useEffect, useState } from 'react';
-import { Switch, Route, Redirect } from "react-router-dom";
+import { Switch, Route, Redirect } from 'react-router-dom';
 import { connect } from 'react-redux';
 // import { createStructuredSelector } from 'reselect';
 // import { selectCurrentUser } from './redux/user/user.selectors';
-import { setCurrentUserListener, setCurrentUserRootDatabaseListener, setCurrentUserEligiblePosts, setCurrentUserToken } from './redux/user/user.actions';
+import {
+  setCurrentUserListener,
+  setCurrentUserRootDatabaseListener,
+  setCurrentUserEligiblePosts,
+  setCurrentUserToken,
+} from './redux/user/user.actions';
 
 import './App.css';
 import Homepage from './components/homepage';
@@ -15,42 +20,57 @@ import UserProfile from './components/user-info';
 import Tags from './components/tags';
 import { RegistrationObject } from './components/interfaces/user.interface';
 import { Col, Spin, Tabs } from 'antd';
-import Header from './components/header/header'
+import Header from './components/header/header';
 
 import firebase from 'firebase';
+import ViewPost from './components/viewPost';
 
 // const currentUser = true
 
-
 interface IAppProps {
-  setCurrentUserListener?: () => Promise<any>,
-  setCurrentUserRootDatabaseListener?: (uid: string) => Promise<any>,
-  setCurrentUserEligiblePosts?: (currentUser: firebase.User) => Promise<any>,
-  setCurrentUserToken?: (currentUser: firebase.User) => Promise<string | null>,
-  currentUser?: firebase.User,
-  currentUserInfo?: RegistrationObject,
-  currentUserToken?: string | null,
+  setCurrentUserListener?: () => Promise<any>;
+  setCurrentUserRootDatabaseListener?: (uid: string) => Promise<any>;
+  setCurrentUserEligiblePosts?: (currentUser: firebase.User) => Promise<any>;
+  setCurrentUserToken?: (currentUser: firebase.User) => Promise<string | null>;
+  currentUser?: firebase.User;
+  currentUserInfo?: RegistrationObject;
+  currentUserToken?: string | null;
 }
 
 const App = (props: IAppProps) => {
-  const { currentUser, currentUserToken, currentUserInfo, setCurrentUserListener, setCurrentUserRootDatabaseListener, setCurrentUserEligiblePosts, setCurrentUserToken } = props;
+  const {
+    currentUser,
+    currentUserToken,
+    currentUserInfo,
+    setCurrentUserListener,
+    setCurrentUserRootDatabaseListener,
+    setCurrentUserEligiblePosts,
+    setCurrentUserToken,
+  } = props;
   const { TabPane } = Tabs;
 
   useEffect(() => {
     if (!currentUser) {
-      setCurrentUserListener!().then((currentUser: any) => { setCurrentUserToken!(currentUser); setLoadingCredentials(false) }).catch(() => setLoadingCredentials(false))
+      setCurrentUserListener!()
+        .then((currentUser: any) => {
+          setCurrentUserToken!(currentUser);
+          setLoadingCredentials(false);
+        })
+        .catch(() => setLoadingCredentials(false));
     }
-  }, [currentUser, setCurrentUserListener, setCurrentUserToken])
+  }, [currentUser, setCurrentUserListener, setCurrentUserToken]);
 
   useEffect(() => {
     if (!currentUserInfo && currentUser) {
       setCurrentUserRootDatabaseListener!(currentUser.uid);
-      setCurrentUserEligiblePosts!(currentUser)
-
+      setCurrentUserEligiblePosts!(currentUser);
     }
-  }, [currentUserInfo, setCurrentUserRootDatabaseListener, currentUser, setCurrentUserEligiblePosts])
-
-
+  }, [
+    currentUserInfo,
+    setCurrentUserRootDatabaseListener,
+    currentUser,
+    setCurrentUserEligiblePosts,
+  ]);
 
   // useEffect(() => {
 
@@ -60,8 +80,7 @@ const App = (props: IAppProps) => {
   //   }, 3300);
   // }, [currentUser, setCurrentUserToken])
 
-
-  console.log("APP.TSX PROPS:  ", props.currentUserToken);
+  console.log('APP.TSX PROPS:  ', props.currentUserToken);
 
   // useEffect(() => {
   //   if (!currentUser) return;
@@ -82,18 +101,13 @@ const App = (props: IAppProps) => {
   //   <AsyncMention />
   // );
 
-
-
   if (loadingCredentials) {
     return (
-      <div style={{ textAlign: "center" }}>
-
+      <div style={{ textAlign: 'center' }}>
         <Spin size="small" />
       </div>
     );
   }
-
-
 
   return (
     <div className="">
@@ -106,26 +120,27 @@ const App = (props: IAppProps) => {
             <Route exact path="/" component={Homepage} />
             <Route exact path="/:username" component={UserProfile} />
             <Route exact path="/t/:tag" component={Tags} />
-            <Route component={Homepage} />
+            <Route exact path="/post/:postId" component={ViewPost} />
+
+            {/* <Route component={Homepage} /> */}
           </Switch>
         </div>
-
       ) : (
-          <Switch>
-            {/* <Route path='/login' component={Login} />
+        <Switch>
+          {/* <Route path='/login' component={Login} />
               <Route path='/register' component={RegistrationForm} />
               <Redirect
                 to={{
                   pathname: window.location.pathname === "/register" ? '/register' : "/login"
                 }}
               /> */}
-            <Route exact path='/register' component={RegistrationForm} />
-            <Route component={Login} />
-          </Switch>
-        )}
+          <Route exact path="/register" component={RegistrationForm} />
+          <Route component={Login} />
+        </Switch>
+      )}
     </div>
   );
-}
+};
 
 const mapStateToProps = (state: any) => {
   return {
@@ -138,10 +153,13 @@ const mapStateToProps = (state: any) => {
 const mapDispatchToProps = (dispatch: any) => {
   return {
     setCurrentUserListener: () => dispatch(setCurrentUserListener()),
-    setCurrentUserToken: (currentUser: firebase.User) => dispatch(setCurrentUserToken(currentUser)),
-    setCurrentUserRootDatabaseListener: (uid: string) => dispatch(setCurrentUserRootDatabaseListener(uid)),
-    setCurrentUserEligiblePosts: (currentUser: firebase.User) => dispatch(setCurrentUserEligiblePosts(currentUser)),
-  }
-}
+    setCurrentUserToken: (currentUser: firebase.User) =>
+      dispatch(setCurrentUserToken(currentUser)),
+    setCurrentUserRootDatabaseListener: (uid: string) =>
+      dispatch(setCurrentUserRootDatabaseListener(uid)),
+    setCurrentUserEligiblePosts: (currentUser: firebase.User) =>
+      dispatch(setCurrentUserEligiblePosts(currentUser)),
+  };
+};
 
 export default connect(mapStateToProps, mapDispatchToProps)(App);

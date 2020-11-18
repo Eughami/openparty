@@ -1,27 +1,63 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState } from 'react';
 import './header.css';
-import { Col, Row, Badge, Modal, Menu, Button, Dropdown, List, Avatar, Form, Input, Select, Upload, message, Progress, DatePicker, } from 'antd'
-import { UserOutlined, LogoutOutlined, HomeOutlined, UsergroupAddOutlined, VideoCameraAddOutlined, AlertOutlined, UploadOutlined } from '@ant-design/icons';
-import OpenPartyLogo from '../images/openpaarty.logo.png'
+import {
+    Col,
+    Row,
+    Badge,
+    Modal,
+    Menu,
+    Button,
+    Dropdown,
+    List,
+    Avatar,
+    Form,
+    Input,
+    Select,
+    Upload,
+    message,
+    Progress,
+    DatePicker,
+} from 'antd';
+import {
+    UserOutlined,
+    LogoutOutlined,
+    HomeOutlined,
+    UsergroupAddOutlined,
+    VideoCameraAddOutlined,
+    AlertOutlined,
+    UploadOutlined,
+} from '@ant-design/icons';
+import OpenPartyLogo from '../images/openpaarty.logo.png';
 import { connect } from 'react-redux';
-import { setCurrentUserListener, setCurrentUserRootDatabaseListener } from '../../redux/user/user.actions';
-import { RegistrationObject } from "../interfaces/user.interface";
-import firebase from "firebase";
-import axios from "axios";
-import { Link } from "react-router-dom";
-import { RcFile } from "antd/lib/upload/interface";
-import bluebird from "bluebird";
-import { makeId } from "../post/post";
-// import ImgCrop from 'antd-img-crop';
-import { Moment } from "moment";
+import {
+    setCurrentUserListener,
+    setCurrentUserRootDatabaseListener,
+} from '../../redux/user/user.actions';
+import { RegistrationObject } from '../interfaces/user.interface';
+import firebase from 'firebase';
+import axios from 'axios';
+import { Link } from 'react-router-dom';
+import { RcFile } from 'antd/lib/upload/interface';
+import bluebird from 'bluebird';
+import { makeId } from '../post/post';
+import ImgCrop from 'antd-img-crop';
+import { Moment } from 'moment';
 import AsyncMention from '../mentions/mentions.component';
+import {
+    ADD_POST_ENDPOINT,
+    API_BASE_URL,
+    API_BASE_URL_OPEN,
+    APPROVE_FOLLOW_ENDPOINT,
+    IGNORE_FOLLOW_ENDPOINT,
+    PING_ENDPOINT,
+} from '../../service/api';
 
 interface IHeaderProps {
-    setCurrentUserListener?: () => Promise<any>,
-    setCurrentUserRootDatabaseListener?: (uid: string) => Promise<any>,
-    currentUser?: firebase.User,
-    currentUserInfo?: RegistrationObject
-    currentUserToken?: string
+    setCurrentUserListener?: () => Promise<any>;
+    setCurrentUserRootDatabaseListener?: (uid: string) => Promise<any>;
+    currentUser?: firebase.User;
+    currentUserInfo?: RegistrationObject;
+    currentUserToken?: string;
 }
 
 const Header = (props: IHeaderProps) => {
@@ -34,25 +70,29 @@ const Header = (props: IHeaderProps) => {
 
     //Set listener for active follow requests
     useEffect(() => {
-        const unsub = firebase.database().ref("FollowRequests").child(props.currentUser?.uid!).on("value", ssh => {
-            if (ssh.exists()) {
-                setFollowRequests(Object.values(ssh.val()));
+        const unsub = firebase
+            .database()
+            .ref('FollowRequests')
+            .child(props.currentUser?.uid!)
+            .on(
+                'value',
+                (ssh) => {
+                    if (ssh.exists()) {
+                        setFollowRequests(Object.values(ssh.val()));
 
-                console.log("@R-REQ ", Object.values(ssh.val()));
+                        console.log('@R-REQ ', Object.values(ssh.val()));
+                    } else {
+                        setFollowRequests([]);
+                    }
+                },
+                (error: any) => {
+                    console.log(error);
+                }
+            );
 
-            }
-            else {
-                setFollowRequests([])
-            }
-        }, (error: any) => {
-            console.log(error);
-
-        });
-
-        return () => firebase.database().ref("FollowingRequests").off("value", unsub);
-
-
-    }, [props.currentUser])
+        return () =>
+            firebase.database().ref('FollowingRequests').off('value', unsub);
+    }, [props.currentUser]);
 
     const handleOk = () => {
         setModalVisible(false);
@@ -63,31 +103,39 @@ const Header = (props: IHeaderProps) => {
     };
 
     const onFollowApproved = async (uid: string) => {
-        await axios.post("http://localhost:5000/openpaarty/us-central1/api/v1/users/approve-follow", {
-
-            targetUid: uid
-        }, {
-            headers: {
-                authorization: `Bearer ${props.currentUserToken}`
+        await axios.post(
+            `${API_BASE_URL}${APPROVE_FOLLOW_ENDPOINT}`,
+            //   'http://localhost:5000/openpaarty/us-central1/api/v1/users/approve-follow',
+            {
+                targetUid: uid,
+            },
+            {
+                headers: {
+                    authorization: `Bearer ${props.currentUserToken}`,
+                },
             }
-        });
-    }
+        );
+    };
 
     const onFollowIgnored = async (uid: string) => {
-        await axios.post("http://localhost:5000/openpaarty/us-central1/api/v1/users/ignore-follow", {
-
-            targetUid: uid
-        }, {
-            headers: {
-                authorization: `Bearer ${props.currentUserToken}`
+        await axios.post(
+            `${API_BASE_URL}${IGNORE_FOLLOW_ENDPOINT}`,
+            //   'http://localhost:5000/openpaarty/us-central1/api/v1/users/ignore-follow',
+            {
+                targetUid: uid,
+            },
+            {
+                headers: {
+                    authorization: `Bearer ${props.currentUserToken}`,
+                },
             }
-        });
-    }
+        );
+    };
 
     const handleMenuClick = (e: any) => {
         message.info('Click on menu item.');
         console.log('click', e);
-    }
+    };
 
     const menu = (props: IHeaderProps) => (
         <Menu onClick={handleMenuClick}>
@@ -98,14 +146,27 @@ const Header = (props: IHeaderProps) => {
                         pathname: `/${props.currentUserInfo?.username}`,
                     }}
                 >
-                    Profile <span role="img" aria-label="muah" >👄</span>
+                    Profile{' '}
+                    <span role="img" aria-label="muah">
+                        👄
+          </span>
                 </Link>
             </Menu.Item>
             <Menu.Item key="2" icon={<AlertOutlined />}>
-                Notifications <span role="img" aria-label="smurth" >🧐</span>
+                Notifications{' '}
+                <span role="img" aria-label="smurth">
+                    🧐
+        </span>
             </Menu.Item>
-            <Menu.Item onClick={() => setPostModalVisible(true)} key="3" icon={<VideoCameraAddOutlined />}>
-                Add a new Post <span role="img" aria-label="selfie">🤳</span>
+            <Menu.Item
+                onClick={() => setPostModalVisible(true)}
+                key="3"
+                icon={<VideoCameraAddOutlined />}
+            >
+                Add a new Post{' '}
+                <span role="img" aria-label="selfie">
+                    🤳
+        </span>
             </Menu.Item>
         </Menu>
     );
@@ -135,51 +196,66 @@ const Header = (props: IHeaderProps) => {
         let postData: any = {
             caption: values.caption,
             privacy: values.privacy,
-            tags: values.tags ? values.tags.match(/#\S+/g).map((str: string) => str.replace(/#/g, "")) : [],
+            tags: values.tags
+                ? values.tags.match(/#\S+/g).map((str: string) => str.replace(/#/g, ''))
+                : [],
             user: {
                 username: props.currentUserInfo?.username,
                 image_url: props.currentUserInfo?.image_url,
             },
             date_of_event: values['event-date'].unix(),
-
-        }
+        };
 
         setPostWorking(true);
 
         const urls: string[] = [];
 
-        await bluebird.map(values.upload, async (file: any) => {
-            urls.push(await uploadFile(file.originFileObj));
-
-        }, { concurrency: values.upload.length });
+        await bluebird.map(
+            values.upload,
+            async (file: any) => {
+                urls.push(await uploadFile(file.originFileObj));
+            },
+            { concurrency: values.upload.length }
+        );
 
         postData.image_url = urls;
 
-        await axios.post("http://localhost:5000/openpaarty/us-central1/api/v1/posts/", postData, {
-            headers: {
-                authorization: `Bearer ${props.currentUserToken}`
-            }
-        }).then((data) => {
-            console.log("DATA: ", data.data);
-            message.success("Post uploaded 🌟 ");
-            setPostWorking(false);
-            setPostModalVisible(false);
-            clearForm();
-        }).catch((error) => {
-            setPostWorking(false);
-            setPostModalVisible(false)
-            message.error("Post upload failed");
-            console.log("@UPLOAD POST ERROR: ", error);
-
-        });
-
+        await axios
+            .post(
+                `${API_BASE_URL}${ADD_POST_ENDPOINT}`,
+                // 'http://localhost:5000/openpaarty/us-central1/api/v1/posts/',
+                postData,
+                {
+                    headers: {
+                        authorization: `Bearer ${props.currentUserToken}`,
+                    },
+                }
+            )
+            .then((data) => {
+                console.log('DATA: ', data.data);
+                message.success('Post uploaded 🌟 ');
+                setPostWorking(false);
+                setPostModalVisible(false);
+                clearForm();
+            })
+            .catch((error) => {
+                setPostWorking(false);
+                setPostModalVisible(false);
+                message.error('Post upload failed');
+                console.log('@UPLOAD POST ERROR: ', error);
+            });
     };
 
     const uploadFile = async (file: RcFile): Promise<string> => {
-        const ref = firebase.storage().ref("user-generated-content").child(props.currentUser!.uid).child("uploads").child("post-images")
+        const ref = firebase
+            .storage()
+            .ref('user-generated-content')
+            .child(props.currentUser!.uid)
+            .child('uploads')
+            .child('post-images')
             .child(makeId(30));
         const uploaded = await ref.put(file, {
-            contentType: "image/png"
+            contentType: 'image/png',
         });
 
         // setImageUploaded(true);
@@ -187,12 +263,12 @@ const Header = (props: IHeaderProps) => {
         // setUploadedImageUrl(await uploaded.ref.getDownloadURL());
 
         return await uploaded.ref.getDownloadURL();
-    }
+    };
 
     const onPreview = async (file: any) => {
         let src = file.url;
         if (!src) {
-            src = await new Promise(resolve => {
+            src = await new Promise((resolve) => {
                 const reader = new FileReader();
                 reader.readAsDataURL(file.originFileObj);
                 reader.onload = () => resolve(reader.result);
@@ -207,22 +283,42 @@ const Header = (props: IHeaderProps) => {
     return (
         <nav className="Nav">
             <Modal
-                style={{ height: "50%", }}
+                style={{ height: '50%' }}
                 title="Approve or Ignore Follow Requests"
                 visible={modalVisible}
                 onOk={handleOk}
                 footer={null}
-                onCancel={handleCancel}  >
+                onCancel={handleCancel}
+            >
                 <List
-
                     itemLayout="horizontal"
                     dataSource={followRequests}
                     renderItem={(item: any) => (
                         <List.Item
-                            actions={[<p onClick={() => onFollowApproved(item.uid)} style={{ color: "green", cursor: "pointer" }} key={JSON.stringify(item)}>Approve</p>, <p onClick={() => onFollowIgnored(item.uid)} style={{ color: "red", cursor: "pointer" }} key={JSON.stringify(item)} >Ignore</p>]}>
+                            actions={[
+                                <p
+                                    onClick={() => onFollowApproved(item.uid)}
+                                    style={{ color: 'green', cursor: 'pointer' }}
+                                    key={JSON.stringify(item)}
+                                >
+                                    Approve
+                </p>,
+                                <p
+                                    onClick={() => onFollowIgnored(item.uid)}
+                                    style={{ color: 'red', cursor: 'pointer' }}
+                                    key={JSON.stringify(item)}
+                                >
+                                    Ignore
+                </p>,
+                            ]}
+                        >
                             <List.Item.Meta
                                 avatar={<Avatar src={item.image_url} />}
-                                title={<Link to={{ pathname: `/${item.username}` }}>{item.username}</Link>}
+                                title={
+                                    <Link to={{ pathname: `/${item.username}` }}>
+                                        {item.username}
+                                    </Link>
+                                }
                                 description={item.username}
                             />
                         </List.Item>
@@ -230,13 +326,14 @@ const Header = (props: IHeaderProps) => {
                 />
             </Modal>
             <Modal
-                style={{ height: "50%", }}
+                style={{ height: '50%' }}
                 title="Add a new post 💖"
                 visible={postModalVisible}
                 okText={null}
                 onOk={() => setPostModalVisible(false)}
                 onCancel={() => setPostModalVisible(false)}
-                footer={null}  >
+                footer={null}
+            >
                 {/* TODO: ADD OPTION FOR AGE, PREVIEW BEFORE UPLOAD POST */}
                 <Form
                     form={form}
@@ -245,13 +342,15 @@ const Header = (props: IHeaderProps) => {
                     onFinish={onFinish}
                 // initialValues={{ }}
                 >
-
                     <Form.Item
                         label="Caption"
                         name="caption"
                         rules={[{ required: true, message: 'Please type a caption' }]}
                     >
-                        <AsyncMention rows={4} autoSize placeholder="Provide a caption for this post" />
+                        <AsyncMention
+                            autoSize
+                            placeholder="Provide a caption for this post"
+                        />
                         {/* <Input multiple placeholder="Provide a caption for this post" /> */}
                     </Form.Item>
 
@@ -268,14 +367,20 @@ const Header = (props: IHeaderProps) => {
                         </Select>
                     </Form.Item>
 
-                    <Form.Item name="event-date" label="Date of Event" rules={[{ required: true, message: 'Please provide a date for this event' }]}>
+                    <Form.Item
+                        name="event-date"
+                        label="Date of Event"
+                        rules={[
+                            {
+                                required: true,
+                                message: 'Please provide a date for this event',
+                            },
+                        ]}
+                    >
                         <DatePicker showTime format="YYYY-MM-DD HH:mm:ss" />
                     </Form.Item>
 
-                    <Form.Item
-                        label="Tags"
-                        name="tags"
-                    >
+                    <Form.Item label="Tags" name="tags">
                         <Input placeholder="(Use # to separate tags)" />
                     </Form.Item>
 
@@ -288,17 +393,27 @@ const Header = (props: IHeaderProps) => {
                         rules={[{ required: true, message: 'Please select an image' }]}
                     >
                         {/* <ImgCrop rotate > */}
-                        <Upload accept="image/*" onPreview={onPreview} name="logo" action={"http://localhost:5000/openpaarty/us-central1/api1/v1/ping"} progress={{ status: "success" }} listType="picture-card">
+                        <Upload
+                            accept="image/*"
+                            onPreview={onPreview}
+                            name="logo"
+                            action={
+                                // 'http://localhost:5000/openpaarty/us-central1/api1/v1/ping'
+                                `${API_BASE_URL_OPEN}${PING_ENDPOINT}`
+                            }
+                            progress={{ status: 'success' }}
+                            listType="picture-card"
+                        >
                             {/* <Button icon={<UploadOutlined />}>Click to upload</Button> */}
-                                + Upload
-                            </Upload>
+              + Upload
+            </Upload>
                         {/* </ImgCrop> */}
                     </Form.Item>
 
                     <Form.Item wrapperCol={{ span: 12, offset: 6 }}>
                         <Button loading={postWorking} type="primary" htmlType="submit">
                             Post
-                        </Button>
+            </Button>
                     </Form.Item>
                 </Form>
             </Modal>
@@ -306,18 +421,28 @@ const Header = (props: IHeaderProps) => {
                 <div className="Nav-brand">
                     <Link
                         to={{
-                            pathname: "/",
+                            pathname: '/',
                         }}
                     >
-
-                        <img style={{ height: "100%", width: "40%" }} src={OpenPartyLogo} alt="open-party" />
+                        <img
+                            style={{ height: '100%', width: '40%' }}
+                            src={OpenPartyLogo}
+                            alt="open-party"
+                        />
                     </Link>
                     {/* <a href="/">
                     </a> */}
                 </div>
-                <Col className='' xs={{ span: 0 }} lg={{ span: 6, offset: 2 }} xxl={{ span: 5, offset: 1 }}>SearchBar</Col>
-                <Col className='' offset={1} span={6}>
-                    <Row style={{ alignItems: "center", justifyContent: "space-around" }}>
+                <Col
+                    className=""
+                    xs={{ span: 0 }}
+                    lg={{ span: 6, offset: 2 }}
+                    xxl={{ span: 5, offset: 1 }}
+                >
+                    SearchBar
+        </Col>
+                <Col className="" offset={1} span={6}>
+                    <Row style={{ alignItems: 'center', justifyContent: 'space-around' }}>
                         {/* <Tooltip title="Add a new post 🤳">
                             <a> <AppstoreAddOutlined onClick={() => setPostModalVisible(true)} size={25} /> </a>
                         </Tooltip> */}
@@ -331,46 +456,43 @@ const Header = (props: IHeaderProps) => {
                             >
                                 <HomeOutlined size={25} />
                             </Link>
-
                         </Col>
 
                         <Col span="3">
                             <Link
                                 onClick={() => setModalVisible(true)}
                                 className="nav-link"
-                                to={{
-
-                                }}
+                                to={{}}
                             >
-
-                                <Badge size="small" count={followRequests && followRequests.length}>
+                                <Badge
+                                    size="small"
+                                    count={followRequests && followRequests.length}
+                                >
                                     <UsergroupAddOutlined size={25} />
                                 </Badge>
                             </Link>
                         </Col>
                         <Col span="3">
-                            <Link
-                                to={{
-                                }}
-                            >
+                            <Link to={{}}>
                                 <Dropdown overlay={menu(props)}>
                                     <UserOutlined />
                                 </Dropdown>
                             </Link>
-
                         </Col>
                         <Col span="3">
                             <a>
-
-                                <LogoutOutlined onClick={() => firebase.auth().signOut()} size={25} />
+                                <LogoutOutlined
+                                    onClick={() => firebase.auth().signOut()}
+                                    size={25}
+                                />
                             </a>
                         </Col>
                     </Row>
                 </Col>
             </div>
-        </nav >
+        </nav>
     );
-}
+};
 const mapStateToProps = (state: any) => {
     return {
         currentUser: state.user.currentUser,
@@ -382,9 +504,9 @@ const mapStateToProps = (state: any) => {
 const mapDispatchToProps = (dispatch: any) => {
     return {
         setCurrentUserListener: () => dispatch(setCurrentUserListener()),
-        setCurrentUserRootDatabaseListener: (uid: string) => dispatch(setCurrentUserRootDatabaseListener(uid))
-    }
-
-}
+        setCurrentUserRootDatabaseListener: (uid: string) =>
+            dispatch(setCurrentUserRootDatabaseListener(uid)),
+    };
+};
 
 export default connect(mapStateToProps, mapDispatchToProps)(Header);
