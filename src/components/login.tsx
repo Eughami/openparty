@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Form, Input, Button, message } from 'antd';
+import { Form, Input, Button, message, Col } from 'antd';
 
 import {
   emailSignInStart,
@@ -60,9 +60,9 @@ const Login = (props: IAppProps) => {
   };
 
   return (
-    <>
+    <Col span="12"
+      style={{ marginLeft: '20%', marginRight: '20%', marginTop: '5%' }}>
       <Form
-        {...layout}
         name="basic"
         initialValues={{ remember: true }}
         onFinish={onFinish}
@@ -97,11 +97,11 @@ const Login = (props: IAppProps) => {
         </Form.Item>
         <Form.Item {...tailLayout}>
           <span>
-            Don't have an account yet ?<Link to="/register">Register</Link>
+            Don't have an account yet? <Link to="/register">Register</Link>
           </span>
         </Form.Item>
       </Form>
-    </>
+    </Col>
   );
 };
 

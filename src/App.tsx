@@ -15,7 +15,6 @@ import Homepage from './components/homepage';
 import 'antd/dist/antd.css';
 import Login from './components/login';
 import RegistrationForm from './components/register';
-import AsyncMention from './components/mentions/mentions.component';
 import UserProfile from './components/user-info';
 import Tags from './components/tags';
 import { RegistrationObject } from './components/interfaces/user.interface';
@@ -126,18 +125,18 @@ const App = (props: IAppProps) => {
           </Switch>
         </div>
       ) : (
-        <Switch>
-          {/* <Route path='/login' component={Login} />
+          <Switch>
+            {/* <Route path='/login' component={Login} />
               <Route path='/register' component={RegistrationForm} />
               <Redirect
                 to={{
                   pathname: window.location.pathname === "/register" ? '/register' : "/login"
                 }}
               /> */}
-          <Route exact path="/register" component={RegistrationForm} />
-          <Route component={Login} />
-        </Switch>
-      )}
+            <Route exact path="/register" component={RegistrationForm} />
+            <Route component={Login} />
+          </Switch>
+        )}
     </div>
   );
 };

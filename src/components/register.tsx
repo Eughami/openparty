@@ -73,11 +73,11 @@ const RegistrationForm = ({ emailSignInStart, signUpStart, history }: any) => {
   const onFinish = async (object: RegistrationObject) => {
     setRegisterWorking(true);
     const key = 'registerKey';
-    message.loading({ content: 'SignU in progress...', key });
+    message.loading({ content: 'Sign up in progress...', key });
     try {
       const registerResponse = await signUpStart(object, history);
       console.log(registerResponse);
-      message.loading({ content: 'SignUp succes, Auto Login...', key });
+      message.loading({ content: 'Sign up success, Auto Login...', key });
       emailSignInStart(object.email, object.password, history);
       setRegisterWorking(false);
     } catch (error) {
