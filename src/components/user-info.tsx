@@ -581,6 +581,8 @@ const UserProfile = (props: IUserProps) => {
                   </p>
                   <p>{currentUserInfo!.following_count} Following</p>
                 </Row>
+
+                {currentUserInfo.bio && <span>{currentUserInfo.bio}</span>}
               </div>
             </Row>
 
@@ -723,20 +725,24 @@ const UserProfile = (props: IUserProps) => {
                   </>
 
                 ) : (
-                    <Row
-                      style={{
-                        justifyContent: 'space-between',
-                        alignItems: 'center',
-                      }}
-                    >
-                      <p style={{ marginRight: 20 }}>
-                        {otherUserInfo.posts_count} Posts
+                    <>
+                      <Row
+                        style={{
+                          justifyContent: 'space-between',
+                          alignItems: 'center',
+                        }}
+                      >
+                        <p style={{ marginRight: 20 }}>
+                          {otherUserInfo.posts_count} Posts
                     </p>
-                      <p style={{ marginRight: 20 }}>
-                        {otherUserInfo.followers_count} Followers
+                        <p style={{ marginRight: 20 }}>
+                          {otherUserInfo.followers_count} Followers
                     </p>
-                      <p>{otherUserInfo.following_count} Following</p>
-                    </Row>
+                        <p>{otherUserInfo.following_count} Following</p>
+                      </Row>
+                      {otherUserInfo.bio && <span>{otherUserInfo.bio}</span>}
+                    </>
+
                   )}
               </div>
             </Row>
