@@ -72,4 +72,5 @@ export interface RegistrationObject {
   posts_count: number,
   Posts: Array<string>,
   privacy: string,
+  bio?: string,
 } 

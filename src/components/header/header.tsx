@@ -137,8 +137,8 @@ const Header = (props: IHeaderProps) => {
     };
 
     const handleMenuClick = (e: any) => {
-        message.info('Click on menu item.');
-        console.log('click', e);
+        // message.info('Click on menu item.');
+        // console.log('click', e);
     };
 
     const menu = (props: IHeaderProps) => (
@@ -174,11 +174,9 @@ const Header = (props: IHeaderProps) => {
             </Menu.Item>
             <hr />
             <Menu.Item
-                onClick={() => setPostModalVisible(true)}
+                onClick={() => firebase.auth().signOut()}
                 key="4"
-                icon={<LogoutOutlined
-                    onClick={() => firebase.auth().signOut()}
-                    size={25}
+                icon={<LogoutOutlined size={25}
                 />}
             >
                 Logout

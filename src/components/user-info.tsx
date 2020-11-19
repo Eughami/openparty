@@ -29,7 +29,7 @@ import {
 } from '../redux/user/user.actions';
 import axios from 'axios';
 import bluebird from 'bluebird';
-import { AppleOutlined, AndroidOutlined, UserAddOutlined, UserDeleteOutlined } from '@ant-design/icons';
+import { EditOutlined, AppleOutlined, AndroidOutlined, UserAddOutlined, UserDeleteOutlined } from '@ant-design/icons';
 import {
   API_BASE_URL,
   CANCEL_FOLLOW_REQUEST_ENDPOINT,
@@ -68,6 +68,8 @@ const UserProfile = (props: IUserProps) => {
   );
   const [otherUserPrivacy, setOtherUserPrivacy] = useState<boolean>(false);
   const [requestedFollow, setRequestedFollow] = useState<boolean>(false);
+
+  const [followActionLoading, setFollowActionLoading] = useState<boolean>(true);
 
   const [loading, setLoading] = useState<boolean>(true);
   const [realUser, setRealUser] = useState<boolean>(true);
@@ -200,6 +202,7 @@ const UserProfile = (props: IUserProps) => {
 
 
           if (result.data.privacy === 'following') {
+            setFollowActionLoading(false);
             //Get data from user root profile
             firebase
               .database()
@@ -322,6 +325,7 @@ const UserProfile = (props: IUserProps) => {
               .child(result.data.targetUser.uid)
               .child(currentUser.uid)
               .on('value', (ssh) => {
+                setFollowActionLoading(false);
                 setRequestedFollow(ssh.exists());
               });
 
@@ -423,9 +427,6 @@ const UserProfile = (props: IUserProps) => {
               setRealUser(false);
             }
           }
-
-
-
 
         }
       }
@@ -545,23 +546,26 @@ const UserProfile = (props: IUserProps) => {
             <Row style={{ alignItems: 'center' }}>
               <Avatar src={currentUserInfo!.image_url} size={150} />
               <div style={{ marginLeft: 50 }}>
-                <Col
+                <Row
                   style={{
-                    justifyContent: 'space-between',
+                    justifyContent: 'space-around',
                     alignItems: 'center',
                   }}
                 >
                   <h1
                     style={{
                       marginBottom: 5,
-                      marginTop: 15,
+                      // marginTop: 15,
                       fontWeight: 'bold',
                     }}
                   >
                     {currentUserInfo!.username}
                   </h1>
-                  <h1>Edit</h1>
-                </Col>
+                  <Button icon={<EditOutlined />}  >
+                    Edit
+                  </Button>
+                  {/* <h1>Edit</h1> */}
+                </Row>
 
                 <Row
                   style={{
@@ -638,81 +642,86 @@ const UserProfile = (props: IUserProps) => {
                   </h1>
                   <span style={{ cursor: 'pointer' }}>
                     {
-                      privacyStatus === "following" ?
-                        (
-                          <Popconfirm
-                            title="You will have to send a request to follow again."
-                            onConfirm={() => confirm(otherUserInfo)}
-                            onCancel={cancel}
-                            okText="Unfollow"
-                            cancelText="Cancel"
-                          >
-                            <Button icon={<UserDeleteOutlined />}  >
-                              Unfollow
+                      followActionLoading ? <Spin size="small" /> :
+                        privacyStatus === "following" ?
+                          (
+                            <Popconfirm
+                              title="You will have to send a request to follow again."
+                              onConfirm={() => confirm(otherUserInfo)}
+                              onCancel={cancel}
+                              okText="Unfollow"
+                              cancelText="Cancel"
+                            >
+                              <Button icon={<UserDeleteOutlined />}  >
+                                Unfollow
                             </Button>
-                            {/* <p>Unfollow</p> */}
-                          </Popconfirm>
-                        )
-                        :
-                        (
-                          privacyStatus === "Public" ?
-                            (
-                              requestedFollow ? (
-                                <Button onClick={() => handleCancelFollowRequest(otherUserInfo)} >
-                                  Cancel Request
-                                </Button>
-                                // <p
-                                //   onClick={() =>
-                                //     handleCancelFollowRequest(otherUserInfo)
-                                //   }
-                                // >
+                              {/* <p>Unfollow</p> */}
+                            </Popconfirm>
+                          )
+                          :
+                          (
+                            privacyStatus === "Public" ?
+                              (
+                                requestedFollow ? (
+                                  <Button onClick={() => handleCancelFollowRequest(otherUserInfo)} >
+                                    Cancel Request
+                                  </Button>
+                                  // <p
+                                  //   onClick={() =>
+                                  //     handleCancelFollowRequest(otherUserInfo)
+                                  //   }
+                                  // >
 
-                                //   Cancel Request
-                                // </p>
-                              ) : (
-                                  <Button onClick={() => handleFollowRequest(otherUserInfo)} icon={<UserAddOutlined />}  >
-                                    Follow
+                                  //   Cancel Request
+                                  // </p>
+                                ) : (
+                                    <Button onClick={() => handleFollowRequest(otherUserInfo)} icon={<UserAddOutlined />}  >
+                                      Follow
+                                    </Button>
+                                  )
+                              )
+                              :
+                              (
+                                requestedFollow ? (
+                                  <Button onClick={() => handleCancelFollowRequest(otherUserInfo)} >
+                                    Cancel Request
                                   </Button>
-                                )
-                            )
-                            :
-                            (
-                              requestedFollow ? (
-                                <Button onClick={() => handleCancelFollowRequest(otherUserInfo)} >
-                                  Cancel Request
-                                </Button>
-                                // <p
-                                //   onClick={() =>
-                                //     handleCancelFollowRequest(otherUserInfo)
-                                //   }
-                                // >
-                                //   Cancel Request
-                                // </p>
-                              ) : (
-                                  <Button onClick={() => handleFollowRequest(otherUserInfo)} icon={<UserAddOutlined />}  >
-                                    Follow
-                                  </Button>
-                                )
-                            )
-                        )
+                                  // <p
+                                  //   onClick={() =>
+                                  //     handleCancelFollowRequest(otherUserInfo)
+                                  //   }
+                                  // >
+                                  //   Cancel Request
+                                  // </p>
+                                ) : (
+                                    <Button onClick={() => handleFollowRequest(otherUserInfo)} icon={<UserAddOutlined />}  >
+                                      Follow
+                                    </Button>
+                                  )
+                              )
+                          )
                     }
                   </span>
                 </Col>
                 {!otherUserPrivacy ? (
-                  <Row
-                    style={{
-                      justifyContent: 'space-between',
-                      alignItems: 'center',
-                    }}
-                  >
-                    <p style={{ marginRight: 20 }}>
-                      {(posts as Post[]).length} Posts
+                  <>
+                    <Row
+                      style={{
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                      }}
+                    >
+                      <p style={{ marginRight: 20 }}>
+                        {(posts as Post[]).length} Posts
                     </p>
-                    <p style={{ marginRight: 20 }}>
-                      {otherUserInfo!.followers_count} Followers
+                      <p style={{ marginRight: 20 }}>
+                        {otherUserInfo!.followers_count} Followers
                     </p>
-                    <p>{otherUserInfo!.following_count} Following</p>
-                  </Row>
+                      <p>{otherUserInfo!.following_count} Following</p>
+                    </Row>
+                    {otherUserInfo.bio && <span>{otherUserInfo.bio}</span>}
+                  </>
+
                 ) : (
                     <Row
                       style={{
