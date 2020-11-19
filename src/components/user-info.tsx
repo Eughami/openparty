@@ -29,7 +29,7 @@ import {
 } from '../redux/user/user.actions';
 import axios from 'axios';
 import bluebird from 'bluebird';
-import { AppleOutlined, AndroidOutlined } from '@ant-design/icons';
+import { AppleOutlined, AndroidOutlined, UserAddOutlined, UserDeleteOutlined } from '@ant-design/icons';
 import {
   API_BASE_URL,
   CANCEL_FOLLOW_REQUEST_ENDPOINT,
@@ -171,7 +171,7 @@ const UserProfile = (props: IUserProps) => {
         return;
       }
 
-      console.log('@5555=========', currentUserToken);
+
 
       // const result = await axios.post("http://localhost:5000/openpaarty/us-central1/api/v1/users/can-view-user-profile", {
       const result = await axios.post(
@@ -186,12 +186,19 @@ const UserProfile = (props: IUserProps) => {
         }
       );
 
+      console.log('@5555=========', result.data);
+
       if (result.data.success) {
-        setPrivacyStatus(result.data.privacy)
+
         if (result.data.selfUser) {
           setLoading(false);
           setSelfUser(true);
         } else {
+
+          setPrivacyStatus(result.data.privacy)
+
+
+
           if (result.data.privacy === 'following') {
             //Get data from user root profile
             firebase
@@ -306,25 +313,9 @@ const UserProfile = (props: IUserProps) => {
               .then(() => {
                 console.log('DONE MAPPING');
               });
-          } else if (result.data.privacy === 'closed') {
-            setLoading(false);
-            setOtherUserInfo(result.data.targetUser);
-            setOtherUserPrivacy(true);
-
-            firebase
-              .database()
-              .ref('FollowRequests')
-              .child(result.data.targetUser.uid)
-              .child(currentUser.uid)
-              .on('value', (ssh) => {
-                setRequestedFollow(ssh.exists());
-              });
           }
-          else if (result.data.privacy === 'open') {
-            setLoading(false);
-            setOtherUserInfo(result.data.targetUser);
-            setOtherUserPrivacy(false);
 
+          else {
             firebase
               .database()
               .ref('FollowRequests')
@@ -334,100 +325,108 @@ const UserProfile = (props: IUserProps) => {
                 setRequestedFollow(ssh.exists());
               });
 
-            //Get data from user's posts
-            let temp: any = {};
+            if (result.data.privacy === 'closed') {
+              setLoading(false);
+              setOtherUserInfo(result.data.targetUser);
+              setOtherUserPrivacy(true);
+            }
+            if (result.data.privacy === 'open') {
+              setLoading(false);
+              setOtherUserInfo(result.data.targetUser);
+              setOtherUserPrivacy(false);
 
-            // console.log("@SETTLED COMDS: ", currentUserEligiblePosts!.filter(eligible => eligible.uidRef === username));
-            await bluebird
-              .map(
-                currentUserEligiblePosts!.filter(
-                  (eligible) => eligible.username === username
-                ),
-                async (
-                  obj: { uidRef: string; postRef: string },
-                  index: number
-                ) => {
-                  firebase
-                    .database()
-                    .ref('Postsv2')
-                    .child(obj.uidRef)
-                    .child(obj.postRef)
-                    .on(
-                      'value',
-                      async (ssh) => {
-                        //No need to check post privacy again because all posts we have access to are here?
-                        temp[`${obj.uidRef + obj.postRef}`] = ssh.val();
-                        temp[`${obj.uidRef + obj.postRef}`].key = `${obj.uidRef + obj.postRef
-                          }`;
+              //Get data from user's posts
+              let temp: any = {};
 
-                        if (localStorage.getItem('publicUserPostsSet')) {
+              // console.log("@SETTLED COMDS: ", currentUserEligiblePosts!.filter(eligible => eligible.uidRef === username));
+              await bluebird
+                .map(result.data.targetUser.posts,
+                  async (
+                    obj: { uidRef: string; postRef: string },
+                    index: number
+                  ) => {
+                    firebase
+                      .database()
+                      .ref('Postsv2')
+                      .child(obj.uidRef)
+                      .child(obj.postRef)
+                      .on(
+                        'value',
+                        async (ssh) => {
+                          //No need to check post privacy again because all posts we have access to are here?
                           temp[`${obj.uidRef + obj.postRef}`] = ssh.val();
                           temp[`${obj.uidRef + obj.postRef}`].key = `${obj.uidRef + obj.postRef
                             }`;
 
-                          setPosts(
-                            Object.values(temp).sort(
-                              (s1: any, s2: any) =>
-                                s2.date_of_post - s1.date_of_post
-                            ) as any[]
-                          );
-                        }
+                          if (localStorage.getItem('publicUserPostsSet')) {
+                            temp[`${obj.uidRef + obj.postRef}`] = ssh.val();
+                            temp[`${obj.uidRef + obj.postRef}`].key = `${obj.uidRef + obj.postRef
+                              }`;
 
-                        if (
-                          index ===
-                          currentUserEligiblePosts!.filter(
-                            (eligible) => eligible.username === username
-                          ).length -
-                          1 &&
-                          !localStorage.getItem('publicUserPostsSet')
-                        ) {
-                          console.log('IN COND: ', Object.values(temp));
+                            setPosts(
+                              Object.values(temp).sort(
+                                (s1: any, s2: any) =>
+                                  s2.date_of_post - s1.date_of_post
+                              ) as any[]
+                            );
+                          }
 
-                          setPosts(
-                            Object.values(temp).sort(
-                              (s1: any, s2: any) =>
-                                s2.date_of_post - s1.date_of_post
-                            ) as any[]
-                          );
+                          if (
+                            index ===
+                            result.data.targetUser.posts.length -
+                            1 &&
+                            !localStorage.getItem('publicUserPostsSet')
+                          ) {
+                            console.log('IN COND: ', Object.values(temp));
 
-                          console.log('@POSTS DEBUG: ', Object.values(temp));
+                            setPosts(
+                              Object.values(temp).sort(
+                                (s1: any, s2: any) =>
+                                  s2.date_of_post - s1.date_of_post
+                              ) as any[]
+                            );
 
-                          localStorage.setItem('publicUserPostsSet', 'true');
-                        }
-                      },
-                      (error: any) => {
-                        console.log('@SSH ERROR: ', error);
-                        if (error.code) {
-                          if (error.code === 'PERMISSION_DENIED') {
-                            const lastKey = error.message
-                              .split(':')[0]
-                              .split('/')[3];
+                            console.log('@POSTS DEBUG: ', Object.values(temp));
 
-                            // delete temp[lastKey];
+                            localStorage.setItem('publicUserPostsSet', 'true');
+                          }
+                        },
+                        (error: any) => {
+                          console.log('@SSH ERROR: ', error);
+                          if (error.code) {
+                            if (error.code === 'PERMISSION_DENIED') {
+                              const lastKey = error.message
+                                .split(':')[0]
+                                .split('/')[3];
 
-                            // setPosts(Object.values(temp));
+                              // delete temp[lastKey];
 
-                            //TODO: Maybe show 'post not available message'?
+                              // setPosts(Object.values(temp));
+
+                              //TODO: Maybe show 'post not available message'?
+                            }
                           }
                         }
-                      }
-                    );
-                },
-                {
-                  concurrency: currentUserEligiblePosts!.filter(
-                    (eligible) => eligible.username === username
-                  ).length,
-                }
-              )
-              .then(() => {
-                console.log('DONE MAPPING');
-              });
+                      );
+                  },
+                  {
+                    concurrency: result.data.targetUser.posts.length,
+                  }
+                )
+                .then(() => {
+                  console.log('DONE MAPPING');
+                });
 
 
-          } else if (result.data.code === 404) {
-            setLoading(false);
-            setRealUser(false);
+            } else if (result.data.code === 404) {
+              setLoading(false);
+              setRealUser(false);
+            }
           }
+
+
+
+
         }
       }
     };
@@ -631,7 +630,7 @@ const UserProfile = (props: IUserProps) => {
                   <h1
                     style={{
                       marginBottom: 5,
-                      marginTop: 15,
+                      // marginTop: 15,
                       fontWeight: 'bold',
                     }}
                   >
@@ -648,7 +647,10 @@ const UserProfile = (props: IUserProps) => {
                             okText="Unfollow"
                             cancelText="Cancel"
                           >
-                            <p>Unfollow</p>
+                            <Button icon={<UserDeleteOutlined />}  >
+                              Unfollow
+                            </Button>
+                            {/* <p>Unfollow</p> */}
                           </Popconfirm>
                         )
                         :
@@ -656,62 +658,44 @@ const UserProfile = (props: IUserProps) => {
                           privacyStatus === "Public" ?
                             (
                               requestedFollow ? (
-                                <p
-                                  onClick={() =>
-                                    handleCancelFollowRequest(otherUserInfo)
-                                  }
-                                >
+                                <Button onClick={() => handleCancelFollowRequest(otherUserInfo)} >
                                   Cancel Request
-                                </p>
+                                </Button>
+                                // <p
+                                //   onClick={() =>
+                                //     handleCancelFollowRequest(otherUserInfo)
+                                //   }
+                                // >
+
+                                //   Cancel Request
+                                // </p>
                               ) : (
-                                  <p onClick={() => handleFollowRequest(otherUserInfo)}>
+                                  <Button onClick={() => handleFollowRequest(otherUserInfo)} icon={<UserAddOutlined />}  >
                                     Follow
-                                  </p>
+                                  </Button>
                                 )
                             )
                             :
                             (
                               requestedFollow ? (
-                                <p
-                                  onClick={() =>
-                                    handleCancelFollowRequest(otherUserInfo)
-                                  }
-                                >
+                                <Button onClick={() => handleCancelFollowRequest(otherUserInfo)} >
                                   Cancel Request
-                                </p>
+                                </Button>
+                                // <p
+                                //   onClick={() =>
+                                //     handleCancelFollowRequest(otherUserInfo)
+                                //   }
+                                // >
+                                //   Cancel Request
+                                // </p>
                               ) : (
-                                  <p onClick={() => handleFollowRequest(otherUserInfo)}>
+                                  <Button onClick={() => handleFollowRequest(otherUserInfo)} icon={<UserAddOutlined />}  >
                                     Follow
-                                  </p>
+                                  </Button>
                                 )
                             )
                         )
                     }
-                    {/* { otherUserPrivacy ? (
-                        requestedFollow ? (
-                        <p
-                          onClick={() =>
-                            handleCancelFollowRequest(otherUserInfo)
-                          }
-                        >
-                          Cancel Request
-                        </p>
-                      ) : (
-                          <p onClick={() => handleFollowRequest(otherUserInfo)}>
-                            Follow
-                          </p>
-                        )
-                    ) : (
-                        <Popconfirm
-                          title="You will have to send a request to follow again."
-                          onConfirm={() => confirm(otherUserInfo)}
-                          onCancel={cancel}
-                          okText="Unfollow"
-                          cancelText="Cancel"
-                        >
-                          <p>Unfollow</p>
-                        </Popconfirm>
-                      )} */}
                   </span>
                 </Col>
                 {!otherUserPrivacy ? (

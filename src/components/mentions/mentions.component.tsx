@@ -125,6 +125,7 @@ class AsyncMention extends React.Component<IMentionsProps, IMentionsState> {
 
         return (
             <Mentions
+                value={this.props.value && this.props.value}
                 autoSize={this.props.autoSize}
                 onChange={this.props.onChange && this.props.onChange}
                 placeholder={this.props.placeholder && this.props.placeholder}

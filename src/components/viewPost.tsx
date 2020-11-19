@@ -7,7 +7,7 @@ import MyPost from './post/post';
 interface postIdInterface {
   postId: string;
 }
-interface ViewPostProps extends RouteComponentProps<any> {}
+interface ViewPostProps extends RouteComponentProps<any> { }
 const ViewPost = (props: ViewPostProps) => {
   const [post, setPost] = useState<Post>();
   const { postId: id }: postIdInterface = useParams();

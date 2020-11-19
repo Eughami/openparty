@@ -46,33 +46,33 @@ export const emailSignInStart = (
   emailAndPassword: { email: string; password: string },
   history: any
 ) => (dispatch: (arg0: { type: string; payload?: any }) => void) =>
-  new Promise((resolve, reject) => {
-    dispatch({ type: UserActionTypes.EMAIL_SIGN_IN_START });
+    new Promise((resolve, reject) => {
+      dispatch({ type: UserActionTypes.EMAIL_SIGN_IN_START });
 
-    try {
-      firebase
-        .auth()
-        .signInWithEmailAndPassword(
-          emailAndPassword.email,
-          emailAndPassword.password
-        )
-        .then((user) => {
-          dispatch({
-            type: UserActionTypes.SIGN_IN_SUCCESS,
-            payload: user.user,
+      try {
+        firebase
+          .auth()
+          .signInWithEmailAndPassword(
+            emailAndPassword.email,
+            emailAndPassword.password
+          )
+          .then((user) => {
+            dispatch({
+              type: UserActionTypes.SIGN_IN_SUCCESS,
+              payload: user.user,
+            });
+            resolve(user);
+            history.push('/');
+          })
+          .catch((error) => {
+            dispatch({ type: UserActionTypes.SIGN_IN_FAILURE, payload: error });
+            reject(error);
           });
-          resolve(user);
-          history.push('/');
-        })
-        .catch((error) => {
-          dispatch({ type: UserActionTypes.SIGN_IN_FAILURE, payload: error });
-          reject(error);
-        });
-    } catch (error) {
-      dispatch({ type: UserActionTypes.SIGN_IN_FAILURE, payload: error });
-      reject(error);
-    }
-  });
+      } catch (error) {
+        dispatch({ type: UserActionTypes.SIGN_IN_FAILURE, payload: error });
+        reject(error);
+      }
+    });
 
 export const setCurrentUserListener = () => (dispatch: any) =>
   new Promise(async (resolve, reject) => {

@@ -17,6 +17,7 @@ import {
     message,
     Progress,
     DatePicker,
+    Divider,
 } from 'antd';
 import {
     UserOutlined,
@@ -27,6 +28,7 @@ import {
     AlertOutlined,
     UploadOutlined,
 } from '@ant-design/icons';
+
 import OpenPartyLogo from '../images/openpaarty.logo.png';
 import { connect } from 'react-redux';
 import {
@@ -39,7 +41,7 @@ import axios from 'axios';
 import { Link } from 'react-router-dom';
 import { RcFile } from 'antd/lib/upload/interface';
 import bluebird from 'bluebird';
-import { makeId } from '../post/post';
+import { makeId } from '../post/post.actions';
 import ImgCrop from 'antd-img-crop';
 import { Moment } from 'moment';
 import AsyncMention from '../mentions/mentions.component';
@@ -59,6 +61,8 @@ interface IHeaderProps {
     currentUserInfo?: RegistrationObject;
     currentUserToken?: string;
 }
+
+const { Search } = Input;
 
 const Header = (props: IHeaderProps) => {
     const [modalVisible, setModalVisible] = useState<boolean>(false);
@@ -167,6 +171,17 @@ const Header = (props: IHeaderProps) => {
                 <span role="img" aria-label="selfie">
                     🤳
         </span>
+            </Menu.Item>
+            <hr />
+            <Menu.Item
+                onClick={() => setPostModalVisible(true)}
+                key="4"
+                icon={<LogoutOutlined
+                    onClick={() => firebase.auth().signOut()}
+                    size={25}
+                />}
+            >
+                Logout
             </Menu.Item>
         </Menu>
     );
@@ -439,15 +454,16 @@ const Header = (props: IHeaderProps) => {
                     lg={{ span: 6, offset: 2 }}
                     xxl={{ span: 5, offset: 1 }}
                 >
-                    SearchBar
-        </Col>
+                    {/* SearchBar */}
+                    <Search style={{ width: "80%" }} placeholder="Search" />
+                </Col>
                 <Col className="" offset={1} span={6}>
                     <Row style={{ alignItems: 'center', justifyContent: 'space-around' }}>
                         {/* <Tooltip title="Add a new post 🤳">
                             <a> <AppstoreAddOutlined onClick={() => setPostModalVisible(true)} size={25} /> </a>
                         </Tooltip> */}
 
-                        <Col span="3">
+                        <Col span="4">
                             <Link
                                 className="nav-link"
                                 to={{
@@ -458,7 +474,7 @@ const Header = (props: IHeaderProps) => {
                             </Link>
                         </Col>
 
-                        <Col span="3">
+                        <Col span="4">
                             <Link
                                 onClick={() => setModalVisible(true)}
                                 className="nav-link"
@@ -472,21 +488,19 @@ const Header = (props: IHeaderProps) => {
                                 </Badge>
                             </Link>
                         </Col>
-                        <Col span="3">
+
+                        <Col span="4">
                             <Link to={{}}>
                                 <Dropdown overlay={menu(props)}>
-                                    <UserOutlined />
+                                    {/* <UserOutlined /> */}
+                                    <Avatar style={{ verticalAlign: 'middle' }} src={props.currentUserInfo?.image_url} >
+                                    </Avatar>
                                 </Dropdown>
                             </Link>
                         </Col>
-                        <Col span="3">
-                            <a>
-                                <LogoutOutlined
-                                    onClick={() => firebase.auth().signOut()}
-                                    size={25}
-                                />
-                            </a>
-                        </Col>
+                        {/* <Col span="3">
+                            
+                        </Col> */}
                     </Row>
                 </Col>
             </div>
