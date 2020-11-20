@@ -430,6 +430,10 @@ const UserProfile = (props: IUserProps) => {
 
         }
       }
+      else {
+        setLoading(false);
+        setRealUser(false);
+      }
     };
 
     decodeProfile();
