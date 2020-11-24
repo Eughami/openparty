@@ -120,23 +120,22 @@ const App = (props: IAppProps) => {
             <Route exact path="/:username" component={UserProfile} />
             <Route exact path="/t/:tag" component={Tags} />
             <Route exact path="/post/:postId" component={ViewPost} />
-
-            {/* <Route component={Homepage} /> */}
           </Switch>
         </div>
       ) : (
-          <Switch>
-            {/* <Route path='/login' component={Login} />
-              <Route path='/register' component={RegistrationForm} />
-              <Redirect
-                to={{
-                  pathname: window.location.pathname === "/register" ? '/register' : "/login"
-                }}
-              /> */}
-            <Route exact path="/register" component={RegistrationForm} />
-            <Route component={Login} />
-          </Switch>
-        )}
+        <Switch>
+          <Route path="/login" component={Login} />
+          <Route path="/register" component={RegistrationForm} />
+          <Redirect
+            to={{
+              pathname:
+                window.location.pathname === '/register'
+                  ? '/register'
+                  : '/login',
+            }}
+          />
+        </Switch>
+      )}
     </div>
   );
 };
