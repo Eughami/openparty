@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react';
-import { Switch, Route, Redirect } from 'react-router-dom';
-import { connect } from 'react-redux';
+import React, { useEffect, useState } from "react";
+import { Switch, Route, Redirect } from "react-router-dom";
+import { connect } from "react-redux";
 // import { createStructuredSelector } from 'reselect';
 // import { selectCurrentUser } from './redux/user/user.selectors';
 import {
@@ -8,21 +8,22 @@ import {
   setCurrentUserRootDatabaseListener,
   setCurrentUserEligiblePosts,
   setCurrentUserToken,
-} from './redux/user/user.actions';
+} from "./redux/user/user.actions";
 
-import './App.css';
-import Homepage from './components/homepage';
-import 'antd/dist/antd.css';
-import Login from './components/login';
-import RegistrationForm from './components/register';
-import UserProfile from './components/user-info';
-import Tags from './components/tags';
-import { RegistrationObject } from './components/interfaces/user.interface';
-import { Col, Spin, Tabs } from 'antd';
-import Header from './components/header/header';
+import "./App.css";
+import Homepage from "./components/homepage";
+import "antd/dist/antd.css";
+import Login from "./components/login";
+import RegistrationForm from "./components/register";
+import UserProfile from "./components/user-info";
+import Tags from "./components/tags";
+import { RegistrationObject } from "./components/interfaces/user.interface";
+import { Col, Spin, Tabs } from "antd";
+import Header from "./components/header/header";
+import ProfileUI from "./components/test";
 
-import firebase from 'firebase';
-import ViewPost from './components/viewPost';
+import firebase from "firebase";
+import ViewPost from "./components/viewPost";
 
 // const currentUser = true
 
@@ -79,7 +80,7 @@ const App = (props: IAppProps) => {
   //   }, 3300);
   // }, [currentUser, setCurrentUserToken])
 
-  console.log('APP.TSX PROPS:  ', props.currentUserToken);
+  console.log("APP.TSX PROPS:  ", props.currentUserToken);
 
   // useEffect(() => {
   //   if (!currentUser) return;
@@ -102,7 +103,7 @@ const App = (props: IAppProps) => {
 
   if (loadingCredentials) {
     return (
-      <div style={{ textAlign: 'center' }}>
+      <div style={{ textAlign: "center" }}>
         <Spin size="small" />
       </div>
     );
@@ -120,23 +121,24 @@ const App = (props: IAppProps) => {
             <Route exact path="/:username" component={UserProfile} />
             <Route exact path="/t/:tag" component={Tags} />
             <Route exact path="/post/:postId" component={ViewPost} />
+            <Route exact path="/test/p" component={ProfileUI} />
 
             {/* <Route component={Homepage} /> */}
           </Switch>
         </div>
       ) : (
-          <Switch>
-            {/* <Route path='/login' component={Login} />
+        <Switch>
+          {/* <Route path='/login' component={Login} />
               <Route path='/register' component={RegistrationForm} />
               <Redirect
                 to={{
                   pathname: window.location.pathname === "/register" ? '/register' : "/login"
                 }}
               /> */}
-            <Route exact path="/register" component={RegistrationForm} />
-            <Route component={Login} />
-          </Switch>
-        )}
+          <Route exact path="/register" component={RegistrationForm} />
+          <Route component={Login} />
+        </Switch>
+      )}
     </div>
   );
 };
