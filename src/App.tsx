@@ -23,6 +23,7 @@ import Header from './components/header/header';
 
 import firebase from 'firebase';
 import ViewPost from './components/viewPost';
+import 'react-perfect-scrollbar/dist/css/styles.css';
 
 // const currentUser = true
 

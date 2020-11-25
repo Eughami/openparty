@@ -21,7 +21,6 @@ import { PostTags as PostTagsComponent } from './components/post.component.tags'
 import { PostComments } from './components/post.component.comments';
 import { PostActions } from './components/post.component.actions';
 import { PostEventTime } from './components/post.component.event-time';
-import 'react-perfect-scrollbar/dist/css/styles.css';
 
 interface IPostProps {
   setCurrentUserListener?: () => Promise<any>;

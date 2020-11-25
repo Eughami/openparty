@@ -19,6 +19,7 @@ import {
   DatePicker,
   Divider,
   Space,
+  Spin,
 } from 'antd';
 import {
   UserOutlined,
@@ -47,6 +48,8 @@ import { makeId } from '../post/post.actions';
 import ImgCrop from 'antd-img-crop';
 import { Moment } from 'moment';
 import AsyncMention from '../mentions/mentions.component';
+import PerfectScrollbar from 'react-perfect-scrollbar';
+
 import {
   ADD_POST_ENDPOINT,
   API_BASE_URL,
@@ -70,6 +73,8 @@ const Header = (props: IHeaderProps) => {
   const [modalVisible, setModalVisible] = useState<boolean>(false);
   const [postModalVisible, setPostModalVisible] = useState<boolean>(false);
   const [postWorking, setPostWorking] = useState<boolean>(false);
+  const [showNotification, setShowNotification] = useState<boolean>(false);
+  const [loading, setloading] = useState<boolean>(false);
   const [followRequests, setFollowRequests] = useState([]);
   const { Option } = Select;
   const [form] = Form.useForm();
@@ -283,6 +288,13 @@ const Header = (props: IHeaderProps) => {
     imgWindow && imgWindow.document.write(image.outerHTML);
   };
 
+  const focusShit = (e: any) => {
+    console.log('in of focus', e.target.id);
+    if (e.target.id !== 'notification-area') {
+      setShowNotification(false);
+    }
+  };
+
   return (
     <nav className="Nav">
       <Modal
@@ -460,7 +472,20 @@ const Header = (props: IHeaderProps) => {
                   </Badge>
                 </Link>
 
-                <Link to={{}}>
+                <Link
+                  to={{}}
+                  onClick={() => {
+                    if (showNotification) {
+                      setShowNotification(!showNotification);
+                      return;
+                    }
+                    setloading(true);
+                    setTimeout(() => {
+                      setShowNotification(!showNotification);
+                      setloading(false);
+                    }, 1000);
+                  }}
+                >
                   <NotificationTwoTone style={{ fontSize: '22px' }} />
                 </Link>
 
@@ -498,9 +523,56 @@ const Header = (props: IHeaderProps) => {
           </Row>
         </Col>
       </div>
-      <div className="profile__dropdown" id="notification-area">
-        No Notifications
-      </div>
+      <Row>
+        {loading && (
+          <Col className="profile__dropdown__loading" offset={14}>
+            <Spin size="large" />
+          </Col>
+        )}
+        {showNotification && (
+          <div
+            id="notificationCover"
+            className="notification__cover"
+            onClick={(e: any) => focusShit(e)}
+          >
+            <Col
+              id="notification-area"
+              className="profile__dropdown"
+              offset={14}
+            >
+              <PerfectScrollbar>
+                <p>GG bitches</p>
+                <p>GG bitches</p>
+                <p>GG bitches</p>
+                <p>GG bitches</p>
+                <p>GG bitches</p>
+                <p>GG bitches</p>
+                <p>GG bitches</p>
+                <p>GG bitches</p>
+                <p>GG bitches</p>
+                <p>GG bitches</p>
+                <p>GG bitches</p>
+                <p>GG bitches</p>
+                <p>GG bitches</p>
+                <p>GG bitches</p>
+                <p>GG bitches</p>
+                <p>GG bitches</p>
+                <p>GG bitches</p>
+                <p>GG bitches</p>
+                <p>GG bitches</p>
+                <p>GG bitches</p>
+                <p>GG bitches</p>
+                <p>GG bitches</p>
+                <p>GG bitches</p>
+                <p>GG bitches</p>
+                <p>GG bitches</p>
+                <p>GG bitches</p>
+              </PerfectScrollbar>
+              <div>No Notifications</div>
+            </Col>
+          </div>
+        )}
+      </Row>
     </nav>
   );
 };
