@@ -3,13 +3,28 @@
     border: 1px solid #e6e6e6;
     background-color: #fff;
     margin-bottom: 60px;
-    margin-left : 20%;
-    margin-right: 20%;
+    /* margin-left : 20%;
+    margin-right: 20%; */
     max-width: 500px;
     width: 600px;
     align-items: center;
-    /* max-height: 500px; */
+    /* max-height: 500px; */ 
+    margin: 0 auto 30px;
   }
+  /* @media only screen and (min-width : 700px) {
+    .Post {
+      max-width: unset;
+    } 
+  } */
+  @media (min-width: 736px) {
+    .UserPost {
+    -webkit-box-sizing: content-box;
+    box-sizing: content-box;
+    padding: 60px 20px 0;
+    width: calc(100% - 40px);
+}
+  }
+
   .Post-user {
     display: flex;
     padding: 16px;

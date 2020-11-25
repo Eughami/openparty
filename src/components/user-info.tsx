@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from "react";
 import {
   Avatar,
   Row,
@@ -11,32 +11,38 @@ import {
   Popconfirm,
   message,
   Divider,
-} from 'antd';
-import firebase from 'firebase';
-import MyPost from './post/post';
+} from "antd";
+import firebase from "firebase";
+import MyPost from "./post/post";
 import {
   Post,
   PostPrivacy,
   RegistrationObject,
   Comment,
-} from './interfaces/user.interface';
-import { connect } from 'react-redux';
+} from "./interfaces/user.interface";
+import { connect } from "react-redux";
 import {
   setCurrentUserListener,
   setCurrentUserRootDatabaseListener,
   setCurrentUserEligiblePosts,
   setCurrentUserToken,
-} from '../redux/user/user.actions';
-import axios from 'axios';
-import bluebird from 'bluebird';
-import { EditOutlined, AppleOutlined, AndroidOutlined, UserAddOutlined, UserDeleteOutlined } from '@ant-design/icons';
+} from "../redux/user/user.actions";
+import axios from "axios";
+import bluebird from "bluebird";
+import {
+  EditOutlined,
+  AppleOutlined,
+  AndroidOutlined,
+  UserAddOutlined,
+  UserDeleteOutlined,
+} from "@ant-design/icons";
 import {
   API_BASE_URL,
   CANCEL_FOLLOW_REQUEST_ENDPOINT,
   CAN_USER_VIEW_PROFILE_ENDPOINT,
   SEND_FOLLOW_REQUEST_ENDPOINT,
   UNFOLOW_REQUEST_ENDPOINT,
-} from '../service/api';
+} from "../service/api";
 
 interface IUserProps {
   setCurrentUserListener?: () => Promise<any>;
@@ -51,7 +57,7 @@ interface IUserProps {
 }
 
 const UserProfile = (props: IUserProps) => {
-  console.log('UserProfile Props: ', props);
+  console.log("UserProfile Props: ", props);
   const {
     currentUser,
     currentUserInfo,
@@ -72,6 +78,7 @@ const UserProfile = (props: IUserProps) => {
   const [followActionLoading, setFollowActionLoading] = useState<boolean>(true);
 
   const [loading, setLoading] = useState<boolean>(true);
+  const [postsDoneLoading, setPostsDoneLoading] = useState<boolean>(false);
   const [realUser, setRealUser] = useState<boolean>(true);
 
   const [privacyStatus, setPrivacyStatus] = useState<string>("Public");
@@ -86,7 +93,7 @@ const UserProfile = (props: IUserProps) => {
 
     let temp: Array<Post> = [];
 
-    console.log('GETTING ALL POSTS... ', posts.length);
+    console.log("GETTING ALL POSTS... ", posts.length);
     for (let i = 0; i < posts.length; i++) {
       temp.push({
         caption: posts[i].val().caption,
@@ -103,7 +110,7 @@ const UserProfile = (props: IUserProps) => {
         date_of_post: posts[i].val().date_of_post,
         date_of_event: posts[i].val().date_of_event,
       });
-      console.log('INNER COMMENT: ', posts[i].val());
+      console.log("INNER COMMENT: ", posts[i].val());
       if (posts[i].val().comments) {
         const commentKeys = Object.keys(posts[i].val().comments);
         let thisCommentArray: Array<Comment> = [];
@@ -131,10 +138,10 @@ const UserProfile = (props: IUserProps) => {
       setRealUser(true);
       firebase
         .database()
-        .ref('Postsv2')
+        .ref("Postsv2")
         .child(currentUser?.uid!)
         .on(
-          'value',
+          "value",
           async (ssh) => {
             // console.log(ssh.val());
 
@@ -145,9 +152,11 @@ const UserProfile = (props: IUserProps) => {
                 ttt.push(post);
               });
 
-              console.log('====== POST IDS: ', ttt);
+              console.log("====== POST IDS: ", ttt);
 
               setPosts(await awaitFillPosts(ttt, currentUserInfo!));
+
+              setPostsDoneLoading(true)
             } else {
               setPosts([]);
             }
@@ -165,16 +174,14 @@ const UserProfile = (props: IUserProps) => {
   }, [currentUserInfo, currentUser, username]);
 
   useEffect(() => {
+    if (!currentUser) return;
+
+    if (!currentUserToken) {
+      props.setCurrentUserToken!(currentUser);
+      return;
+    }
+
     const decodeProfile = async () => {
-      if (!currentUser) return;
-
-      if (!currentUserToken) {
-        props.setCurrentUserToken!(currentUser);
-        return;
-      }
-
-
-
       // const result = await axios.post("http://localhost:5000/openpaarty/us-central1/api/v1/users/can-view-user-profile", {
       const result = await axios.post(
         `${API_BASE_URL}${CAN_USER_VIEW_PROFILE_ENDPOINT}`,
@@ -188,38 +195,39 @@ const UserProfile = (props: IUserProps) => {
         }
       );
 
-      console.log('@5555=========', result.data);
+      console.log("@5555=========", result.data);
 
       if (result.data.success) {
-
         if (result.data.selfUser) {
           setLoading(false);
           setSelfUser(true);
         } else {
+          setPrivacyStatus(result.data.privacy);
 
-          setPrivacyStatus(result.data.privacy)
-
-
-
-          if (result.data.privacy === 'following') {
+          if (result.data.privacy === "following") {
             setFollowActionLoading(false);
+
+            if (currentUserEligiblePosts === null) {
+              //serious issues here
+            }
+
             //Get data from user root profile
             firebase
               .database()
-              .ref('Users')
+              .ref("Users")
               .child(result.data.targetUid)
               .on(
-                'value',
+                "value",
                 async (ssh) => {
                   console.log(ssh.val());
 
                   setOtherUserPrivacy(false);
                   setLoading(false);
                   setOtherUserInfo(ssh.val());
-                },//HERE IS WHERE DB SNAPS FROM PRIVACY CHANGE
+                }, //HERE IS WHERE DB SNAPS FROM PRIVACY CHANGE
                 (error: any) => {
                   if (error.code) {
-                    if (error.code === 'PERMISSION_DENIED') {
+                    if (error.code === "PERMISSION_DENIED") {
                       setLoading(false);
                       setOtherUserInfo(result.data.targetUser);
                       setOtherUserPrivacy(true);
@@ -243,21 +251,23 @@ const UserProfile = (props: IUserProps) => {
                 ) => {
                   firebase
                     .database()
-                    .ref('Postsv2')
+                    .ref("Postsv2")
                     .child(obj.uidRef)
                     .child(obj.postRef)
                     .on(
-                      'value',
+                      "value",
                       async (ssh) => {
                         //No need to check post privacy again because all posts we have access to are here?
                         temp[`${obj.uidRef + obj.postRef}`] = ssh.val();
-                        temp[`${obj.uidRef + obj.postRef}`].key = `${obj.uidRef + obj.postRef
-                          }`;
+                        temp[`${obj.uidRef + obj.postRef}`].key = `${
+                          obj.uidRef + obj.postRef
+                        }`;
 
-                        if (localStorage.getItem('otherUserPostsSet')) {
+                        if (localStorage.getItem("otherUserPostsSet")) {
                           temp[`${obj.uidRef + obj.postRef}`] = ssh.val();
-                          temp[`${obj.uidRef + obj.postRef}`].key = `${obj.uidRef + obj.postRef
-                            }`;
+                          temp[`${obj.uidRef + obj.postRef}`].key = `${
+                            obj.uidRef + obj.postRef
+                          }`;
 
                           setPosts(
                             Object.values(temp).sort(
@@ -269,13 +279,13 @@ const UserProfile = (props: IUserProps) => {
 
                         if (
                           index ===
-                          currentUserEligiblePosts!.filter(
-                            (eligible) => eligible.username === username
-                          ).length -
-                          1 &&
-                          !localStorage.getItem('otherUserPostsSet')
+                            currentUserEligiblePosts!.filter(
+                              (eligible) => eligible.username === username
+                            ).length -
+                              1 &&
+                          !localStorage.getItem("otherUserPostsSet")
                         ) {
-                          console.log('IN COND: ', Object.values(temp));
+                          console.log("IN COND: ", Object.values(temp));
 
                           setPosts(
                             Object.values(temp).sort(
@@ -284,18 +294,20 @@ const UserProfile = (props: IUserProps) => {
                             ) as any[]
                           );
 
-                          console.log('@POSTS DEBUG: ', Object.values(temp));
+                          setPostsDoneLoading(true);
 
-                          localStorage.setItem('otherUserPostsSet', 'true');
+                          console.log("@POSTS DEBUG: ", Object.values(temp));
+
+                          localStorage.setItem("otherUserPostsSet", "true");
                         }
                       },
                       (error: any) => {
-                        console.log('@SSH ERROR: ', error);
+                        console.log("@SSH ERROR: ", error);
                         if (error.code) {
-                          if (error.code === 'PERMISSION_DENIED') {
+                          if (error.code === "PERMISSION_DENIED") {
                             const lastKey = error.message
-                              .split(':')[0]
-                              .split('/')[3];
+                              .split(":")[0]
+                              .split("/")[3];
 
                             // delete temp[lastKey];
 
@@ -314,27 +326,25 @@ const UserProfile = (props: IUserProps) => {
                 }
               )
               .then(() => {
-                console.log('DONE MAPPING');
+                console.log("DONE MAPPING");
               });
-          }
-
-          else {
+          } else {
             firebase
               .database()
-              .ref('FollowRequests')
+              .ref("FollowRequests")
               .child(result.data.targetUser.uid)
               .child(currentUser.uid)
-              .on('value', (ssh) => {
+              .on("value", (ssh) => {
                 setFollowActionLoading(false);
                 setRequestedFollow(ssh.exists());
               });
 
-            if (result.data.privacy === 'closed') {
+            if (result.data.privacy === "closed") {
               setLoading(false);
               setOtherUserInfo(result.data.targetUser);
               setOtherUserPrivacy(true);
             }
-            if (result.data.privacy === 'open') {
+            if (result.data.privacy === "open") {
               setLoading(false);
               setOtherUserInfo(result.data.targetUser);
               setOtherUserPrivacy(false);
@@ -344,28 +354,31 @@ const UserProfile = (props: IUserProps) => {
 
               // console.log("@SETTLED COMDS: ", currentUserEligiblePosts!.filter(eligible => eligible.uidRef === username));
               await bluebird
-                .map(result.data.targetUser.posts,
+                .map(
+                  result.data.targetUser.posts,
                   async (
                     obj: { uidRef: string; postRef: string },
                     index: number
                   ) => {
                     firebase
                       .database()
-                      .ref('Postsv2')
+                      .ref("Postsv2")
                       .child(obj.uidRef)
                       .child(obj.postRef)
                       .on(
-                        'value',
+                        "value",
                         async (ssh) => {
                           //No need to check post privacy again because all posts we have access to are here?
                           temp[`${obj.uidRef + obj.postRef}`] = ssh.val();
-                          temp[`${obj.uidRef + obj.postRef}`].key = `${obj.uidRef + obj.postRef
-                            }`;
+                          temp[`${obj.uidRef + obj.postRef}`].key = `${
+                            obj.uidRef + obj.postRef
+                          }`;
 
-                          if (localStorage.getItem('publicUserPostsSet')) {
+                          if (localStorage.getItem("publicUserPostsSet")) {
                             temp[`${obj.uidRef + obj.postRef}`] = ssh.val();
-                            temp[`${obj.uidRef + obj.postRef}`].key = `${obj.uidRef + obj.postRef
-                              }`;
+                            temp[`${obj.uidRef + obj.postRef}`].key = `${
+                              obj.uidRef + obj.postRef
+                            }`;
 
                             setPosts(
                               Object.values(temp).sort(
@@ -376,12 +389,10 @@ const UserProfile = (props: IUserProps) => {
                           }
 
                           if (
-                            index ===
-                            result.data.targetUser.posts.length -
-                            1 &&
-                            !localStorage.getItem('publicUserPostsSet')
+                            index === result.data.targetUser.posts.length - 1 &&
+                            !localStorage.getItem("publicUserPostsSet")
                           ) {
-                            console.log('IN COND: ', Object.values(temp));
+                            console.log("IN COND: ", Object.values(temp));
 
                             setPosts(
                               Object.values(temp).sort(
@@ -390,18 +401,20 @@ const UserProfile = (props: IUserProps) => {
                               ) as any[]
                             );
 
-                            console.log('@POSTS DEBUG: ', Object.values(temp));
+                            setPostsDoneLoading(true);
 
-                            localStorage.setItem('publicUserPostsSet', 'true');
+                            console.log("@POSTS DEBUG: ", Object.values(temp));
+
+                            localStorage.setItem("publicUserPostsSet", "true");
                           }
                         },
                         (error: any) => {
-                          console.log('@SSH ERROR: ', error);
+                          console.log("@SSH ERROR: ", error);
                           if (error.code) {
-                            if (error.code === 'PERMISSION_DENIED') {
+                            if (error.code === "PERMISSION_DENIED") {
                               const lastKey = error.message
-                                .split(':')[0]
-                                .split('/')[3];
+                                .split(":")[0]
+                                .split("/")[3];
 
                               // delete temp[lastKey];
 
@@ -418,19 +431,15 @@ const UserProfile = (props: IUserProps) => {
                   }
                 )
                 .then(() => {
-                  console.log('DONE MAPPING');
+                  console.log("DONE MAPPING");
                 });
-
-
             } else if (result.data.code === 404) {
               setLoading(false);
               setRealUser(false);
             }
           }
-
         }
-      }
-      else {
+      } else {
         setLoading(false);
         setRealUser(false);
       }
@@ -465,7 +474,7 @@ const UserProfile = (props: IUserProps) => {
 
     await setCurrentUserEligiblePosts!(currentUser!);
 
-    message.success('Unfollow successful');
+    message.success("Unfollow successful");
   };
 
   const cancel = (e: any) => {
@@ -474,7 +483,7 @@ const UserProfile = (props: IUserProps) => {
   };
 
   const handleFollowRequest = async (otherUserInfo: RegistrationObject) => {
-    const result = await axios.post(
+    await axios.post(
       //   'http://localhost:5000/openpaarty/us-central1/api/v1/users/send-follow-request',
       `${API_BASE_URL}${SEND_FOLLOW_REQUEST_ENDPOINT}`,
       {
@@ -489,17 +498,13 @@ const UserProfile = (props: IUserProps) => {
       }
     );
 
-    console.log(result.data);
-
-    // await setCurrentUserEligiblePosts!(currentUser!)
-
-    message.success('Follow request sent');
+    message.success("Follow request sent");
   };
 
   const handleCancelFollowRequest = async (
     otherUserInfo: RegistrationObject
   ) => {
-    const result = await axios.post(
+    await axios.post(
       //   'http://localhost:5000/openpaarty/us-central1/api/v1/users/cancel-follow-request',
       `${API_BASE_URL}${CANCEL_FOLLOW_REQUEST_ENDPOINT}`,
       {
@@ -512,17 +517,13 @@ const UserProfile = (props: IUserProps) => {
       }
     );
 
-    console.log(result.data);
-
-    message.success('Follow request canceled');
+    message.success("Follow request canceled");
   };
 
   if (!realUser) {
     return (
       <div>
-        <div
-          style={{ textAlign: 'center', marginTop: '5%', overflow: 'unset' }}
-        >
+        <div style={{ textAlign: "center" }}>
           <Result
             status="404"
             title="That's weird :\"
@@ -535,7 +536,7 @@ const UserProfile = (props: IUserProps) => {
 
   if (loading) {
     return (
-      <div style={{ textAlign: 'center', marginTop: '15%' }}>
+      <div style={{ textAlign: "center" }}>
         <Spin size="small" />
       </div>
     );
@@ -544,37 +545,35 @@ const UserProfile = (props: IUserProps) => {
   return (
     <div>
       {/* <Header /> */}
-      <div style={{ marginLeft: '20%', marginRight: '20%', marginTop: '7%' }}>
+      <div style={{ paddingLeft: "20%", paddingRight: "20%" }}>
         {selfUser && currentUserInfo ? (
           <div>
-            <Row style={{ alignItems: 'center' }}>
+            <Row style={{ alignItems: "center" }}>
               <Avatar src={currentUserInfo!.image_url} size={150} />
               <div style={{ marginLeft: 50 }}>
                 <Row
                   style={{
-                    justifyContent: 'space-around',
-                    alignItems: 'center',
+                    justifyContent: "space-around",
+                    alignItems: "center",
                   }}
                 >
                   <h1
                     style={{
                       marginBottom: 5,
                       // marginTop: 15,
-                      fontWeight: 'bold',
+                      fontWeight: "bold",
                     }}
                   >
                     {currentUserInfo!.username}
                   </h1>
-                  <Button icon={<EditOutlined />}  >
-                    Edit
-                  </Button>
+                  <Button icon={<EditOutlined />}>Edit</Button>
                   {/* <h1>Edit</h1> */}
                 </Row>
 
                 <Row
                   style={{
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
+                    justifyContent: "space-between",
+                    alignItems: "center",
                   }}
                 >
                   <p style={{ marginRight: 20 }}>
@@ -603,13 +602,15 @@ const UserProfile = (props: IUserProps) => {
                     }
                     key="self-user-tab-1"
                   >
-                    {(posts as Post[]).length > 0 ? (
+                    {!postsDoneLoading ? (
+                      <Spin />
+                    ) : (posts as Post[]).length > 0 ? (
                       (posts as Post[]).map((post, index) => (
                         <MyPost key={index} post={post} />
                       ))
                     ) : (
-                        <h1 style={{ textAlign: 'center' }}>You Have No Posts</h1>
-                      )}
+                      <h1 style={{ textAlign: "center" }}>You Have No Posts</h1>
+                    )}
                   </TabPane>
                   <TabPane
                     tab={
@@ -628,132 +629,145 @@ const UserProfile = (props: IUserProps) => {
           </div>
         ) : !selfUser && otherUserInfo ? (
           <div>
-            <Row style={{ alignItems: 'center' }}>
+            <Row style={{ alignItems: "center" }}>
               <Avatar src={otherUserInfo!.image_url} size={150} />
               <div style={{ marginLeft: 50 }}>
                 <Col
                   style={{
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
+                    justifyContent: "space-between",
+                    alignItems: "center",
                   }}
                 >
                   <h1
                     style={{
                       marginBottom: 5,
                       // marginTop: 15,
-                      fontWeight: 'bold',
+                      fontWeight: "bold",
                     }}
                   >
                     {otherUserInfo!.username}
                   </h1>
-                  <span style={{ cursor: 'pointer' }}>
-                    {
-                      followActionLoading ? <Spin size="small" /> :
-                        privacyStatus === "following" ?
-                          (
-                            <Popconfirm
-                              title="You will have to send a request to follow again."
-                              onConfirm={() => confirm(otherUserInfo)}
-                              onCancel={cancel}
-                              okText="Unfollow"
-                              cancelText="Cancel"
-                            >
-                              <Button icon={<UserDeleteOutlined />}  >
-                                Unfollow
-                            </Button>
-                              {/* <p>Unfollow</p> */}
-                            </Popconfirm>
-                          )
-                          :
-                          (
-                            privacyStatus === "Public" ?
-                              (
-                                requestedFollow ? (
-                                  <Button onClick={() => handleCancelFollowRequest(otherUserInfo)} >
-                                    Cancel Request
-                                  </Button>
-                                  // <p
-                                  //   onClick={() =>
-                                  //     handleCancelFollowRequest(otherUserInfo)
-                                  //   }
-                                  // >
+                  <span style={{ cursor: "pointer" }}>
+                    {followActionLoading ? (
+                      <Spin size="small" />
+                    ) : privacyStatus === "following" ? (
+                      <Popconfirm
+                        title="You will have to send a request to follow again."
+                        onConfirm={() => confirm(otherUserInfo)}
+                        onCancel={cancel}
+                        okText="Unfollow"
+                        cancelText="Cancel"
+                      >
+                        <Button icon={<UserDeleteOutlined />}>Unfollow</Button>
+                        {/* <p>Unfollow</p> */}
+                      </Popconfirm>
+                    ) : privacyStatus === "Public" ? (
+                      requestedFollow ? (
+                        <Button
+                          onClick={() =>
+                            handleCancelFollowRequest(otherUserInfo)
+                          }
+                        >
+                          Cancel Request
+                        </Button>
+                      ) : (
+                        // <p
+                        //   onClick={() =>
+                        //     handleCancelFollowRequest(otherUserInfo)
+                        //   }
+                        // >
 
-                                  //   Cancel Request
-                                  // </p>
-                                ) : (
-                                    <Button onClick={() => handleFollowRequest(otherUserInfo)} icon={<UserAddOutlined />}  >
-                                      Follow
-                                    </Button>
-                                  )
-                              )
-                              :
-                              (
-                                requestedFollow ? (
-                                  <Button onClick={() => handleCancelFollowRequest(otherUserInfo)} >
-                                    Cancel Request
-                                  </Button>
-                                  // <p
-                                  //   onClick={() =>
-                                  //     handleCancelFollowRequest(otherUserInfo)
-                                  //   }
-                                  // >
-                                  //   Cancel Request
-                                  // </p>
-                                ) : (
-                                    <Button onClick={() => handleFollowRequest(otherUserInfo)} icon={<UserAddOutlined />}  >
-                                      Follow
-                                    </Button>
-                                  )
-                              )
-                          )
-                    }
+                        //   Cancel Request
+                        // </p>
+                        <Button
+                          onClick={() => handleFollowRequest(otherUserInfo)}
+                          icon={<UserAddOutlined />}
+                        >
+                          Follow
+                        </Button>
+                      )
+                    ) : requestedFollow ? (
+                      <Button
+                        onClick={() => handleCancelFollowRequest(otherUserInfo)}
+                      >
+                        Cancel Request
+                      </Button>
+                    ) : (
+                      // <p
+                      //   onClick={() =>
+                      //     handleCancelFollowRequest(otherUserInfo)
+                      //   }
+                      // >
+                      //   Cancel Request
+                      // </p>
+                      <Button
+                        onClick={() => handleFollowRequest(otherUserInfo)}
+                        icon={<UserAddOutlined />}
+                      >
+                        Follow
+                      </Button>
+                    )}
                   </span>
                 </Col>
                 {!otherUserPrivacy ? (
                   <>
                     <Row
                       style={{
-                        justifyContent: 'space-between',
-                        alignItems: 'center',
+                        justifyContent: "space-between",
+                        alignItems: "center",
                       }}
                     >
                       <p style={{ marginRight: 20 }}>
                         {(posts as Post[]).length} Posts
-                    </p>
+                      </p>
                       <p style={{ marginRight: 20 }}>
                         {otherUserInfo!.followers_count} Followers
-                    </p>
+                      </p>
                       <p>{otherUserInfo!.following_count} Following</p>
                     </Row>
                     {otherUserInfo.bio && <span>{otherUserInfo.bio}</span>}
                   </>
-
                 ) : (
-                    <>
-                      <Row
-                        style={{
-                          justifyContent: 'space-between',
-                          alignItems: 'center',
-                        }}
-                      >
-                        <p style={{ marginRight: 20 }}>
-                          {otherUserInfo.posts_count} Posts
-                    </p>
-                        <p style={{ marginRight: 20 }}>
-                          {otherUserInfo.followers_count} Followers
-                    </p>
-                        <p>{otherUserInfo.following_count} Following</p>
-                      </Row>
-                      {otherUserInfo.bio && <span>{otherUserInfo.bio}</span>}
-                    </>
-
-                  )}
+                  <>
+                    <Row
+                      style={{
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                      }}
+                    >
+                      <p style={{ marginRight: 20 }}>
+                        {otherUserInfo.posts_count} Posts
+                      </p>
+                      <p style={{ marginRight: 20 }}>
+                        {otherUserInfo.followers_count} Followers
+                      </p>
+                      <p>{otherUserInfo.following_count} Following</p>
+                    </Row>
+                    {otherUserInfo.bio && <span>{otherUserInfo.bio}</span>}
+                  </>
+                )}
               </div>
             </Row>
 
             <Divider />
             <div className="posts__container">
               {!otherUserPrivacy ? (
+                // !postsDoneLoading ? <Spin /> :
+                // (posts as Post[]).length > 0 ? (
+                //   <Row gutter={16}>
+                //     {(posts as Post[]).map((post, index) => (
+                //       <Col className="gutter-row" span={6}>
+                //         <div style={{ padding: "8px 0" }}>
+                //           <MyPost key={index} post={post} />
+                //         </div>
+                //       </Col>
+                //     ))}
+                //   </Row>
+                // ) : (
+                //   <h1 style={{ textAlign: "center" }}>
+                //     <Empty />
+                //   </h1>
+                // )
                 <Tabs defaultActiveKey="1">
                   <TabPane
                     tab={
@@ -764,15 +778,17 @@ const UserProfile = (props: IUserProps) => {
                     }
                     key="other-user-tab-1"
                   >
-                    {(posts as Post[]).length > 0 ? (
+                    {!postsDoneLoading ? (
+                      <Spin />
+                    ) : (posts as Post[]).length > 0 ? (
                       (posts as Post[]).map((post, index) => (
                         <MyPost key={index} post={post} />
                       ))
                     ) : (
-                        <h1 style={{ textAlign: 'center' }}>
-                          <Empty />
-                        </h1>
-                      )}
+                      <h1 style={{ textAlign: "center" }}>
+                        <Empty />
+                      </h1>
+                    )}
                   </TabPane>
                   <TabPane
                     tab={
@@ -787,23 +803,23 @@ const UserProfile = (props: IUserProps) => {
                   </TabPane>
                 </Tabs>
               ) : (
-                  <p style={{ textAlign: 'center' }}>
-                    This user's profile is private. Follow them to see more
-                  </p>
-                )}
+                <p style={{ textAlign: "center" }}>
+                  This user's profile is private. Follow them to see more
+                </p>
+              )}
             </div>
           </div>
         ) : (
-              <div style={{ textAlign: 'center', marginTop: '15%' }}>
-                <Spin size="small" />
-              </div>
-              // <Result
-              //     status="403"
-              //     title="That's weird :\"
-              //     subTitle="The page you visited does not exist."
-              // // extra={<Button type="primary">Back Home</Button>}
-              // />
-            )}
+          <div style={{ textAlign: "center", marginTop: "15%" }}>
+            <Spin size="small" />
+          </div>
+          // <Result
+          //     status="403"
+          //     title="That's weird :\"
+          //     subTitle="The page you visited does not exist."
+          // // extra={<Button type="primary">Back Home</Button>}
+          // />
+        )}
       </div>
     </div>
   );
@@ -843,7 +859,7 @@ const styles = {
   },
   title: {
     fontSize: 24,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
   caption: {
     fontSize: 14,
@@ -851,34 +867,34 @@ const styles = {
     fontWeight: 500,
   },
   row: {
-    flexDirection: 'row',
+    flexDirection: "row",
     marginBottom: 10,
   },
   infoBoxWrapper: {
-    borderBottomColor: '#dddddd',
+    borderBottomColor: "#dddddd",
     borderBottomWidth: 1,
-    borderTopColor: '#dddddd',
+    borderTopColor: "#dddddd",
     borderTopWidth: 1,
-    flexDirection: 'row',
+    flexDirection: "row",
     height: 100,
   },
   infoBox: {
-    width: '50%',
-    alignItems: 'center',
-    justifyContent: 'center',
+    width: "50%",
+    alignItems: "center",
+    justifyContent: "center",
   },
   menuWrapper: {
     marginTop: 10,
   },
   menuItem: {
-    flexDirection: 'row',
+    flexDirection: "row",
     paddingVertical: 15,
     paddingHorizontal: 30,
   },
   menuItemText: {
-    color: '#777777',
+    color: "#777777",
     marginLeft: 20,
-    fontWeight: '600',
+    fontWeight: "600",
     fontSize: 16,
     lineHeight: 26,
   },

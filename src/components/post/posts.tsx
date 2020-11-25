@@ -123,6 +123,10 @@ const Posts = (props: IPostsProps) => {
 
     useEffect(() => {
         if (!currentUser) return;
+        if (currentUserEligiblePosts === null) {
+            setLoading(false);
+            return;
+        }
         // if (currentUserEligiblePosts!.length === 0) {
         //     setLoading(false);
         //     return;
@@ -198,11 +202,17 @@ const Posts = (props: IPostsProps) => {
 
     if (loading) {
         return (
-            <Col span="12" style={{ marginLeft: "20%", marginRight: "20%", marginTop: "5%", textAlign: "center" }}>
+            <Col span="12" style={{ /* marginLeft: "20%", marginRight: "20%", marginTop: "5%", textAlign: "center" */ }}>
                 {/* <Spin size="large" /> */}
                 <Skeleton avatar active paragraph={{ rows: 4 }} />
             </Col>
         )
+    }
+
+    if (currentUserEligiblePosts === null) {
+        return (
+            <p style={{ textAlign: "center", marginTop: "50%" }}>You are not following anyone. Follow people to see their posts here. </p>
+        );
     }
 
 
@@ -212,14 +222,8 @@ const Posts = (props: IPostsProps) => {
             {
 
                 posts.length > 0 && posts.map((val) => <MyPost key={val.key} post={val} />
-                )
-                // :
-                // <p style={{ textAlign: "center" }}>You are not following anyone. To see posts here go follow people.</p>
-            }
-            {
-                props.currentUserEligiblePosts!.length === 0 && <p style={{ textAlign: "center" }}>You are not following anyone. To see posts here go follow people.</p>
-
-            }
+                ) 
+            } 
 
         </div>
     );

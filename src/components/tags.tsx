@@ -152,9 +152,9 @@ const Tags = (props: ITagsProps) => {
       <Col
         span="12"
         style={{
-          marginLeft: '20%',
-          marginRight: '20%',
-          marginTop: '7%',
+          // marginLeft: '20%',
+          // marginRight: '20%',
+          // marginTop: '7%',
           textAlign: 'center',
         }}
       >
@@ -165,7 +165,7 @@ const Tags = (props: ITagsProps) => {
   }
 
   return (
-    <div style={{ marginLeft: '20%', marginRight: '20%', marginTop: '5%' }}>
+  <div style={{/* marginLeft: '20%', marginRight: '20%', marginTop: '5%' */ } } >
       <div>
         <BackTop />
         {
