@@ -1,10 +1,10 @@
  Nav {
       background-color: white;
       border-bottom: 1px solid rgba(0, 0, 0, 0.0975);
-      position: fixed;
+      position: sticky;
       top: 0;
       width: 100%;
-      z-index: 2;
+      z-index: 99;
       -webkit-transition: height 0.2s ease-in-out;
       transition: height 0.2s ease-in-out;
       height: 77px;
@@ -28,4 +28,33 @@
       width: 60%;
       height: 100%;
       text-indent: -1000%
+    }
+
+    .profile__dropdown__loading {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      border: red solid 1px;
+      width: 400px;
+      height: 100px;
+      position: absolute;
+      background-color: white;
+      top: 55px;
+    }
+    .profile__dropdown {
+      border: black solid 1px; 
+      width: 400px;
+      height: 400px;
+      position: absolute;
+      background-color: white;
+      top: 55px; 
+      /* visibility: hidden; */
+    }
+    
+    .notification__cover {
+      position: absolute;
+      top: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: 10;
     }

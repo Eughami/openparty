@@ -24,6 +24,7 @@ import ProfileUI from "./components/test";
 
 import firebase from "firebase";
 import ViewPost from "./components/viewPost";
+import 'react-perfect-scrollbar/dist/css/styles.css';
 
 // const currentUser = true
 
@@ -113,7 +114,7 @@ const App = (props: IAppProps) => {
     <div className="App">
       {currentUser ? (
         <div>
-          <div style={{ paddingBottom: "5%" }}>
+          <div style={{ paddingBottom: "10px" }}>
             <Header />
           </div>
           <Switch>

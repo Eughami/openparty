@@ -5,7 +5,7 @@ const ProfileUI = () => {
   return (
     <>
       <div style={styles.userInfoSection}>
-        <Row style={{ marginTop: 150 }}>
+        <Row >
           <Avatar
             src="https://instagram.fecn4-1.fna.fbcdn.net/v/t51.2885-15/e35/p1080x1080/126826478_417495705945344_4969899802994786895_n.jpg?_nc_ht=instagram.fecn4-1.fna.fbcdn.net&_nc_cat=108&_nc_ohc=vCm-qA4wvyoAX_zik4v&tp=1&oh=a9851f06328b180816efda5b0bd01538&oe=5FE6A820"
             size={180}

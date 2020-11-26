@@ -752,56 +752,59 @@ const UserProfile = (props: IUserProps) => {
             <Divider />
             <div className="posts__container">
               {!otherUserPrivacy ? (
-                // !postsDoneLoading ? <Spin /> :
-                // (posts as Post[]).length > 0 ? (
-                //   <Row gutter={16}>
-                //     {(posts as Post[]).map((post, index) => (
-                //       <Col className="gutter-row" span={6}>
-                //         <div style={{ padding: "8px 0" }}>
-                //           <MyPost key={index} post={post} />
-                //         </div>
-                //       </Col>
-                //     ))}
-                //   </Row>
-                // ) : (
-                //   <h1 style={{ textAlign: "center" }}>
-                //     <Empty />
-                //   </h1>
-                // )
-                <Tabs defaultActiveKey="1">
-                  <TabPane
-                    tab={
-                      <span>
-                        <AppleOutlined />
-                        Posts
-                      </span>
-                    }
-                    key="other-user-tab-1"
-                  >
-                    {!postsDoneLoading ? (
-                      <Spin />
-                    ) : (posts as Post[]).length > 0 ? (
-                      (posts as Post[]).map((post, index) => (
-                        <MyPost key={index} post={post} />
-                      ))
-                    ) : (
-                      <h1 style={{ textAlign: "center" }}>
-                        <Empty />
-                      </h1>
-                    )}
-                  </TabPane>
-                  <TabPane
-                    tab={
-                      <span>
-                        <AndroidOutlined />
-                        Tab 2
-                      </span>
-                    }
-                    key="other-user-tab-2"
-                  >
-                    Tab 2
-                  </TabPane>
-                </Tabs>
+                !postsDoneLoading ? <Spin /> :
+                (posts as Post[]).length > 0 ? (
+                  <Row gutter={6}>
+                    
+                      <Col flex="1 0 0%" className="gutter-row" span={12}>
+                        <div style={{ padding: "8px 0" }}>
+                        {(posts as Post[]).map((post, index) => (
+                          <img  width="100%" key={index} src={post.image_url![0]} alt={post.caption}  />
+                          ))}
+                        </div>
+                      </Col>
+                    
+                  </Row>
+                ) : (
+                  <h1 style={{ textAlign: "center" }}>
+                    <Empty />
+                  </h1>
+                )
+                // <Tabs defaultActiveKey="1">
+                //   <TabPane
+                //     tab={
+                //       <span>
+                //         <AppleOutlined />
+                //         Posts
+                //       </span>
+                //     }
+                //     key="other-user-tab-1"
+                //   >
+                //     {!postsDoneLoading ? (
+                //       <Spin />
+                //     ) : (posts as Post[]).length > 0 ? (
+                //       (posts as Post[]).map((post, index) => (
+                //         <MyPost key={index} post={post} />
+                //       ))
+                //     ) : (
+                //       <h1 style={{ textAlign: "center" }}>
+                //         <Empty />
+                //       </h1>
+                //     )}
+                //   </TabPane>
+                //   <TabPane
+                //     tab={
+                //       <span>
+                //         <AndroidOutlined />
+                //         Tab 2
+                //       </span>
+                //     }
+                //     key="other-user-tab-2"
+                //   >
+                //     Tab 2
+                //   </TabPane>
+                // </Tabs>
+              
               ) : (
                 <p style={{ textAlign: "center" }}>
                   This user's profile is private. Follow them to see more
