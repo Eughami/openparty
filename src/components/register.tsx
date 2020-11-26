@@ -7,14 +7,18 @@ import {
   Col,
   Checkbox,
   Button,
+  message,
   // Alert
 } from 'antd';
 import { QuestionCircleOutlined } from '@ant-design/icons';
-import firebase from "firebase";
-import { RegistrationObject } from './interfaces/user.interface';
-import {signUpStart} from '../redux/user/user.actions'
+import firebase from 'firebase';
+import { RegistrationRequest } from './interfaces/interface';
+import { emailSignInStart, signUpStart } from '../redux/user/user.actions';
 import { connect } from 'react-redux';
-
+import { API_BASE_URL, REGISTRATION_ENDPOINT } from '../service/api';
+import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
+import { RegistrationObject } from './interfaces/user.interface';
+import { Link } from 'react-router-dom';
 
 const { Option } = Select;
 
@@ -50,16 +54,11 @@ const tailFormItemLayout = {
   },
 };
 
-interface IRegisterProps {
-  history: any
-}
-
-const RegistrationForm = ({props, signUpStart}:any) => {
+const RegistrationForm = ({ emailSignInStart, signUpStart, history }: any) => {
   const [form] = Form.useForm();
-  const [registerWorking, setRegisterWorking] = useState(false);
+  const [registerWorking, setRegisterWorking] = useState<boolean>(false);
 
-  console.log("REGISTRATION FORM PROPS: ", props);
-
+  // console.log('REGISTRATION FORM PROPS: ', props);
 
   // useEffect(() => {
   //   const unsub = firebase.auth().onAuthStateChanged((user) => {
@@ -71,45 +70,21 @@ const RegistrationForm = ({props, signUpStart}:any) => {
   //   return unsub;
   // }, [])
 
-
-  const onFinish = (object: RegistrationObject) => {
-    signUpStart(object)
-    // setRegisterWorking(true);
-
-    console.log('Received values of form: ', object);
-
-    // let response: firebase.auth.UserCredential = { credential: null, user: null, additionalUserInfo: null, operationType: null };
-
-    // try {
-    //   response = await firebase.auth().createUserWithEmailAndPassword(object.email, object.password!);
-    // } catch (error) {
-    //   console.log(error);
-
-    //   alert(`Something went wrong while creating your account...\n${error.message}`);
-    //   setRegisterWorking(true);
-    //   return;
-    //   // throw new Error(error.message)
-    // }
-
-    // console.log("RESPONSE: ", response);
-
-    // delete object.confirm;
-    // delete object.agreement;
-    // delete object.password;
-
-    // object.followers_count = 0;
-    // object.following_count = 0;
-    // object.posts_count = 0;
-    // object.image_url = "";
-
-    // if (response.user) {
-    //   object.uid = response.user.uid;
-    //   await firebase.database().ref("Users").child(response.user.uid).set({ ...object, });
-    // }
-    // else {
-    //   alert("Something went wrong while creating your account...");
-    // }
-    // setRegisterWorking(false);
+  const onFinish = async (object: RegistrationObject) => {
+    setRegisterWorking(true);
+    const key = 'registerKey';
+    message.loading({ content: 'Sign up in progress...', key });
+    try {
+      const registerResponse = await signUpStart(object, history);
+      console.log(registerResponse);
+      message.loading({ content: 'Sign up success, Auto Login...', key });
+      emailSignInStart(object.email, object.password, history);
+      setRegisterWorking(false);
+    } catch (error) {
+      console.log('REGISTRATION FAILED', error);
+      message.error({ content: error, key });
+      setRegisterWorking(false);
+    }
   };
 
   const prefixSelector = (
@@ -126,7 +101,10 @@ const RegistrationForm = ({props, signUpStart}:any) => {
   );
 
   return (
-    <Col span="12" style={{ marginLeft: "20%", marginRight: "20%", marginTop: "5%" }}>
+    <Col
+      span="12"
+      style={{ marginLeft: '20%', marginRight: '20%', marginTop: '5%' }}
+    >
       {/* <Alert
         message="Error"
         description="This is an error message about copywriting."
@@ -139,7 +117,11 @@ const RegistrationForm = ({props, signUpStart}:any) => {
         name="register"
         onFinish={onFinish}
         initialValues={{
-          // residence: ['zhejiang', 'hangzhou', 'xihu'],
+          email: 'imamosi50@gmail.com',
+          password: '123456',
+          confirm: '123456',
+          username: 'eughami',
+          phone: '5423269865',
           prefix: '90',
         }}
         style={{ marginTop: 30 }}
@@ -192,7 +174,9 @@ const RegistrationForm = ({props, signUpStart}:any) => {
                   return Promise.resolve();
                 }
 
-                return Promise.reject('The two passwords that you entered do not match!');
+                return Promise.reject(
+                  'The two passwords that you entered do not match!'
+                );
               },
             }),
           ]}
@@ -205,7 +189,7 @@ const RegistrationForm = ({props, signUpStart}:any) => {
           label={
             <span>
               Username&nbsp;
-                    <Tooltip title="What do you want others to call you?">
+              <Tooltip title="What do you want others to call you?">
                 <QuestionCircleOutlined />
               </Tooltip>
             </span>
@@ -245,7 +229,9 @@ const RegistrationForm = ({props, signUpStart}:any) => {
           rules={[
             {
               validator: (_, value) =>
-                value ? Promise.resolve() : Promise.reject('Should accept agreement'),
+                value
+                  ? Promise.resolve()
+                  : Promise.reject('Should accept agreement'),
             },
           ]}
           {...tailFormItemLayout}
@@ -255,18 +241,25 @@ const RegistrationForm = ({props, signUpStart}:any) => {
           </Checkbox>
         </Form.Item>
         <Form.Item {...tailFormItemLayout}>
+          <span>
+            Already have an account ?<Link to="/login">Login</Link>
+          </span>
+        </Form.Item>
+        <Form.Item {...tailFormItemLayout}>
           <Button loading={registerWorking} type="primary" htmlType="submit">
             Register
-                </Button>
+          </Button>
         </Form.Item>
       </Form>
-
     </Col>
   );
 };
 
-const mapsDispatchToProps = (dispatch:any) =>({
-  signUpStart: (regObj: RegistrationObject) => dispatch(signUpStart(regObj))
-})
+const mapsDispatchToProps = (dispatch: any) => ({
+  emailSignInStart: (email: string, password: string, history: any) =>
+    dispatch(emailSignInStart({ email, password }, history)),
+  signUpStart: (regObj: any, history: any) =>
+    dispatch(signUpStart(regObj, history)),
+});
 
 export default connect(null, mapsDispatchToProps)(RegistrationForm);

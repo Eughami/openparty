@@ -1,105 +1,164 @@
-import React, { useEffect } from 'react';
-import { BrowserRouter as Router, Switch, Route, Redirect } from "react-router-dom";
+import React, { useEffect, useState } from 'react';
+import { Switch, Route, Redirect } from 'react-router-dom';
 import { connect } from 'react-redux';
 // import { createStructuredSelector } from 'reselect';
 // import { selectCurrentUser } from './redux/user/user.selectors';
-import { setCurrentUserListener, setCurrentUserRootDatabaseListener } from './redux/user/user.actions';
+import {
+  setCurrentUserListener,
+  setCurrentUserRootDatabaseListener,
+  setCurrentUserEligiblePosts,
+  setCurrentUserToken,
+} from './redux/user/user.actions';
 
 import './App.css';
 import Homepage from './components/homepage';
-import Post from './components/post/post';
-import Header from "./components/header/header";
 import 'antd/dist/antd.css';
 import Login from './components/login';
 import RegistrationForm from './components/register';
 import UserProfile from './components/user-info';
+import Tags from './components/tags';
 import { RegistrationObject } from './components/interfaces/user.interface';
+import { Col, Spin, Tabs } from 'antd';
+import Header from './components/header/header';
+
+import firebase from 'firebase';
+import ViewPost from './components/viewPost';
+import 'react-perfect-scrollbar/dist/css/styles.css';
 
 // const currentUser = true
 
-
 interface IAppProps {
-  setCurrentUserListener?: () => Promise<any>,
-  setCurrentUserRootDatabaseListener?: (uid: string) => Promise<any>,
-  currentUser?: firebase.User,
-  userInfo?: RegistrationObject
+  setCurrentUserListener?: () => Promise<any>;
+  setCurrentUserRootDatabaseListener?: (uid: string) => Promise<any>;
+  setCurrentUserEligiblePosts?: (currentUser: firebase.User) => Promise<any>;
+  setCurrentUserToken?: (currentUser: firebase.User) => Promise<string | null>;
+  currentUser?: firebase.User;
+  currentUserInfo?: RegistrationObject;
+  currentUserToken?: string | null;
 }
 
 const App = (props: IAppProps) => {
-  const { currentUser, setCurrentUserListener, setCurrentUserRootDatabaseListener } = props;
-
-  console.log("APP.TSX PROPS: ", currentUser);
+  const {
+    currentUser,
+    currentUserToken,
+    currentUserInfo,
+    setCurrentUserListener,
+    setCurrentUserRootDatabaseListener,
+    setCurrentUserEligiblePosts,
+    setCurrentUserToken,
+  } = props;
+  const { TabPane } = Tabs;
 
   useEffect(() => {
-    setCurrentUserListener!();
-  }, [setCurrentUserListener, currentUser]);
-
-  useEffect(() => {
-    if (currentUser !== null) {
-      console.log("CALLING DB LISTENER WITH CURRENT USER: ", currentUser);
-
-      setCurrentUserRootDatabaseListener!(currentUser!.uid);
+    if (!currentUser) {
+      setCurrentUserListener!()
+        .then((currentUser: any) => {
+          setCurrentUserToken!(currentUser);
+          setLoadingCredentials(false);
+        })
+        .catch(() => setLoadingCredentials(false));
     }
-  }, [setCurrentUserRootDatabaseListener, currentUser]);
+  }, [currentUser, setCurrentUserListener, setCurrentUserToken]);
+
+  useEffect(() => {
+    if (!currentUserInfo && currentUser) {
+      setCurrentUserRootDatabaseListener!(currentUser.uid);
+      setCurrentUserEligiblePosts!(currentUser);
+    }
+  }, [
+    currentUserInfo,
+    setCurrentUserRootDatabaseListener,
+    currentUser,
+    setCurrentUserEligiblePosts,
+  ]);
+
+  // useEffect(() => {
+
+  //   setTimeout(() => {
+  //     if (currentUser)
+  //       setCurrentUserToken!(currentUser!)
+  //   }, 3300);
+  // }, [currentUser, setCurrentUserToken])
+
+  console.log('APP.TSX PROPS:  ', props.currentUserToken);
+
+  // useEffect(() => {
+  //   if (!currentUser) return;
+  //   console.log("@DB TEST EFFECT ", currentUser?.email);
+
+  //   firebase.database().ref("Postsv2").child("iILfbJyqoPaoV5yjPZuMwIBXCVn1/0").on("value", snapshot => {
+  //     console.log("@DB DEBUG ", snapshot.val());
+
+  //   }, (error: any) => {
+  //     console.log(error);
+
+  //   })
+  // }, [currentUser])
+
+  const [loadingCredentials, setLoadingCredentials] = useState<boolean>(true);
 
   // return (
-  //   <div className="App">
-  //     <Header />
-  //     <div style={{ marginTop: "10%" }}>
-  //       <Post />
-  //     </div>
-
-  //   </div>
+  //   <AsyncMention />
   // );
 
+  if (loadingCredentials) {
+    return (
+      <div style={{ textAlign: 'center' }}>
+        <Spin size="small" />
+      </div>
+    );
+  }
+
   return (
-    <div className="App">
-      <Router>
-        {currentUser ? (
+    <div className="">
+      {currentUser ? (
+        <div>
+          <div style={{ marginBottom: 60 }}>
+            <Header />
+          </div>
           <Switch>
-            <Route path="/" component={Homepage} />
-            <Route exact path="/profile/:username" component={UserProfile} />
-            {/* <Route
-              exact
-              path="/login"
-              render={() => (currentUser ? <Redirect to="/" /> : <Login />)}
-            /> */}
-            <Route component={Homepage} />
+            <Route exact path="/" component={Homepage} />
+            <Route exact path="/:username" component={UserProfile} />
+            <Route exact path="/t/:tag" component={Tags} />
+            <Route exact path="/post/:postId" component={ViewPost} />
           </Switch>
-        ) : (
-            <Switch>
-              <Route path='/login' component={Login} />
-              <Route path='/register' component={RegistrationForm} />
-              <Redirect
-                to={{
-                  pathname: window.location.pathname === "/register" ? '/register' : "/login"
-                }}
-              />
-              <Route component={Login} />
-            </Switch>
-          )}
-      </Router>
+        </div>
+      ) : (
+        <Switch>
+          <Route path="/login" component={Login} />
+          <Route path="/register" component={RegistrationForm} />
+          <Redirect
+            to={{
+              pathname:
+                window.location.pathname === '/register'
+                  ? '/register'
+                  : '/login',
+            }}
+          />
+        </Switch>
+      )}
     </div>
   );
-}
-
-// const mapStateToProps = createStructuredSelector({
-//   currentUser: selectCurrentUser,
-// });
+};
 
 const mapStateToProps = (state: any) => {
   return {
     currentUser: state.user.currentUser,
     currentUserInfo: state.user.userInfo,
+    currentUserToken: state.user.currentUserToken,
   };
 };
 
 const mapDispatchToProps = (dispatch: any) => {
   return {
     setCurrentUserListener: () => dispatch(setCurrentUserListener()),
-    setCurrentUserRootDatabaseListener: (uid: string) => dispatch(setCurrentUserRootDatabaseListener(uid))
-  }
-
-}
+    setCurrentUserToken: (currentUser: firebase.User) =>
+      dispatch(setCurrentUserToken(currentUser)),
+    setCurrentUserRootDatabaseListener: (uid: string) =>
+      dispatch(setCurrentUserRootDatabaseListener(uid)),
+    setCurrentUserEligiblePosts: (currentUser: firebase.User) =>
+      dispatch(setCurrentUserEligiblePosts(currentUser)),
+  };
+};
 
 export default connect(mapStateToProps, mapDispatchToProps)(App);

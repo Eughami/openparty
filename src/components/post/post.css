@@ -1,49 +1,90 @@
 .Post {
-    border-radius: 3px;
-    border: 1px solid #e6e6e6;
-    background-color: #fff;
-    margin-bottom: 60px;
-    margin-left : 20%;
-    margin-right: 20%;
-    max-width: 500px;
-    align-items: center;
-    /* max-height: 500px; */
-  }
-  .Post-user {
-    display: flex;
-    padding: 16px;
-    align-items: center;
-  }
-  .Post-user-avatar {
-    width: 30px;
-    height: 30px;
-  }
-  .Post-user-avatar img {
-    width: 100%;
-    height: 100%;
-    border-radius: 50%;
-  }
-  .Post-user-nickname {
-    margin-left: 12px;
-    font-family: 'PT Sans', sans-serif;
-    font-weight: bold;
-  }
-  .Post-image-bg {
-    background-color: #efefef;
-  }
-  .Post-image img {
-    display: block;
-    width: 100%;
-  }
-  .Post-caption {
-    padding: 16px 16px;
-  }
-  .Post-caption strong {
-    font-family: 'PT Sans', sans-serif;
-    font-weight: bold;
-  }
-  .vjs-fade-out {
-    display: none;
-    visibility: hidden;
-    opacity: 0;
-  }
+  border-radius: 3px;
+  border: 1px solid #e6e6e6;
+  background-color: #fff;
+  margin-bottom: 60px;
+  margin-left: 20%;
+  margin-right: 20%;
+  max-width: 500px;
+  width: 600px;
+  align-items: center;
+  /* max-height: 500px; */
+}
+.Post-user {
+  display: flex;
+  padding: 16px;
+  align-items: center;
+}
+.Post-user-avatar {
+  width: 30px;
+  height: 30px;
+}
+.Post-user-avatar img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+}
+.Post-user-nickname {
+  margin-left: 12px;
+  font-family: 'PT Sans', sans-serif;
+  font-weight: bold;
+}
+.Post-image-bg {
+  background-color: #efefef;
+}
+.Post-image img {
+  display: block;
+  width: 100%;
+}
+.Post-caption {
+  padding: 16px 16px;
+}
+.Post-caption strong {
+  font-family: 'PT Sans', sans-serif;
+  font-weight: bold;
+}
+.vjs-fade-out {
+  display: none;
+  visibility: hidden;
+  opacity: 0;
+}
+
+/* fullpage post styling */
+.full__page__post {
+  margin: auto;
+  margin-top: 150px;
+  width: 80%;
+
+  /* height: 100%; */
+}
+.full__page__post__divider {
+  /* border: black solid; */
+  border: solid grey 1px;
+  height: 700px;
+  width: 50%;
+  max-width: 500px;
+  max-height: 700px;
+}
+.avatar__comment__container {
+  /* border: red solid; */
+}
+.full__post__avatar__container {
+  height: 70px;
+  border-bottom: grey solid 1px;
+  /* border-left: grey solid 1px; */
+}
+.full__post__comments__container {
+  height: 450px;
+  width: 100%;
+  /* border: green solid; */
+}
+.full__page__post__actions__container {
+  padding: 16px;
+  height: 130px;
+  width: 100%;
+  border-top: grey solid 1px;
+}
+.full__post__add__comment__container {
+  height: 50px;
+  /* border: blue solid; */
+}

@@ -5,12 +5,16 @@ import { RegistrationObject } from '../../components/interfaces/user.interface';
 interface LocalUserState {
   currentUser: firebase.User | null,
   userInfo: RegistrationObject | null,
-  error: any | null
+  currentUserEligiblePosts: Array<any>,
+  currentUserToken: string | null,
+  error: any | null,
 }
 const INITIAL_STATE: LocalUserState = {
   currentUser: null,
   error: null,
-  userInfo: null
+  userInfo: null,
+  currentUserEligiblePosts: [],
+  currentUserToken: null,
 }
 
 const userReducer = (state = INITIAL_STATE, action: { type: string; payload: any; }): LocalUserState => {
@@ -40,10 +44,26 @@ const userReducer = (state = INITIAL_STATE, action: { type: string; payload: any
         ...state,
         error: action.payload
       };
+    case UserActionTypes.SET_CURRENT_USER_ELIGIBLE_POSTS:
+      return {
+        ...state,
+        currentUserEligiblePosts: action.payload
+      };
+    // case UserActionTypes.USERNAME_NODE_DATABASE_LISTENER_START: 
+    //   return {
+    //     ...state,
+    //     userInfo: {...state.userInfo ,username: action.payload.username,},
+    //   }
+
     case UserActionTypes.DATABASE_LISTENER_START:
       return {
         ...state,
         userInfo: action.payload
+      }
+    case UserActionTypes.SET_CURRENT_USER_TOKEN:
+      return {
+        ...state,
+        currentUserToken: action.payload
       }
     default:
       return state;

@@ -25,7 +25,7 @@
 }
 .body__container{
   position: relative;
-  top: 60px;
+  /* top: 60px; */
 }
 .top__logo{
   text-align: center;
