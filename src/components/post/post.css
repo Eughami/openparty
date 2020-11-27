@@ -51,14 +51,11 @@
 
 /* fullpage post styling */
 .full__page__post {
-  margin: auto;
   margin-top: 150px;
-  width: 80%;
 
   /* height: 100%; */
 }
 .full__page__post__divider {
-  /* border: black solid; */
   border: solid grey 1px;
   height: 700px;
   width: 50%;

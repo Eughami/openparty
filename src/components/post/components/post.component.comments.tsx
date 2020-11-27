@@ -10,7 +10,6 @@ interface IPostCommentsProps {
 
 export const PostComments = (props: IPostCommentsProps) => {
   const { post } = props;
-  // const { image_url, username } = post.user;
   return (
     <>
       {post.comments &&
@@ -28,7 +27,12 @@ export const PostComments = (props: IPostCommentsProps) => {
                   size={36}
                 />
               </Col>
-              <Col span={21} offset={1}>
+              <Col
+                span={21}
+                offset={1}
+                // to hide very long weird and probably non-existent one word
+                style={{ overflowX: 'hidden' }}
+              >
                 <span>
                   <Link
                     to={{
@@ -39,34 +43,11 @@ export const PostComments = (props: IPostCommentsProps) => {
                       {comment.user.username}{' '}
                     </span>
                   </Link>
-                </span>
-                <span style={{ marginLeft: '10px' }}>
                   {replaceAtMentionsWithLinks2(comment.comment)}
                 </span>
               </Col>
             </Row>
           </div>
-          //   <Row style={{ alignContent: 'center' }} key={index}>
-          //     <Link
-          //       to={{
-          //         pathname: `/${comment.user.username}`,
-          //       }}
-          //     >
-          //       <span style={{ fontWeight: 'bold' }}>
-          //         {comment.user.username}{' '}
-          //       </span>
-          //     </Link>
-
-          //     {/* <span style={{ marginLeft: 10 }}>{comment.comment.match(/@\S+/g)?.map(str => `<a href="/${str}" />`)}</span><br /> */}
-          //     <span style={{ marginLeft: 10 }}>
-          //       {replaceAtMentionsWithLinks2(comment.comment)}
-          //     </span>
-          //     <br />
-          //     {/* <span style={{ float: "right", fontSize: "small" }}>
-
-          //           </span> */}
-          //     {/* <span style={{ marginLeft: 10, float: "right" }}>{"16 Oct 2020"}</span><br /> */}
-          //   </Row>
         ))}
     </>
   );

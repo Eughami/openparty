@@ -84,7 +84,7 @@ const Post = (props: IPostProps) => {
       {fullPage ? (
         <div className="full__page__post">
           {console.log('full page View')}
-          <Row justify="center" align="middle" style={{ height: '100%' }}>
+          <Row justify="center" align="middle">
             <div className="full__page__post__divider">
               {/* hardcoded image height for the full view  */}
               <PostImages post={props.post} imageHeight={700} />

@@ -429,8 +429,12 @@ const Header = (props: IHeaderProps) => {
         </Form>
       </Modal>
       <div className="Nav-menus">
-        <Row align="middle">
-          <Col span={6} offset={4}>
+        <Row align="middle" className="test-border">
+          <Col
+            lg={{ span: 6, offset: 4 }}
+            md={{ span: 6, offset: 2 }}
+            xs={{ span: 8, offset: 2 }}
+          >
             <Link
               to={{
                 pathname: '/',
@@ -444,10 +448,14 @@ const Header = (props: IHeaderProps) => {
               />
             </Link>
           </Col>
-          <Col span={6}>
+          <Col xl={{ span: 4 }} md={{ span: 6 }} xs={{ span: 0 }}>
             <Search style={{ width: '80%' }} placeholder="Search" />
           </Col>
-          <Col span={7} offset={1}>
+          <Col
+            lg={{ span: 7, offset: 1 }}
+            md={{ span: 8, offset: 2 }}
+            xs={{ span: 8, offset: 2 }}
+          >
             <Row justify="start" align="stretch">
               <Space direction="horizontal" size="large">
                 <Link
@@ -475,10 +483,6 @@ const Header = (props: IHeaderProps) => {
                 <Link
                   to={{}}
                   onClick={() => {
-                    if (showNotification) {
-                      setShowNotification(!showNotification);
-                      return;
-                    }
                     setloading(true);
                     setTimeout(() => {
                       setShowNotification(!showNotification);
@@ -494,34 +498,18 @@ const Header = (props: IHeaderProps) => {
                     overlay={menu(props)}
                     placement="bottomCenter"
                     arrow
-                    trigger={['click']}
+                    // trigger={['click']}
                   >
                     <Avatar
                       style={{ fontSize: '22px' }}
                       src={props.currentUserInfo?.image_url}
-                    ></Avatar>
+                    />
                   </Dropdown>
                 </Link>
               </Space>
             </Row>
           </Col>
         </Row>
-        <div className="Nav-brand"></div>
-        <Col
-          className=""
-          xs={{ span: 0 }}
-          lg={{ span: 6, offset: 2 }}
-          xxl={{ span: 5, offset: 1 }}
-        >
-          {/* SearchBar */}
-        </Col>
-        <Col className="" offset={1} span={6}>
-          <Row style={{ alignItems: 'center', justifyContent: 'space-around' }}>
-            {/* <Col span="3">
-                            
-                        </Col> */}
-          </Row>
-        </Col>
       </div>
       <Row>
         {loading && (
@@ -568,7 +556,6 @@ const Header = (props: IHeaderProps) => {
                 <p>GG bitches</p>
                 <p>GG bitches</p>
               </PerfectScrollbar>
-              <div>No Notifications</div>
             </Col>
           </div>
         )}
