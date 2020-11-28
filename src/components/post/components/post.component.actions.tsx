@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Post } from "../../interfaces/user.interface";
 import { Row } from "antd";
 import {
@@ -7,6 +7,7 @@ import {
   CommentOutlined,
 } from "@ant-design/icons";
 import { handlePostLike } from "../post.actions";
+import firebase from "firebase";
 
 interface IPostActionsProps {
   post: Post;
@@ -21,6 +22,30 @@ export const PostActions = (props: IPostActionsProps) => {
       ? post.likes.indexOf(currentUser?.uid!) !== -1
       : Object.values(post.likes).indexOf(currentUser?.uid!) !== -1
   );
+
+  useEffect(() => {
+    const un_sub = firebase
+      .database()
+      .ref("Postsv2")
+      .child(post.uid)
+      .child(post.id)
+      .child("likes")
+      .child(currentUser?.uid!)
+      .on("value", (ssh) => {
+        setUserLikePost(ssh.exists());
+      });
+
+    return () =>
+      firebase
+        .database()
+        .ref("Postsv2")
+        .child(post.uid)
+        .child(post.id)
+        .child("likes")
+        .child(currentUser?.uid!)
+        .off("value", un_sub);
+  }, [currentUser, post.uid, post.id]);
+
   return (
     <Row className="post__clikes__and__comments" align="middle">
       <span style={{ fontSize: "25px" }}>
@@ -62,6 +87,30 @@ export const PostActionLike = (props: IPostActionLikeProps) => {
           currentUser?.uid!
         ) !== -1
   );
+
+  useEffect(() => {
+    const un_sub = firebase
+      .database()
+      .ref("Postsv2")
+      .child(post.uid)
+      .child(post.id)
+      .child("likes")
+      .child(currentUser?.uid!)
+      .on("value", (ssh) => {
+        setUserLikePost(ssh.exists());
+      });
+
+    return () =>
+      firebase
+        .database()
+        .ref("Postsv2")
+        .child(post.uid)
+        .child(post.id)
+        .child("likes")
+        .child(currentUser?.uid!)
+        .off("value", un_sub);
+  }, [currentUser, post.uid, post.id]);
+
   return (
     <span style={{ fontSize: "25px" }}>
       <HeartTwoTone
