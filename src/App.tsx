@@ -1,8 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { Switch, Route, Redirect } from "react-router-dom";
+import { Switch, Route } from "react-router-dom";
 import { connect } from "react-redux";
-// import { createStructuredSelector } from 'reselect';
-// import { selectCurrentUser } from './redux/user/user.selectors';
 import {
   setCurrentUserListener,
   setCurrentUserRootDatabaseListener,
@@ -18,13 +16,13 @@ import RegistrationForm from "./components/register";
 import UserProfile from "./components/user-info";
 import Tags from "./components/tags";
 import { RegistrationObject } from "./components/interfaces/user.interface";
-import { Col, Spin, Tabs } from "antd";
+import { Spin } from "antd";
 import Header from "./components/header/header";
 import ProfileUI from "./components/test";
 
 import firebase from "firebase";
 import ViewPost from "./components/viewPost";
-import 'react-perfect-scrollbar/dist/css/styles.css';
+import "react-perfect-scrollbar/dist/css/styles.css";
 
 // const currentUser = true
 
@@ -41,14 +39,12 @@ interface IAppProps {
 const App = (props: IAppProps) => {
   const {
     currentUser,
-    currentUserToken,
     currentUserInfo,
     setCurrentUserListener,
     setCurrentUserRootDatabaseListener,
     setCurrentUserEligiblePosts,
     setCurrentUserToken,
   } = props;
-  const { TabPane } = Tabs;
 
   useEffect(() => {
     if (!currentUser) {
@@ -73,39 +69,15 @@ const App = (props: IAppProps) => {
     setCurrentUserEligiblePosts,
   ]);
 
-  // useEffect(() => {
-
-  //   setTimeout(() => {
-  //     if (currentUser)
-  //       setCurrentUserToken!(currentUser!)
-  //   }, 3300);
-  // }, [currentUser, setCurrentUserToken])
-
   console.log("APP.TSX PROPS:  ", props.currentUserToken);
 
-  // useEffect(() => {
-  //   if (!currentUser) return;
-  //   console.log("@DB TEST EFFECT ", currentUser?.email);
-
-  //   firebase.database().ref("Postsv2").child("iILfbJyqoPaoV5yjPZuMwIBXCVn1/0").on("value", snapshot => {
-  //     console.log("@DB DEBUG ", snapshot.val());
-
-  //   }, (error: any) => {
-  //     console.log(error);
-
-  //   })
-  // }, [currentUser])
-
   const [loadingCredentials, setLoadingCredentials] = useState<boolean>(true);
-
-  // return (
-  //   <AsyncMention />
-  // );
 
   if (loadingCredentials) {
     return (
       <div style={{ textAlign: "center" }}>
         <Spin size="small" />
+        <p>Loading your stuff...</p>
       </div>
     );
   }
@@ -129,13 +101,6 @@ const App = (props: IAppProps) => {
         </div>
       ) : (
         <Switch>
-          {/* <Route path='/login' component={Login} />
-              <Route path='/register' component={RegistrationForm} />
-              <Redirect
-                to={{
-                  pathname: window.location.pathname === "/register" ? '/register' : "/login"
-                }}
-              /> */}
           <Route exact path="/register" component={RegistrationForm} />
           <Route component={Login} />
         </Switch>

@@ -1,18 +1,18 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from "react";
 import {
   setCurrentUserListener,
   setCurrentUserToken,
   setCurrentUserRootDatabaseListener,
   setCurrentUserEligiblePosts,
-} from '../redux/user/user.actions';
-import { Post, RegistrationObject, Comment } from './interfaces/user.interface';
-import MyPost from './post/post';
-import { connect } from 'react-redux';
-import axios from 'axios';
-import bluebird from 'bluebird';
-import firebase from 'firebase';
-import { BackTop, Col, Skeleton } from 'antd';
-import { API_BASE_URL, GET_POST_TAGS_ENDPOINT } from '../service/api';
+} from "../redux/user/user.actions";
+import { Post, RegistrationObject } from "./interfaces/user.interface";
+import MyPost from "./post/post";
+import { connect } from "react-redux";
+import axios from "axios";
+import bluebird from "bluebird";
+import firebase from "firebase";
+import { BackTop, Col, Skeleton } from "antd";
+import { API_BASE_URL, GET_POST_TAGS_ENDPOINT } from "../service/api";
 
 interface ITagsProps {
   setCurrentUserListener?: () => Promise<any>;
@@ -27,17 +27,11 @@ interface ITagsProps {
 }
 
 const Tags = (props: ITagsProps) => {
-  console.log('Tag Props: ', props);
-  const {
-    currentUser,
-    currentUserInfo,
-    currentUserEligiblePosts,
-    setCurrentUserEligiblePosts,
-    currentUserToken,
-  } = props;
+  console.log("Tag Props: ", props);
+  const { currentUser, currentUserToken } = props;
   const { tag } = props.match.params;
   const [loading, setLoading] = useState<boolean>(true);
-  const [posts, setPosts] = useState<Array<Post>>([]);
+  const [posts, setPosts] = useState<Array<Post> | null>([]);
 
   useEffect(() => {
     const decodeProfile = async () => {
@@ -64,6 +58,11 @@ const Tags = (props: ITagsProps) => {
       console.log(result.data);
 
       if (result.data.success) {
+        if (result.data.uFP.length === 0) {
+          setLoading(false);
+          setPosts(null);
+          return;
+        }
         let temp: any = {};
 
         await bluebird
@@ -72,18 +71,18 @@ const Tags = (props: ITagsProps) => {
             async (obj: { uidRef: string; postRef: string }, index: number) => {
               firebase
                 .database()
-                .ref('Postsv2')
+                .ref("Postsv2")
                 .child(obj.uidRef)
                 .child(obj.postRef)
                 .on(
-                  'value',
+                  "value",
                   async (ssh) => {
                     temp[`${obj.uidRef + obj.postRef}`] = ssh.val();
                     temp[`${obj.uidRef + obj.postRef}`].key = `${
                       obj.uidRef + obj.postRef
                     }`;
 
-                    if (localStorage.getItem('tagPostsSet')) {
+                    if (localStorage.getItem("tagPostsSet")) {
                       temp[`${obj.uidRef + obj.postRef}`] = ssh.val();
                       temp[`${obj.uidRef + obj.postRef}`].key = `${
                         obj.uidRef + obj.postRef
@@ -99,9 +98,9 @@ const Tags = (props: ITagsProps) => {
 
                     if (
                       index === result.data.uFP.length - 1 &&
-                      !localStorage.getItem('tagPostsSet')
+                      !localStorage.getItem("tagPostsSet")
                     ) {
-                      console.log('IN COND: ', Object.values(temp));
+                      console.log("IN COND: ", Object.values(temp));
 
                       setPosts(
                         Object.values(temp).sort(
@@ -110,23 +109,17 @@ const Tags = (props: ITagsProps) => {
                         ) as any[]
                       );
 
-                      console.log('@POSTS DEBUG: ', Object.values(temp));
+                      console.log("@POSTS DEBUG: ", Object.values(temp));
 
-                      localStorage.setItem('tagPostsSet', 'true');
+                      localStorage.setItem("tagPostsSet", "true");
                     }
                   },
                   (error: any) => {
-                    console.log('@SSH ERROR: ', error);
+                    console.log("@SSH ERROR: ", error);
                     if (error.code) {
-                      if (error.code === 'PERMISSION_DENIED') {
-                        const lastKey = error.message
-                          .split(':')[0]
-                          .split('/')[3];
-
+                      if (error.code === "PERMISSION_DENIED") {
                         // delete temp[lastKey];
-
                         // setPosts(Object.values(temp));
-
                         //TODO: Maybe show 'post not available message'?
                       }
                     }
@@ -136,7 +129,7 @@ const Tags = (props: ITagsProps) => {
             { concurrency: result.data.uFP.length }
           )
           .then(() => {
-            console.log('DONE MAPPING');
+            console.log("DONE MAPPING");
           })
           .then(() => setLoading(false));
       }
@@ -150,30 +143,27 @@ const Tags = (props: ITagsProps) => {
   if (loading) {
     return (
       <Col
-        span="12"
-        style={{
-          // marginLeft: '20%',
-          // marginRight: '20%',
-          // marginTop: '7%',
-          textAlign: 'center',
-        }}
+        xs={{ span: 22, offset: 1 }}
+        lg={{ span: 16, offset: 2 }}
+        xl={{ span: 10, offset: 4 }}
+        span={12}
       >
-        {/* <Spin size="large" /> */}
         <Skeleton avatar active paragraph={{ rows: 4 }} />
       </Col>
     );
   }
 
   return (
-  <div style={{/* marginLeft: '20%', marginRight: '20%', marginTop: '5%' */ } } >
+    <div>
       <div>
         <BackTop />
-        {
-          posts.length > 0 &&
-            posts.map((val: any) => <MyPost key={val.key} post={val} />)
-          // :
-          // <p style={{ textAlign: "center" }}>You are not following anyone. To see posts here go follow people.</p>
-        }
+        {posts === null ? (
+          <p style={{ textAlign: "center" }}>
+            No Open Post with that tag found
+          </p>
+        ) : (
+          posts.map((val: any) => <MyPost key={val.key} post={val} />)
+        )}
       </div>
     </div>
   );
