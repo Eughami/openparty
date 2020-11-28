@@ -454,7 +454,7 @@ const Header = (props: IHeaderProps) => {
           <Col
             lg={{ span: 7, offset: 1 }}
             md={{ span: 8, offset: 2 }}
-            xs={{ span: 8, offset: 2 }}
+            xs={{ span: 6, offset: 4 }}
           >
             <Row justify="start" align="stretch">
               <Space direction="horizontal" size="large">
