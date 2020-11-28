@@ -100,12 +100,3 @@ hr.light {
   margin-top: 0.8rem;
   margin-bottom: 1rem;
 }
-
-.full__post__loader__container {
-  width: 100%;
-  height: 90vh;
-  border: black solid 5px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}

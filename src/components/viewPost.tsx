@@ -1,4 +1,4 @@
-import { Button, Result, Row, Skeleton, Space } from 'antd';
+import { Button, Col, Result, Row, Skeleton, Space } from 'antd';
 import Axios from 'axios';
 import firebase from 'firebase';
 import { size } from 'lodash';
@@ -6,15 +6,13 @@ import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import { RouteComponentProps, useParams } from 'react-router-dom';
 import { API_BASE_URL, GET_ONE_POST } from '../service/api';
-import { Post, RegistrationObject } from './interfaces/user.interface';
+import { Post } from './interfaces/user.interface';
 import MyPost from './post/post';
 
 interface postIdInterface {
   postId: string;
 }
 interface ViewPostProps extends RouteComponentProps<any> {
-  currentUser?: firebase.User;
-  currentUserInfo?: RegistrationObject;
   currentUserToken?: string;
 }
 const ViewPost = (props: ViewPostProps) => {
@@ -30,15 +28,11 @@ const ViewPost = (props: ViewPostProps) => {
       .ref('Postsv2')
       .child(userId)
       .child(postId)
-      .once('value', async (ssh) => {
+      .on('value', async (ssh) => {
         if (ssh.exists()) {
           setPost(ssh.val());
           setLoadingPost(false);
         }
-      })
-      .catch((error) => {
-        setError(error);
-        setLoadingPost(false);
       });
   };
   useEffect(() => {
@@ -67,7 +61,11 @@ const ViewPost = (props: ViewPostProps) => {
   const { history } = props;
   return (
     <>
-      {loadingPost && <Skeleton active />}
+      {loadingPost && (
+        <Col offset={6} span={12} style={{ paddingTop: '100px' }}>
+          <Skeleton avatar active paragraph={{ rows: 4 }} />
+        </Col>
+      )}
       {error !== null && (
         <Result
           status="404"
@@ -80,15 +78,13 @@ const ViewPost = (props: ViewPostProps) => {
           }
         />
       )}
-      {post && <MyPost key={post.id} post={post} fullPage={true} />}
+      {post && <MyPost post={post} fullPage={true} />}
     </>
   );
 };
 
 const mapStateToProps = (state: any) => {
   return {
-    currentUser: state.user.currentUser,
-    currentUserInfo: state.user.userInfo,
     currentUserToken: state.user.currentUserToken,
   };
 };
