@@ -15,9 +15,9 @@ import {
   Select,
   Upload,
   message,
-  Spin,
   DatePicker,
-  Divider,
+  Space,
+  Spin,
 } from "antd";
 import {
   UserOutlined,
@@ -42,9 +42,9 @@ import { Link } from "react-router-dom";
 import { RcFile } from "antd/lib/upload/interface";
 import bluebird from "bluebird";
 import { makeId } from "../post/post.actions";
-import ImgCrop from "antd-img-crop";
-import { Moment } from "moment";
 import AsyncMention from "../mentions/mentions.component";
+import PerfectScrollbar from "react-perfect-scrollbar";
+
 import {
   ADD_POST_ENDPOINT,
   API_BASE_URL,
@@ -53,7 +53,6 @@ import {
   IGNORE_FOLLOW_ENDPOINT,
   PING_ENDPOINT,
 } from "../../service/api";
-import PerfectScrollbar from "react-perfect-scrollbar";
 
 interface IHeaderProps {
   setCurrentUserListener?: () => Promise<any>;
@@ -69,9 +68,9 @@ const Header = (props: IHeaderProps) => {
   const [modalVisible, setModalVisible] = useState<boolean>(false);
   const [postModalVisible, setPostModalVisible] = useState<boolean>(false);
   const [postWorking, setPostWorking] = useState<boolean>(false);
-  const [followRequests, setFollowRequests] = useState([]);
   const [showNotification, setShowNotification] = useState<boolean>(false);
   const [loading, setloading] = useState<boolean>(false);
+  const [followRequests, setFollowRequests] = useState([]);
   const { Option } = Select;
   const [form] = Form.useForm();
 
@@ -86,6 +85,8 @@ const Header = (props: IHeaderProps) => {
         (ssh) => {
           if (ssh.exists()) {
             setFollowRequests(Object.values(ssh.val()));
+
+            console.log("@R-REQ ", Object.values(ssh.val()));
           } else {
             setFollowRequests([]);
           }
@@ -110,7 +111,6 @@ const Header = (props: IHeaderProps) => {
   const onFollowApproved = async (uid: string) => {
     await axios.post(
       `${API_BASE_URL}${APPROVE_FOLLOW_ENDPOINT}`,
-      //   'http://localhost:5000/openpaarty/us-central1/api/v1/users/approve-follow',
       {
         targetUid: uid,
       },
@@ -125,7 +125,6 @@ const Header = (props: IHeaderProps) => {
   const onFollowIgnored = async (uid: string) => {
     await axios.post(
       `${API_BASE_URL}${IGNORE_FOLLOW_ENDPOINT}`,
-      //   'http://localhost:5000/openpaarty/us-central1/api/v1/users/ignore-follow',
       {
         targetUid: uid,
       },
@@ -137,12 +136,13 @@ const Header = (props: IHeaderProps) => {
     );
   };
 
-  const handleMenuClick = (e: any) => {
+  const handleMenuClick = () => {
     // message.info('Click on menu item.');
     // console.log('click', e);
   };
 
   const menu = (props: IHeaderProps) => (
+    // <div className="profile__dropdown">
     <Menu onClick={handleMenuClick}>
       <Menu.Item key="1" icon={<UserOutlined />}>
         <Link
@@ -182,6 +182,7 @@ const Header = (props: IHeaderProps) => {
         Logout
       </Menu.Item>
     </Menu>
+    // </div>
   );
 
   const formItemLayout = {
@@ -200,12 +201,6 @@ const Header = (props: IHeaderProps) => {
   const clearForm = () => form.resetFields();
 
   const onFinish = async (values: any) => {
-    // console.log("POST DATA:: ", values['event-date'] && values['event-date'].unix());
-    // if (values['event-date'].unix() > new Date().getTime()) {
-    //     message.error("Selected time must be in the future");
-    // }
-    // clearForm();
-    // return
     let postData: any = {
       caption: values.caption,
       privacy: values.privacy,
@@ -234,16 +229,11 @@ const Header = (props: IHeaderProps) => {
     postData.image_url = urls;
 
     await axios
-      .post(
-        `${API_BASE_URL}${ADD_POST_ENDPOINT}`,
-        // 'http://localhost:5000/openpaarty/us-central1/api/v1/posts/',
-        postData,
-        {
-          headers: {
-            authorization: `Bearer ${props.currentUserToken}`,
-          },
-        }
-      )
+      .post(`${API_BASE_URL}${ADD_POST_ENDPOINT}`, postData, {
+        headers: {
+          authorization: `Bearer ${props.currentUserToken}`,
+        },
+      })
       .then((data) => {
         console.log("DATA: ", data.data);
         message.success("Post uploaded 🌟 ");
@@ -417,14 +407,10 @@ const Header = (props: IHeaderProps) => {
               accept="image/*"
               onPreview={onPreview}
               name="logo"
-              action={
-                // 'http://localhost:5000/openpaarty/us-central1/api1/v1/ping'
-                `${API_BASE_URL_OPEN}${PING_ENDPOINT}`
-              }
+              action={`${API_BASE_URL_OPEN}${PING_ENDPOINT}`}
               progress={{ status: "success" }}
               listType="picture-card"
             >
-              {/* <Button icon={<UploadOutlined />}>Click to upload</Button> */}
               + Upload
             </Upload>
             {/* </ImgCrop> */}
@@ -438,93 +424,87 @@ const Header = (props: IHeaderProps) => {
         </Form>
       </Modal>
       <div className="Nav-menus">
-        <div className="Nav-brand">
-          <Link
-            to={{
-              pathname: "/",
-            }}
+        <Row align="middle" className="test-border">
+          <Col
+            lg={{ span: 6, offset: 4 }}
+            md={{ span: 6, offset: 2 }}
+            xs={{ span: 8, offset: 2 }}
           >
-            <img
-              style={{ height: "100%", width: "40%" }}
-              src={OpenPartyLogo}
-              alt="open-party"
-            />
-          </Link>
-          {/* <a href="/">
-                    </a> */}
-        </div>
-        <Col
-          className=""
-          xs={{ span: 0 }}
-          lg={{ span: 6, offset: 2 }}
-          xxl={{ span: 5, offset: 1 }}
-        >
-          {/* SearchBar */}
-          <Search style={{ width: "80%" }} placeholder="Search" />
-        </Col>
-        <Col className="" offset={1} span={6}>
-          <Row style={{ alignItems: "center", justifyContent: "space-around" }}>
-            {/* <Tooltip title="Add a new post 🤳">
-                            <a> <AppstoreAddOutlined onClick={() => setPostModalVisible(true)} size={25} /> </a>
-                        </Tooltip> */}
-
-            <Col span="3">
-              <Link className="nav-link" to="/">
-                <HomeOutlined size={25} />
-              </Link>
-            </Col>
-
-            <Col span="3">
-              <Link
-                onClick={() => setModalVisible(true)}
-                className="nav-link"
-                to={{}}
-              >
-                <Badge
-                  size="small"
-                  count={followRequests && followRequests.length}
+            <Link
+              to={{
+                pathname: "/",
+              }}
+            >
+              <img
+                height="50px"
+                width="150px"
+                src={OpenPartyLogo}
+                alt="open-party"
+              />
+            </Link>
+          </Col>
+          <Col xl={{ span: 4 }} md={{ span: 6 }} xs={{ span: 0 }}>
+            <Search style={{ width: "80%" }} placeholder="Search" />
+          </Col>
+          <Col
+            lg={{ span: 7, offset: 1 }}
+            md={{ span: 8, offset: 2 }}
+            xs={{ span: 6, offset: 4 }}
+          >
+            <Row justify="start" align="stretch">
+              <Space direction="horizontal" size="large">
+                <Link
+                  className="nav-link"
+                  to={{
+                    pathname: `/`,
+                  }}
                 >
-                  <UsergroupAddOutlined size={25} />
-                </Badge>
-              </Link>
-            </Col>
+                  <HomeOutlined style={{ fontSize: "22px" }} />
+                </Link>
 
-            <Col span="3">
-              <Link to={{}}>
-                <Dropdown
-                  placement="bottomCenter"
-                  arrow
-                  trigger={["click"]}
-                  overlay={menu(props)}
+                <Link
+                  onClick={() => setModalVisible(true)}
+                  className="nav-link"
+                  to={{}}
                 >
-                  {/* <UserOutlined /> */}
-                  <Avatar
-                    style={{ verticalAlign: "middle" }}
-                    src={props.currentUserInfo?.image_url}
-                  ></Avatar>
-                </Dropdown>
-              </Link>
-            </Col>
-            <Col span="3">
-              <Link
-                to={{}}
-                onClick={() => {
-                  if (showNotification) {
-                    setShowNotification(!showNotification);
-                    return;
-                  }
-                  setloading(true);
-                  setTimeout(() => {
-                    setShowNotification(!showNotification);
-                    setloading(false);
-                  }, 1000);
-                }}
-              >
-                <NotificationTwoTone style={{ fontSize: "22px" }} />
-              </Link>
-            </Col>
-          </Row>
-        </Col>
+                  <Badge
+                    size="small"
+                    count={followRequests && followRequests.length}
+                  >
+                    <UsergroupAddOutlined style={{ fontSize: "22px" }} />
+                  </Badge>
+                </Link>
+
+                <Link
+                  to={{}}
+                  onClick={() => {
+                    setloading(true);
+                    setTimeout(() => {
+                      setShowNotification(!showNotification);
+                      setloading(false);
+                    }, 1000);
+                  }}
+                >
+                  <NotificationTwoTone style={{ fontSize: "22px" }} />
+                </Link>
+
+                <Link to={{}}>
+                  <Dropdown
+                    overlay={menu(props)}
+                    placement="bottomCenter"
+                    arrow
+                    // trigger={['click']}
+                  >
+                    <Avatar
+                      style={{ fontSize: "22px" }}
+                      src={props.currentUserInfo?.image_url}
+                    />
+                  </Dropdown>
+                </Link>
+              </Space>
+            </Row>
+          </Col>
+        </Row>
       </div>
       <Row>
         {loading && (
@@ -571,7 +551,6 @@ const Header = (props: IHeaderProps) => {
                 <p>GG bitches</p>
                 <p>GG bitches</p>
               </PerfectScrollbar>
-              <div>No Notifications</div>
             </Col>
           </div>
         )}

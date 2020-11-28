@@ -261,7 +261,9 @@ const Posts = (props: IPostsProps) => {
     <div className="posts__container">
       <BackTop />
       {posts.length > 0 &&
-        posts.map((val) => <MyPost key={val.key} post={val} />)}
+        posts.map((val) => (
+          <MyPost fullPage={false} key={val.key} post={val} />
+        ))}
     </div>
   );
 

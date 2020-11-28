@@ -162,7 +162,9 @@ const Tags = (props: ITagsProps) => {
             No Open Post with that tag found
           </p>
         ) : (
-          posts.map((val: any) => <MyPost key={val.key} post={val} />)
+          posts.map((val: any) => (
+            <MyPost fullPage={false} key={val.key} post={val} />
+          ))
         )}
       </div>
     </div>
