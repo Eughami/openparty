@@ -86,7 +86,7 @@ const App = (props: IAppProps) => {
     <div className="App">
       {currentUser ? (
         <div>
-          <div style={{ paddingBottom: "10px" }}>
+          <div style={{ paddingBottom: "60px" }}>
             <Header />
           </div>
           <Switch>

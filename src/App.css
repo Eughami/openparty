@@ -6,7 +6,7 @@
 .App {
   background: #fafafaa8;
   min-height: 100vh;
-  min-width: 100vh;
+  /* min-width: 100vh; */
 }
 
 .App-main {
@@ -14,7 +14,7 @@
   margin: 0 auto;
 }
 
-.sticky__navbar{
+.sticky__navbar {
   position: fixed;
   top: 0;
   width: 100%;
@@ -23,27 +23,27 @@
   /* border: black solid; */
   z-index: 100;
 }
-.body__container{
+.body__container {
   position: relative;
   /* top: 60px; */
 }
-.top__logo{
+.top__logo {
   text-align: center;
 }
-.top__logo img{
+.top__logo img {
   width: 60%;
   height: 100%;
 }
-.top__navbar__elements{
+.top__navbar__elements {
   /* border: black solid; */
   width: 100%;
   height: 40px;
 }
-.posts__container > *{
+.posts__container > * {
   margin: 30px 0;
 }
 
-.post__container{
+.post__container {
   /* border: black solid; */
   background-color: white;
   border-radius: 10px;
@@ -53,43 +53,42 @@
   min-width: 350px;
   min-height: 350px;
 }
-.post__header{
+.post__header {
   /* border: black solid; */
-  height: 10%;  
+  height: 10%;
   display: flex;
   align-items: center;
 }
-.post__header img{
+.post__header img {
   /* height: 100%; */
 }
-.post__header > *{
+.post__header > * {
   padding-left: 10px;
 }
-.post__image{
+.post__image {
   /* border: black solid; */
-  height: 60%;  
+  height: 60%;
 }
-.post__image img{
+.post__image img {
   /* width: 100%; */
   height: 100%;
   margin: auto;
 }
-.post__clikes__and__comments{
+.post__clikes__and__comments {
   /* border: black solid; */
-  height: 10%;  
+  height: 10%;
 }
 .post__clikes__and__comments > * {
-  
   padding-right: 18px;
 }
 .post__clikes__and__comments > *:hover {
   cursor: pointer;
 }
-.post__captions{
+.post__captions {
   /* border: black solid; */
   height: 10%;
 }
-.post__add__comment{
+.post__add__comment {
   /* border: black solid; */
   /* height: 10%; */
   height: 50px;
@@ -98,6 +97,6 @@
 hr.light {
   border-top: 1px solid #d5d5d5;
   width: 100%;
-  margin-top: .8rem;
+  margin-top: 0.8rem;
   margin-bottom: 1rem;
 }

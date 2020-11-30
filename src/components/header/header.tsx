@@ -453,12 +453,7 @@ const Header = (props: IHeaderProps) => {
           >
             <Row justify="start" align="stretch">
               <Space direction="horizontal" size="large">
-                <Link
-                  className="nav-link"
-                  to={{
-                    pathname: `/`,
-                  }}
-                >
+                <Link className="nav-link" to="/">
                   <HomeOutlined style={{ fontSize: "22px" }} />
                 </Link>
 

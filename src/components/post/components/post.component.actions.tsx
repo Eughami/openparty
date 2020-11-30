@@ -1,13 +1,14 @@
-import React, { useState, useEffect } from "react";
-import { Post } from "../../interfaces/user.interface";
-import { Row } from "antd";
+import React, { useState, useEffect } from 'react';
+import { useHistory } from 'react-router-dom';
+import { Post } from '../../interfaces/user.interface';
+import { Row } from 'antd';
 import {
   ShareAltOutlined,
   HeartTwoTone,
   CommentOutlined,
-} from "@ant-design/icons";
-import { handlePostLike } from "../post.actions";
-import firebase from "firebase";
+} from '@ant-design/icons';
+import { handlePostLike } from '../post.actions';
+import firebase from 'firebase';
 
 interface IPostActionsProps {
   post: Post;
@@ -16,6 +17,7 @@ interface IPostActionsProps {
 
 export const PostActions = (props: IPostActionsProps) => {
   const { post, currentUser } = props;
+  const history = useHistory();
 
   const [userLikePost, setUserLikePost] = useState<boolean>(
     Array.isArray(post.likes)
@@ -26,29 +28,29 @@ export const PostActions = (props: IPostActionsProps) => {
   useEffect(() => {
     const un_sub = firebase
       .database()
-      .ref("Postsv2")
+      .ref('Postsv2')
       .child(post.uid)
       .child(post.id)
-      .child("likes")
+      .child('likes')
       .child(currentUser?.uid!)
-      .on("value", (ssh) => {
+      .on('value', (ssh) => {
         setUserLikePost(ssh.exists());
       });
 
     return () =>
       firebase
         .database()
-        .ref("Postsv2")
+        .ref('Postsv2')
         .child(post.uid)
         .child(post.id)
-        .child("likes")
+        .child('likes')
         .child(currentUser?.uid!)
-        .off("value", un_sub);
+        .off('value', un_sub);
   }, [currentUser, post.uid, post.id]);
 
   return (
     <Row className="post__clikes__and__comments" align="middle">
-      <span style={{ fontSize: "25px" }}>
+      <span style={{ fontSize: '25px' }}>
         <HeartTwoTone
           onClick={() =>
             handlePostLike(
@@ -59,13 +61,13 @@ export const PostActions = (props: IPostActionsProps) => {
               currentUser
             )
           }
-          twoToneColor={userLikePost ? "#eb2f96" : "#ccc"}
+          twoToneColor={userLikePost ? '#eb2f96' : '#ccc'}
         />
       </span>
-      <span style={{ fontSize: "25px" }}>
-        <CommentOutlined />
+      <span style={{ fontSize: '25px' }}>
+        <CommentOutlined onClick={() => history.push(`/post/${post.id}`)} />
       </span>
-      <span style={{ fontSize: "25px" }}>
+      <span style={{ fontSize: '25px' }}>
         <ShareAltOutlined />
       </span>
     </Row>
@@ -91,28 +93,28 @@ export const PostActionLike = (props: IPostActionLikeProps) => {
   useEffect(() => {
     const un_sub = firebase
       .database()
-      .ref("Postsv2")
+      .ref('Postsv2')
       .child(post.uid)
       .child(post.id)
-      .child("likes")
+      .child('likes')
       .child(currentUser?.uid!)
-      .on("value", (ssh) => {
+      .on('value', (ssh) => {
         setUserLikePost(ssh.exists());
       });
 
     return () =>
       firebase
         .database()
-        .ref("Postsv2")
+        .ref('Postsv2')
         .child(post.uid)
         .child(post.id)
-        .child("likes")
+        .child('likes')
         .child(currentUser?.uid!)
-        .off("value", un_sub);
+        .off('value', un_sub);
   }, [currentUser, post.uid, post.id]);
 
   return (
-    <span style={{ fontSize: "25px" }}>
+    <span style={{ fontSize: '25px' }}>
       <HeartTwoTone
         onClick={() =>
           handlePostLike(
@@ -123,7 +125,7 @@ export const PostActionLike = (props: IPostActionLikeProps) => {
             currentUser
           )
         }
-        twoToneColor={userLikePost ? "#eb2f96" : "#ccc"}
+        twoToneColor={userLikePost ? '#eb2f96' : '#ccc'}
       />
     </span>
   );
@@ -136,7 +138,7 @@ interface IPostActionCommentProps {
 
 export const PostActionComment = (props: IPostActionCommentProps) => {
   return (
-    <span style={{ fontSize: "25px" }}>
+    <span style={{ fontSize: '25px' }}>
       <CommentOutlined />
     </span>
   );

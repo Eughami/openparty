@@ -1,18 +1,18 @@
-import React, { useEffect, useState } from "react";
-import MyPost from "./post";
-import firebase from "firebase";
+import React, { useEffect, useState } from 'react';
+import MyPost from './post';
+import firebase from 'firebase';
 import {
   Comment,
   Post,
   RegistrationObject,
-} from "../interfaces/user.interface";
-import { Col, Skeleton, BackTop } from "antd";
-import { connect } from "react-redux";
+} from '../interfaces/user.interface';
+import { Col, Skeleton, BackTop } from 'antd';
+import { connect } from 'react-redux';
 import {
   setCurrentUserListener,
   setCurrentUserRootDatabaseListener,
-} from "../../redux/user/user.actions";
-import bluebird from "bluebird";
+} from '../../redux/user/user.actions';
+import bluebird from 'bluebird';
 
 interface IPostsProps {
   setCurrentUserListener?: () => Promise<any>;
@@ -38,7 +38,7 @@ export const awaitFillPosts = async (
   if (user) {
     let temp: Array<Post> = [];
 
-    console.log("GETTING ALL POSTS... ", posts.length);
+    console.log('GETTING ALL POSTS... ', posts.length);
     for (let i = 0; i < posts.length; i++) {
       temp.push({
         caption: posts[i].val().caption,
@@ -53,7 +53,7 @@ export const awaitFillPosts = async (
         tags: posts[i].val().tags,
         id: posts[i].key!,
       });
-      console.log("INNER COMMENT: ", posts[i].val());
+      console.log('INNER COMMENT: ', posts[i].val());
       if (posts[i].val().comments) {
         const commentKeys = Object.keys(posts[i].val().comments);
         let thisCommentArray: Array<Comment> = [];
@@ -80,9 +80,9 @@ export const awaitFillPosts = async (
   for (let i = 0; i < posts.length; i++) {
     await firebase
       .database()
-      .ref("Users")
+      .ref('Users')
       .child(posts[i].val().uid)
-      .once("value", (userPosts) => {
+      .once('value', (userPosts) => {
         if (userPosts.exists()) {
           // console.log("CHECKER: ", posts[i].val());
           temp.push({
@@ -124,7 +124,7 @@ export const awaitFillPosts = async (
 const Posts = (props: IPostsProps) => {
   const { currentUser, currentUserEligiblePosts } = props;
 
-  console.log("CARDS.TSX PROPS: ", props);
+  console.log('CARDS.TSX PROPS: ', props);
 
   const [loading, setLoading] = useState<boolean>(true);
   const [posts, setPosts] = useState<Array<any>>([]);
@@ -147,11 +147,11 @@ const Posts = (props: IPostsProps) => {
           async (obj: { uidRef: string; postRef: string }, index: number) => {
             firebase
               .database()
-              .ref("Postsv2")
+              .ref('Postsv2')
               .child(obj.uidRef)
               .child(obj.postRef)
               .on(
-                "value",
+                'value',
                 async (ssh) => {
                   //No need to check post privacy again because all posts we have access to are here?
                   temp[`${obj.uidRef + obj.postRef}`] = ssh.val();
@@ -159,7 +159,7 @@ const Posts = (props: IPostsProps) => {
                     obj.uidRef + obj.postRef
                   }`;
 
-                  if (localStorage.getItem("postsSet")) {
+                  if (localStorage.getItem('postsSet')) {
                     temp[`${obj.uidRef + obj.postRef}`] = ssh.val();
                     temp[`${obj.uidRef + obj.postRef}`].key = `${
                       obj.uidRef + obj.postRef
@@ -175,7 +175,7 @@ const Posts = (props: IPostsProps) => {
 
                   if (
                     index === currentUserEligiblePosts!.length - 1 &&
-                    !localStorage.getItem("postsSet")
+                    !localStorage.getItem('postsSet')
                   ) {
                     setPosts(
                       Object.values(temp).sort(
@@ -184,7 +184,7 @@ const Posts = (props: IPostsProps) => {
                     );
 
                     console.log(
-                      "@POSTS DEBUG: ",
+                      '@POSTS DEBUG: ',
                       Object.values(temp).sort(
                         (s1: any, s2: any) => s2.date_of_post - s1.date_of_post
                       )
@@ -195,15 +195,15 @@ const Posts = (props: IPostsProps) => {
 
                     // })
 
-                    localStorage.setItem("postsSet", "true");
+                    localStorage.setItem('postsSet', 'true');
 
                     setLoading(false);
                   }
                 },
                 (error: any) => {
-                  console.log("@SSH ERROR: ", error);
+                  console.log('@SSH ERROR: ', error);
                   if (error.code) {
-                    if (error.code === "PERMISSION_DENIED") {
+                    if (error.code === 'PERMISSION_DENIED') {
                       // delete temp[lastKey];
                       // setPosts(Object.values(temp));
                       //TODO: Maybe show 'post not available message'?
@@ -215,7 +215,7 @@ const Posts = (props: IPostsProps) => {
           { concurrency: currentUserEligiblePosts!.length }
         )
         .then(() => {
-          console.log("DONE MAPPING");
+          console.log('DONE MAPPING');
           // setTimeout(() => {
           //     setLoading(false)
 
@@ -251,9 +251,14 @@ const Posts = (props: IPostsProps) => {
 
   if (currentUserEligiblePosts === null) {
     return (
-      <p style={{ textAlign: "center", marginTop: "50%" }}>
-        You are not following anyone. Follow people to see their posts here.{" "}
-      </p>
+      <div style={{ textAlign: 'center' }}>
+        <img
+          alt="empty"
+          src="https://humornama.com/wp-content/uploads/2020/05/lonely-vs-alone-meme.png"
+        />
+        <br />
+        You are not following anyone. Follow people to see their posts here.{' '}
+      </div>
     );
   }
 

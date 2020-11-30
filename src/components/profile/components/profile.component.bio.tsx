@@ -1,5 +1,7 @@
-import React from "react";
-import { RegistrationObject } from "../../interfaces/user.interface";
+import React from 'react';
+import { Typography } from 'antd';
+
+import { RegistrationObject } from '../../interfaces/user.interface';
 
 interface IProfileBioProps {
   user: RegistrationObject;
@@ -7,6 +9,21 @@ interface IProfileBioProps {
 }
 
 export const ProfileBio = (props: IProfileBioProps) => {
+  const { Paragraph } = Typography;
   const { user, style } = props;
-  return <>{user.bio && <span style={{ ...style }}>{user.bio}</span>}</>;
+  return (
+    <>
+      {user.bio && (
+        <Paragraph
+          style={{
+            ...style,
+            width: '150px',
+          }}
+          ellipsis={{ rows: 1, expandable: true, symbol: 'more' }}
+        >
+          {user.bio}
+        </Paragraph>
+      )}
+    </>
+  );
 };

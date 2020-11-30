@@ -53,7 +53,7 @@ export const ProfileRootSelfUserPosts = (props: IProfilePostsRootProps) => {
   const { currentUser, post, type } = props;
   const { TabPane } = Tabs;
   return (
-    <Tabs defaultActiveKey="1">
+    <Tabs centered defaultActiveKey="1">
       <TabPane
         tab={
           <span>
