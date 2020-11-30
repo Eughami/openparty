@@ -26,7 +26,7 @@
 }
 .Post-user-nickname {
   margin-left: 12px;
-  font-family: "PT Sans", sans-serif;
+  font-family: 'PT Sans', sans-serif;
   font-weight: bold;
 }
 .Post-image-bg {
@@ -40,7 +40,7 @@
   padding: 16px 16px;
 }
 .Post-caption strong {
-  font-family: "PT Sans", sans-serif;
+  font-family: 'PT Sans', sans-serif;
   font-weight: bold;
 }
 .vjs-fade-out {

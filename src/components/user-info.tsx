@@ -1,35 +1,35 @@
-import React, { useEffect, useState } from "react";
-import { Row, Spin, Result, Empty, Divider } from "antd";
-import firebase from "firebase";
+import React, { useEffect, useState } from 'react';
+import { Row, Spin, Result, Empty, Divider, Col } from 'antd';
+import firebase from 'firebase';
 import {
   Post,
   RegistrationObject,
   Comment,
   PrivacyStatus,
-} from "./interfaces/user.interface";
-import { connect } from "react-redux";
+} from './interfaces/user.interface';
+import { connect } from 'react-redux';
 import {
   setCurrentUserListener,
   setCurrentUserRootDatabaseListener,
   setCurrentUserEligiblePosts,
   setCurrentUserToken,
-} from "../redux/user/user.actions";
-import axios from "axios";
-import bluebird from "bluebird";
-import { confirmUnfollow } from "./profile/profile.actions";
-import { ProfileAvatar } from "./profile/components/profile.component.pfp";
-import { ProfileUsername } from "./profile/components/profile.component.username";
-import { ProfileStats } from "./profile/components/profile.component.stats";
-import { ProfileBio } from "./profile/components/profile.component.bio";
+} from '../redux/user/user.actions';
+import axios from 'axios';
+import bluebird from 'bluebird';
+import { confirmUnfollow } from './profile/profile.actions';
+import { ProfileAvatar } from './profile/components/profile.component.pfp';
+import { ProfileUsername } from './profile/components/profile.component.username';
+import { ProfileStats } from './profile/components/profile.component.stats';
+import { ProfileBio } from './profile/components/profile.component.bio';
 import {
   ProfileActionFollow,
   ProfileActionMessage,
   ProfileActionUnfollow,
   ProfileActionCancelFollowRequest,
   ProfileActionEdit,
-} from "./profile/components/profile.component.actions";
-import { API_BASE_URL, CAN_USER_VIEW_PROFILE_ENDPOINT } from "../service/api";
-import { ProfileRootPosts } from "./profile/components/profile.component.posts";
+} from './profile/components/profile.component.actions';
+import { API_BASE_URL, CAN_USER_VIEW_PROFILE_ENDPOINT } from '../service/api';
+import { ProfileRootPosts } from './profile/components/profile.component.posts';
 
 interface IUserProps {
   setCurrentUserListener?: () => Promise<any>;
@@ -44,7 +44,7 @@ interface IUserProps {
 }
 
 const UserProfile = (props: IUserProps) => {
-  console.log("UserProfile Props: ", props);
+  console.log('UserProfile Props: ', props);
   const {
     currentUser,
     currentUserInfo,
@@ -69,7 +69,7 @@ const UserProfile = (props: IUserProps) => {
   const [postsDoneLoading, setPostsDoneLoading] = useState<boolean>(false);
   const [realUser, setRealUser] = useState<boolean>(true);
 
-  const [privacyStatus, setPrivacyStatus] = useState<string>("Public");
+  const [privacyStatus, setPrivacyStatus] = useState<string>('Public');
 
   const [posts, setPosts] = useState<Array<Post> | boolean>([]);
 
@@ -81,7 +81,7 @@ const UserProfile = (props: IUserProps) => {
 
     let temp: Array<Post> = [];
 
-    console.log("GETTING ALL POSTS... ", posts.length);
+    console.log('GETTING ALL POSTS... ', posts.length);
     for (let i = 0; i < posts.length; i++) {
       temp.push({
         caption: posts[i].val().caption,
@@ -98,7 +98,7 @@ const UserProfile = (props: IUserProps) => {
         date_of_post: posts[i].val().date_of_post,
         date_of_event: posts[i].val().date_of_event,
       });
-      console.log("INNER COMMENT: ", posts[i].val());
+      console.log('INNER COMMENT: ', posts[i].val());
       if (posts[i].val().comments) {
         const commentKeys = Object.keys(posts[i].val().comments);
         let thisCommentArray: Array<Comment> = [];
@@ -128,10 +128,10 @@ const UserProfile = (props: IUserProps) => {
       setRealUser(true);
       firebase
         .database()
-        .ref("Postsv2")
+        .ref('Postsv2')
         .child(currentUser?.uid!)
         .on(
-          "value",
+          'value',
           async (ssh) => {
             // console.log(ssh.val());
 
@@ -142,7 +142,7 @@ const UserProfile = (props: IUserProps) => {
                 ttt.push(post);
               });
 
-              console.log("====== POST IDS: ", ttt);
+              console.log('====== POST IDS: ', ttt);
 
               setPosts(await awaitFillPosts(ttt, currentUserInfo!));
 
@@ -194,7 +194,7 @@ const UserProfile = (props: IUserProps) => {
         }
       );
 
-      console.log("@5555=========", result.data);
+      console.log('@5555=========', result.data);
 
       if (result.data.success) {
         if (result.data.selfUser) {
@@ -205,7 +205,7 @@ const UserProfile = (props: IUserProps) => {
 
           //If following user, then target user's posts is in the global eligible posts state. Simply
           // filter by username and add listeners to database [to make it real time]
-          if (result.data.privacy === "following") {
+          if (result.data.privacy === 'following') {
             setFollowActionLoading(false);
 
             if (currentUserEligiblePosts === null) {
@@ -215,10 +215,10 @@ const UserProfile = (props: IUserProps) => {
             //Get data from user root profile
             firebase
               .database()
-              .ref("Users")
+              .ref('Users')
               .child(result.data.targetUid)
               .on(
-                "value",
+                'value',
                 async (ssh) => {
                   console.log(ssh.val());
 
@@ -228,7 +228,7 @@ const UserProfile = (props: IUserProps) => {
                 }, //HERE IS WHERE DB SNAPS FROM PRIVACY CHANGE
                 (error: any) => {
                   if (error.code) {
-                    if (error.code === "PERMISSION_DENIED") {
+                    if (error.code === 'PERMISSION_DENIED') {
                       setLoading(false);
                       setOtherUserInfo(result.data.targetUser);
                       setOtherUserPrivacy(true);
@@ -252,11 +252,11 @@ const UserProfile = (props: IUserProps) => {
                 ) => {
                   firebase
                     .database()
-                    .ref("Postsv2")
+                    .ref('Postsv2')
                     .child(obj.uidRef)
                     .child(obj.postRef)
                     .on(
-                      "value",
+                      'value',
                       async (ssh) => {
                         //No need to check post privacy again because all posts we have access to are here?
                         temp[`${obj.uidRef + obj.postRef}`] = ssh.val();
@@ -264,7 +264,7 @@ const UserProfile = (props: IUserProps) => {
                           obj.uidRef + obj.postRef
                         }`;
 
-                        if (localStorage.getItem("otherUserPostsSet")) {
+                        if (localStorage.getItem('otherUserPostsSet')) {
                           temp[`${obj.uidRef + obj.postRef}`] = ssh.val();
                           temp[`${obj.uidRef + obj.postRef}`].key = `${
                             obj.uidRef + obj.postRef
@@ -286,9 +286,9 @@ const UserProfile = (props: IUserProps) => {
                               (eligible) => eligible.username === username
                             ).length -
                               1 &&
-                          !localStorage.getItem("otherUserPostsSet")
+                          !localStorage.getItem('otherUserPostsSet')
                         ) {
-                          console.log("IN COND: ", Object.values(temp));
+                          console.log('IN COND: ', Object.values(temp));
 
                           setPosts(
                             Object.values(temp).sort(
@@ -299,15 +299,15 @@ const UserProfile = (props: IUserProps) => {
 
                           setPostsDoneLoading(true);
 
-                          console.log("@POSTS DEBUG: ", Object.values(temp));
+                          console.log('@POSTS DEBUG: ', Object.values(temp));
 
-                          localStorage.setItem("otherUserPostsSet", "true");
+                          localStorage.setItem('otherUserPostsSet', 'true');
                         }
                       },
                       (error: any) => {
-                        console.log("@SSH ERROR: ", error);
+                        console.log('@SSH ERROR: ', error);
                         if (error.code) {
-                          if (error.code === "PERMISSION_DENIED") {
+                          if (error.code === 'PERMISSION_DENIED') {
                             // delete temp[lastKey];
                             // setPosts(Object.values(temp));
                             //TODO: Maybe show 'post not available message'?
@@ -323,28 +323,28 @@ const UserProfile = (props: IUserProps) => {
                 }
               )
               .then(() => {
-                console.log("DONE MAPPING");
+                console.log('DONE MAPPING');
               });
           } else {
             //Else add listeners for any change in follow requests
             firebase
               .database()
-              .ref("FollowRequests")
+              .ref('FollowRequests')
               .child(result.data.targetUser.uid)
               .child(currentUser.uid)
-              .on("value", (ssh) => {
+              .on('value', (ssh) => {
                 setFollowActionLoading(false);
                 setRequestedFollow(ssh.exists());
               });
 
             //If target user's profile is private, don't show them any posts. Just show them simple info
-            if (result.data.privacy === "closed") {
+            if (result.data.privacy === 'closed') {
               setLoading(false);
               setOtherUserInfo(result.data.targetUser);
               setOtherUserPrivacy(true);
             }
             //If user's profile is open, then only show the target user's public posts and info
-            if (result.data.privacy === "open") {
+            if (result.data.privacy === 'open') {
               setLoading(false);
               setOtherUserInfo(result.data.targetUser);
               setOtherUserPrivacy(false);
@@ -362,11 +362,11 @@ const UserProfile = (props: IUserProps) => {
                   ) => {
                     firebase
                       .database()
-                      .ref("Postsv2")
+                      .ref('Postsv2')
                       .child(obj.uidRef)
                       .child(obj.postRef)
                       .on(
-                        "value",
+                        'value',
                         async (ssh) => {
                           //No need to check post privacy again because all posts we have access to are here?
                           temp[`${obj.uidRef + obj.postRef}`] = ssh.val();
@@ -374,7 +374,7 @@ const UserProfile = (props: IUserProps) => {
                             obj.uidRef + obj.postRef
                           }`;
 
-                          if (localStorage.getItem("publicUserPostsSet")) {
+                          if (localStorage.getItem('publicUserPostsSet')) {
                             temp[`${obj.uidRef + obj.postRef}`] = ssh.val();
                             temp[`${obj.uidRef + obj.postRef}`].key = `${
                               obj.uidRef + obj.postRef
@@ -390,9 +390,9 @@ const UserProfile = (props: IUserProps) => {
 
                           if (
                             index === result.data.targetUser.posts.length - 1 &&
-                            !localStorage.getItem("publicUserPostsSet")
+                            !localStorage.getItem('publicUserPostsSet')
                           ) {
-                            console.log("IN COND: ", Object.values(temp));
+                            console.log('IN COND: ', Object.values(temp));
 
                             setPosts(
                               Object.values(temp).sort(
@@ -403,15 +403,15 @@ const UserProfile = (props: IUserProps) => {
 
                             setPostsDoneLoading(true);
 
-                            console.log("@POSTS DEBUG: ", Object.values(temp));
+                            console.log('@POSTS DEBUG: ', Object.values(temp));
 
-                            localStorage.setItem("publicUserPostsSet", "true");
+                            localStorage.setItem('publicUserPostsSet', 'true');
                           }
                         },
                         (error: any) => {
-                          console.log("@SSH ERROR: ", error);
+                          console.log('@SSH ERROR: ', error);
                           if (error.code) {
-                            if (error.code === "PERMISSION_DENIED") {
+                            if (error.code === 'PERMISSION_DENIED') {
                               // delete temp[lastKey];
                               // setPosts(Object.values(temp));
                               //TODO: Maybe show 'post not available message'?
@@ -425,7 +425,7 @@ const UserProfile = (props: IUserProps) => {
                   }
                 )
                 .then(() => {
-                  console.log("DONE MAPPING");
+                  console.log('DONE MAPPING');
                 });
             } else if (result.data.code === 404) {
               setLoading(false);
@@ -453,7 +453,7 @@ const UserProfile = (props: IUserProps) => {
   if (!realUser) {
     return (
       <div>
-        <div style={{ textAlign: "center" }}>
+        <div style={{ textAlign: 'center' }}>
           <Result
             status="404"
             title="That's weird :\"
@@ -466,7 +466,7 @@ const UserProfile = (props: IUserProps) => {
 
   if (loading) {
     return (
-      <div style={{ textAlign: "center" }}>
+      <div style={{ textAlign: 'center' }}>
         <Spin size="small" />
       </div>
     );
@@ -474,141 +474,149 @@ const UserProfile = (props: IUserProps) => {
 
   return (
     <div>
-      <div style={{ paddingLeft: "20%", paddingRight: "20%" }}>
-        {selfUser && currentUserInfo ? (
-          <div>
-            <Row align="middle">
-              <ProfileAvatar user={currentUserInfo} />
-              <div style={{ marginLeft: "5%" }}>
-                <Row align="middle" justify="space-around">
-                  <ProfileUsername
-                    user={currentUserInfo}
-                    style={{ fontSize: 20, float: "left" }}
-                  />
-                  <ProfileActionEdit selfUserInfo={currentUserInfo} />
-                </Row>
-
-                <ProfileStats
-                  user={currentUserInfo}
-                  postsCount={currentUserInfo.posts_count}
-                />
-                <ProfileBio user={currentUserInfo} />
-              </div>
-            </Row>
-
-            <Divider />
-            <div className="posts__container">
-              {!postsDoneLoading ? (
-                <Spin size="small" />
-              ) : (posts as Post[]).length > 0 ? (
-                <ProfileRootPosts
-                  currentUser={currentUser!}
-                  post={posts as Post[]}
-                  type="self-user"
-                />
-              ) : (
-                <h1 style={{ textAlign: "center" }}>You Have No Posts</h1>
-              )}
-            </div>
-          </div>
-        ) : !selfUser && otherUserInfo ? (
-          <div>
-            <Row style={{ alignItems: "center" }}>
-              <ProfileAvatar user={otherUserInfo} />
-              <div style={{ paddingLeft: "5%" }}>
-                <>
-                  <ProfileUsername
-                    user={otherUserInfo}
-                    style={{ fontSize: 20 }}
-                  />
-                  <Row justify="space-around" align="middle">
-                    {profileActionLoading ? (
-                      <Spin size="small" />
-                    ) : privacyStatus === PrivacyStatus.FOLLOWERS ? (
-                      <ProfileActionUnfollow
-                        otherUserInfo={otherUserInfo}
-                        onConfirm={() =>
-                          confirmUnfollow(
-                            otherUserInfo,
-                            currentUserToken!
-                          ).finally(() =>
-                            setCurrentUserEligiblePosts!(currentUser!)
-                          )
-                        }
-                      />
-                    ) : requestedFollow ? (
-                      <ProfileActionCancelFollowRequest
-                        otherUserInfo={otherUserInfo}
-                        currentUserToken={currentUserToken!}
-                      />
-                    ) : (
-                      <ProfileActionFollow
-                        selfUserInfo={currentUserInfo!}
-                        otherUserInfo={otherUserInfo}
-                        currentUserToken={currentUserToken!}
-                      />
-                    )}
-                    <ProfileActionMessage
-                      selfUserInfo={currentUserInfo!}
-                      otherUserInfo={otherUserInfo}
+      {/* <div style={{ paddingLeft: "20%", paddingRight: "20%" }}> */}
+      <Row>
+        <Col
+          lg={{ offset: 4, span: 16 }}
+          md={{ offset: 3, span: 18 }}
+          sm={{ offset: 2, span: 20 }}
+          xs={{ offset: 1, span: 22 }}
+        >
+          {selfUser && currentUserInfo ? (
+            <div>
+              <Row align="middle">
+                <ProfileAvatar user={currentUserInfo} />
+                <div style={{ marginLeft: '5%' }}>
+                  <Row align="middle" justify="space-around">
+                    <ProfileUsername
+                      user={currentUserInfo}
+                      style={{ fontSize: 20, float: 'left' }}
                     />
+                    <ProfileActionEdit selfUserInfo={currentUserInfo} />
                   </Row>
-                </>
-                {!otherUserPrivacy ? (
-                  <>
-                    <ProfileStats
-                      user={otherUserInfo}
-                      postsCount={(posts as Post[]).length}
-                    />
-                    <ProfileBio user={otherUserInfo} />
-                  </>
-                ) : (
-                  <>
-                    <ProfileStats
-                      user={otherUserInfo}
-                      postsCount={otherUserInfo.posts_count}
-                    />
-                    <ProfileBio user={otherUserInfo} />
-                  </>
-                )}
-              </div>
-            </Row>
 
-            <Divider />
-            <div className="posts__container">
-              {!otherUserPrivacy ? (
-                !postsDoneLoading ? (
-                  <Spin style={{ textAlign: "center" }} size="small" />
+                  <ProfileStats
+                    user={currentUserInfo}
+                    postsCount={currentUserInfo.posts_count}
+                  />
+                  <ProfileBio user={currentUserInfo} />
+                </div>
+              </Row>
+
+              <Divider />
+              <div className="posts__container">
+                {!postsDoneLoading ? (
+                  <Spin size="small" />
                 ) : (posts as Post[]).length > 0 ? (
                   <ProfileRootPosts
                     currentUser={currentUser!}
                     post={posts as Post[]}
-                    type="other-user"
+                    type="self-user"
                   />
                 ) : (
-                  <h1 style={{ textAlign: "center" }}>
-                    <Empty />
-                  </h1>
-                )
-              ) : (
-                <p style={{ textAlign: "center" }}>
-                  This user's profile is private. Follow them to see more
-                </p>
-              )}
+                  <h1 style={{ textAlign: 'center' }}>You Have No Posts</h1>
+                )}
+              </div>
             </div>
-          </div>
-        ) : (
-          <div style={{ textAlign: "center", marginTop: "15%" }}>
-            <Spin size="small" />
-          </div>
-          // <Result
-          //     status="403"
-          //     title="That's weird :\"
-          //     subTitle="The page you visited does not exist."
-          // // extra={<Button type="primary">Back Home</Button>}
-          // />
-        )}
-      </div>
+          ) : !selfUser && otherUserInfo ? (
+            <div>
+              <Row style={{ alignItems: 'center' }}>
+                <ProfileAvatar user={otherUserInfo} />
+                <div style={{ paddingLeft: '5%' }}>
+                  <>
+                    <ProfileUsername
+                      user={otherUserInfo}
+                      style={{ fontSize: 20 }}
+                    />
+                    <Row justify="space-around" align="middle">
+                      {profileActionLoading ? (
+                        <Spin size="small" />
+                      ) : privacyStatus === PrivacyStatus.FOLLOWERS ? (
+                        <ProfileActionUnfollow
+                          otherUserInfo={otherUserInfo}
+                          onConfirm={() =>
+                            confirmUnfollow(
+                              otherUserInfo,
+                              currentUserToken!
+                            ).finally(() =>
+                              setCurrentUserEligiblePosts!(currentUser!)
+                            )
+                          }
+                        />
+                      ) : requestedFollow ? (
+                        <ProfileActionCancelFollowRequest
+                          otherUserInfo={otherUserInfo}
+                          currentUserToken={currentUserToken!}
+                        />
+                      ) : (
+                        <ProfileActionFollow
+                          selfUserInfo={currentUserInfo!}
+                          otherUserInfo={otherUserInfo}
+                          currentUserToken={currentUserToken!}
+                        />
+                      )}
+                      <ProfileActionMessage
+                        selfUserInfo={currentUserInfo!}
+                        otherUserInfo={otherUserInfo}
+                      />
+                    </Row>
+                  </>
+                  {!otherUserPrivacy ? (
+                    <>
+                      <ProfileStats
+                        user={otherUserInfo}
+                        postsCount={(posts as Post[]).length}
+                      />
+                      <ProfileBio user={otherUserInfo} />
+                    </>
+                  ) : (
+                    <>
+                      <ProfileStats
+                        user={otherUserInfo}
+                        postsCount={otherUserInfo.posts_count}
+                      />
+                      <ProfileBio user={otherUserInfo} />
+                    </>
+                  )}
+                </div>
+              </Row>
+
+              <Divider />
+              <div className="posts__container">
+                {!otherUserPrivacy ? (
+                  !postsDoneLoading ? (
+                    <Spin style={{ textAlign: 'center' }} size="small" />
+                  ) : (posts as Post[]).length > 0 ? (
+                    <ProfileRootPosts
+                      currentUser={currentUser!}
+                      post={posts as Post[]}
+                      type="other-user"
+                    />
+                  ) : (
+                    <h1 style={{ textAlign: 'center' }}>
+                      <Empty />
+                    </h1>
+                  )
+                ) : (
+                  <p style={{ textAlign: 'center' }}>
+                    This user's profile is private. Follow them to see more
+                  </p>
+                )}
+              </div>
+            </div>
+          ) : (
+            <div style={{ textAlign: 'center', marginTop: '15%' }}>
+              <Spin size="small" />
+            </div>
+            // <Result
+            //     status="403"
+            //     title="That's weird :\"
+            //     subTitle="The page you visited does not exist."
+            // // extra={<Button type="primary">Back Home</Button>}
+            // />
+          )}
+        </Col>
+      </Row>
     </div>
   );
 };

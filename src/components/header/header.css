@@ -23,20 +23,24 @@ Nav {
   display: flex;
   justify-content: center;
   align-items: center;
-  border: red solid 1px;
-  width: 400px;
-  height: 100px;
-  position: absolute;
-  background-color: white;
-  top: 55px;
+  /* border: red solid 1px; */
+  width: 100%;
+  height: 100%;
+  /* position: absolute; */
+  /* background-color: white; */
+  /* top: 55px; */
 }
 .profile__dropdown {
-  border: black solid 1px;
-  width: 400px;
+  width: 100%;
   height: 400px;
   position: absolute;
   background-color: white;
   top: 55px;
+  border-radius: 10px;
+  padding: 10px;
+  -webkit-box-shadow: 10px 10px 19px 0px rgba(204, 204, 204, 1);
+  -moz-box-shadow: 10px 10px 19px 0px rgba(204, 204, 204, 1);
+  box-shadow: 10px 10px 19px 0px rgba(204, 204, 204, 1);
   /* visibility: hidden; */
 }
 

@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from "react";
-import "./header.css";
+import React, { useEffect, useState } from 'react';
+import './header.css';
 import {
   Col,
   Row,
@@ -18,7 +18,7 @@ import {
   DatePicker,
   Space,
   Spin,
-} from "antd";
+} from 'antd';
 import {
   UserOutlined,
   LogoutOutlined,
@@ -27,23 +27,23 @@ import {
   VideoCameraAddOutlined,
   AlertOutlined,
   NotificationTwoTone,
-} from "@ant-design/icons";
+} from '@ant-design/icons';
 
-import OpenPartyLogo from "../images/openpaarty.logo.png";
-import { connect } from "react-redux";
+import OpenPartyLogo from '../images/openpaarty.logo.png';
+import { connect } from 'react-redux';
 import {
   setCurrentUserListener,
   setCurrentUserRootDatabaseListener,
-} from "../../redux/user/user.actions";
-import { RegistrationObject } from "../interfaces/user.interface";
-import firebase from "firebase";
-import axios from "axios";
-import { Link } from "react-router-dom";
-import { RcFile } from "antd/lib/upload/interface";
-import bluebird from "bluebird";
-import { makeId } from "../post/post.actions";
-import AsyncMention from "../mentions/mentions.component";
-import PerfectScrollbar from "react-perfect-scrollbar";
+} from '../../redux/user/user.actions';
+import { RegistrationObject } from '../interfaces/user.interface';
+import firebase from 'firebase';
+import axios from 'axios';
+import { Link } from 'react-router-dom';
+import { RcFile } from 'antd/lib/upload/interface';
+import bluebird from 'bluebird';
+import { makeId } from '../post/post.actions';
+import AsyncMention from '../mentions/mentions.component';
+import PerfectScrollbar from 'react-perfect-scrollbar';
 
 import {
   ADD_POST_ENDPOINT,
@@ -52,7 +52,8 @@ import {
   APPROVE_FOLLOW_ENDPOINT,
   IGNORE_FOLLOW_ENDPOINT,
   PING_ENDPOINT,
-} from "../../service/api";
+} from '../../service/api';
+import TempHeaderNotification from './temp-header';
 
 interface IHeaderProps {
   setCurrentUserListener?: () => Promise<any>;
@@ -78,15 +79,15 @@ const Header = (props: IHeaderProps) => {
   useEffect(() => {
     const unsub = firebase
       .database()
-      .ref("FollowRequests")
+      .ref('FollowRequests')
       .child(props.currentUser?.uid!)
       .on(
-        "value",
+        'value',
         (ssh) => {
           if (ssh.exists()) {
             setFollowRequests(Object.values(ssh.val()));
 
-            console.log("@R-REQ ", Object.values(ssh.val()));
+            console.log('@R-REQ ', Object.values(ssh.val()));
           } else {
             setFollowRequests([]);
           }
@@ -97,7 +98,7 @@ const Header = (props: IHeaderProps) => {
       );
 
     return () =>
-      firebase.database().ref("FollowingRequests").off("value", unsub);
+      firebase.database().ref('FollowingRequests').off('value', unsub);
   }, [props.currentUser]);
 
   const handleOk = () => {
@@ -151,14 +152,14 @@ const Header = (props: IHeaderProps) => {
             pathname: `/${props.currentUserInfo?.username}`,
           }}
         >
-          Profile{" "}
+          Profile{' '}
           <span role="img" aria-label="muah">
             👄
           </span>
         </Link>
       </Menu.Item>
       <Menu.Item key="2" icon={<AlertOutlined />}>
-        Notifications{" "}
+        Notifications{' '}
         <span role="img" aria-label="smurth">
           🧐
         </span>
@@ -168,7 +169,7 @@ const Header = (props: IHeaderProps) => {
         key="3"
         icon={<VideoCameraAddOutlined />}
       >
-        Add a new Post{" "}
+        Add a new Post{' '}
         <span role="img" aria-label="selfie">
           🤳
         </span>
@@ -191,7 +192,7 @@ const Header = (props: IHeaderProps) => {
   };
 
   const normFile = (e: any) => {
-    console.log("Upload event:", e);
+    console.log('Upload event:', e);
     if (Array.isArray(e)) {
       return e;
     }
@@ -205,13 +206,13 @@ const Header = (props: IHeaderProps) => {
       caption: values.caption,
       privacy: values.privacy,
       tags: values.tags
-        ? values.tags.match(/#\S+/g).map((str: string) => str.replace(/#/g, ""))
+        ? values.tags.match(/#\S+/g).map((str: string) => str.replace(/#/g, ''))
         : [],
       user: {
         username: props.currentUserInfo?.username,
         image_url: props.currentUserInfo?.image_url,
       },
-      date_of_event: values["event-date"].unix(),
+      date_of_event: values['event-date'].unix(),
     };
 
     setPostWorking(true);
@@ -235,8 +236,8 @@ const Header = (props: IHeaderProps) => {
         },
       })
       .then((data) => {
-        console.log("DATA: ", data.data);
-        message.success("Post uploaded 🌟 ");
+        console.log('DATA: ', data.data);
+        message.success('Post uploaded 🌟 ');
         setPostWorking(false);
         setPostModalVisible(false);
         clearForm();
@@ -244,21 +245,21 @@ const Header = (props: IHeaderProps) => {
       .catch((error) => {
         setPostWorking(false);
         setPostModalVisible(false);
-        message.error("Post upload failed");
-        console.log("@UPLOAD POST ERROR: ", error);
+        message.error('Post upload failed');
+        console.log('@UPLOAD POST ERROR: ', error);
       });
   };
 
   const uploadFile = async (file: RcFile): Promise<string> => {
     const ref = firebase
       .storage()
-      .ref("user-generated-content")
+      .ref('user-generated-content')
       .child(props.currentUser!.uid)
-      .child("uploads")
-      .child("post-images")
+      .child('uploads')
+      .child('post-images')
       .child(makeId(30));
     const uploaded = await ref.put(file, {
-      contentType: "image/png",
+      contentType: 'image/png',
     });
 
     // setImageUploaded(true);
@@ -284,8 +285,8 @@ const Header = (props: IHeaderProps) => {
   };
 
   const focusShit = (e: any) => {
-    console.log("in of focus", e.target.id);
-    if (e.target.id !== "notification-area") {
+    console.log('in of focus', e.target.id);
+    if (e.target.id !== 'notification-area') {
       setShowNotification(false);
     }
   };
@@ -293,7 +294,7 @@ const Header = (props: IHeaderProps) => {
   return (
     <nav className="Nav">
       <Modal
-        style={{ height: "50%" }}
+        style={{ height: '50%' }}
         title="Approve or Ignore Follow Requests"
         visible={modalVisible}
         onOk={handleOk}
@@ -308,14 +309,14 @@ const Header = (props: IHeaderProps) => {
               actions={[
                 <p
                   onClick={() => onFollowApproved(item.uid)}
-                  style={{ color: "green", cursor: "pointer" }}
+                  style={{ color: 'green', cursor: 'pointer' }}
                   key={JSON.stringify(item)}
                 >
                   Approve
                 </p>,
                 <p
                   onClick={() => onFollowIgnored(item.uid)}
-                  style={{ color: "red", cursor: "pointer" }}
+                  style={{ color: 'red', cursor: 'pointer' }}
                   key={JSON.stringify(item)}
                 >
                   Ignore
@@ -336,7 +337,7 @@ const Header = (props: IHeaderProps) => {
         />
       </Modal>
       <Modal
-        style={{ height: "50%" }}
+        style={{ height: '50%' }}
         title="Add a new post 💖"
         visible={postModalVisible}
         okText={null}
@@ -355,7 +356,7 @@ const Header = (props: IHeaderProps) => {
           <Form.Item
             label="Caption"
             name="caption"
-            rules={[{ required: true, message: "Please type a caption" }]}
+            rules={[{ required: true, message: 'Please type a caption' }]}
           >
             <AsyncMention
               autoSize
@@ -368,7 +369,7 @@ const Header = (props: IHeaderProps) => {
             name="privacy"
             label="Privacy"
             hasFeedback
-            rules={[{ required: true, message: "Please select privacy" }]}
+            rules={[{ required: true, message: 'Please select privacy' }]}
           >
             <Select placeholder="Please select post privacy">
               <Option value="open">Public</Option>
@@ -383,7 +384,7 @@ const Header = (props: IHeaderProps) => {
             rules={[
               {
                 required: true,
-                message: "Please provide a date for this event",
+                message: 'Please provide a date for this event',
               },
             ]}
           >
@@ -400,7 +401,7 @@ const Header = (props: IHeaderProps) => {
             valuePropName="fileList"
             getValueFromEvent={normFile}
             extra="Or drop image into box"
-            rules={[{ required: true, message: "Please select an image" }]}
+            rules={[{ required: true, message: 'Please select an image' }]}
           >
             {/* <ImgCrop rotate > */}
             <Upload
@@ -408,7 +409,7 @@ const Header = (props: IHeaderProps) => {
               onPreview={onPreview}
               name="logo"
               action={`${API_BASE_URL_OPEN}${PING_ENDPOINT}`}
-              progress={{ status: "success" }}
+              progress={{ status: 'success' }}
               listType="picture-card"
             >
               + Upload
@@ -432,7 +433,7 @@ const Header = (props: IHeaderProps) => {
           >
             <Link
               to={{
-                pathname: "/",
+                pathname: '/',
               }}
             >
               <img
@@ -444,7 +445,7 @@ const Header = (props: IHeaderProps) => {
             </Link>
           </Col>
           <Col xl={{ span: 4 }} md={{ span: 6 }} xs={{ span: 0 }}>
-            <Search style={{ width: "80%" }} placeholder="Search" />
+            <Search style={{ width: '80%' }} placeholder="Search" />
           </Col>
           <Col
             lg={{ span: 7, offset: 1 }}
@@ -459,7 +460,7 @@ const Header = (props: IHeaderProps) => {
                     pathname: `/`,
                   }}
                 >
-                  <HomeOutlined style={{ fontSize: "22px" }} />
+                  <HomeOutlined style={{ fontSize: '22px' }} />
                 </Link>
 
                 <Link
@@ -471,7 +472,7 @@ const Header = (props: IHeaderProps) => {
                     size="small"
                     count={followRequests && followRequests.length}
                   >
-                    <UsergroupAddOutlined style={{ fontSize: "22px" }} />
+                    <UsergroupAddOutlined style={{ fontSize: '22px' }} />
                   </Badge>
                 </Link>
 
@@ -479,13 +480,13 @@ const Header = (props: IHeaderProps) => {
                   to={{}}
                   onClick={() => {
                     setloading(true);
+                    setShowNotification(!showNotification);
                     setTimeout(() => {
-                      setShowNotification(!showNotification);
                       setloading(false);
                     }, 1000);
                   }}
                 >
-                  <NotificationTwoTone style={{ fontSize: "22px" }} />
+                  <NotificationTwoTone style={{ fontSize: '22px' }} />
                 </Link>
 
                 <Link to={{}}>
@@ -496,7 +497,7 @@ const Header = (props: IHeaderProps) => {
                     // trigger={['click']}
                   >
                     <Avatar
-                      style={{ fontSize: "22px" }}
+                      style={{ fontSize: '22px' }}
                       src={props.currentUserInfo?.image_url}
                     />
                   </Dropdown>
@@ -507,13 +508,8 @@ const Header = (props: IHeaderProps) => {
         </Row>
       </div>
       <Row>
-        {loading && (
-          <Col className="profile__dropdown__loading" offset={14}>
-            <Spin size="large" />
-          </Col>
-        )}
         {showNotification && (
-          <div
+          <Row
             id="notificationCover"
             className="notification__cover"
             onClick={(e: any) => focusShit(e)}
@@ -521,38 +517,48 @@ const Header = (props: IHeaderProps) => {
             <Col
               id="notification-area"
               className="profile__dropdown"
-              offset={14}
+              xxl={{ span: 5, offset: 14 }}
+              xl={{ span: 6, offset: 14 }}
+              lg={{ span: 7, offset: 15 }}
+              md={{ span: 8, offset: 13 }}
+              sm={{ span: 12, offset: 10 }}
+              xs={{ span: 15, offset: 8 }}
             >
-              <PerfectScrollbar>
-                <p>GG bitches</p>
-                <p>GG bitches</p>
-                <p>GG bitches</p>
-                <p>GG bitches</p>
-                <p>GG bitches</p>
-                <p>GG bitches</p>
-                <p>GG bitches</p>
-                <p>GG bitches</p>
-                <p>GG bitches</p>
-                <p>GG bitches</p>
-                <p>GG bitches</p>
-                <p>GG bitches</p>
-                <p>GG bitches</p>
-                <p>GG bitches</p>
-                <p>GG bitches</p>
-                <p>GG bitches</p>
-                <p>GG bitches</p>
-                <p>GG bitches</p>
-                <p>GG bitches</p>
-                <p>GG bitches</p>
-                <p>GG bitches</p>
-                <p>GG bitches</p>
-                <p>GG bitches</p>
-                <p>GG bitches</p>
-                <p>GG bitches</p>
-                <p>GG bitches</p>
-              </PerfectScrollbar>
+              {loading ? (
+                <div className="profile__dropdown__loading">
+                  <Spin size="large" />
+                </div>
+              ) : (
+                // </Col>
+                <PerfectScrollbar>
+                  <TempHeaderNotification />
+                  <TempHeaderNotification />
+                  <TempHeaderNotification />
+                  <TempHeaderNotification />
+                  <TempHeaderNotification />
+                  <TempHeaderNotification />
+                  <TempHeaderNotification />
+                  <TempHeaderNotification />
+                  <TempHeaderNotification />
+                  <TempHeaderNotification />
+                  <TempHeaderNotification />
+                  <TempHeaderNotification />
+                  <TempHeaderNotification />
+                  <TempHeaderNotification />
+                  <TempHeaderNotification />
+                  <TempHeaderNotification />
+                  <TempHeaderNotification />
+                  <TempHeaderNotification />
+                  <TempHeaderNotification />
+                  <TempHeaderNotification />
+                  <TempHeaderNotification />
+                  <TempHeaderNotification />
+                  <TempHeaderNotification />
+                </PerfectScrollbar>
+              )}
             </Col>
-          </div>
+          </Row>
+          // </div>
         )}
       </Row>
     </nav>
