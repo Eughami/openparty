@@ -1,28 +1,29 @@
-import React, { useEffect, useState } from "react";
-import { Switch, Route } from "react-router-dom";
-import { connect } from "react-redux";
+import React, { useEffect, useState } from 'react';
+import { Switch, Route } from 'react-router-dom';
+import { connect } from 'react-redux';
 import {
   setCurrentUserListener,
   setCurrentUserRootDatabaseListener,
   setCurrentUserEligiblePosts,
   setCurrentUserToken,
-} from "./redux/user/user.actions";
+} from './redux/user/user.actions';
 
-import "./App.css";
-import Homepage from "./components/homepage";
-import "antd/dist/antd.css";
-import Login from "./components/login";
-import RegistrationForm from "./components/register";
-import UserProfile from "./components/user-info";
-import Tags from "./components/tags";
-import { RegistrationObject } from "./components/interfaces/user.interface";
-import { Spin } from "antd";
-import Header from "./components/header/header";
-import ProfileUI from "./components/test";
+import './App.css';
+import Homepage from './components/homepage';
+import 'antd/dist/antd.css';
+import Login from './components/login';
+import RegistrationForm from './components/register';
+import UserProfile from './components/user-info';
+import Tags from './components/tags';
+import { RegistrationObject } from './components/interfaces/user.interface';
+import { Spin } from 'antd';
+import Header from './components/header/header';
+import ProfileUI from './components/test';
+import EditAccount from './components/account/edit-account';
 
-import firebase from "firebase";
-import ViewPost from "./components/viewPost";
-import "react-perfect-scrollbar/dist/css/styles.css";
+import firebase from 'firebase';
+import ViewPost from './components/viewPost';
+import 'react-perfect-scrollbar/dist/css/styles.css';
 
 // const currentUser = true
 
@@ -49,13 +50,19 @@ const App = (props: IAppProps) => {
   useEffect(() => {
     if (!currentUser) {
       setCurrentUserListener!()
-        .then((currentUser: any) => {
-          setCurrentUserToken!(currentUser);
+        .then(async (currentUser: any) => {
+          await setCurrentUserToken!(currentUser);
+          await setCurrentUserRootDatabaseListener!(currentUser.uid);
           setLoadingCredentials(false);
         })
         .catch(() => setLoadingCredentials(false));
     }
-  }, [currentUser, setCurrentUserListener, setCurrentUserToken]);
+  }, [
+    currentUser,
+    setCurrentUserListener,
+    setCurrentUserToken,
+    setCurrentUserRootDatabaseListener,
+  ]);
 
   useEffect(() => {
     if (!currentUserInfo && currentUser) {
@@ -69,13 +76,13 @@ const App = (props: IAppProps) => {
     setCurrentUserEligiblePosts,
   ]);
 
-  console.log("APP.TSX PROPS:  ", props.currentUserToken);
+  console.log('APP.TSX PROPS:  ', props.currentUserToken);
 
   const [loadingCredentials, setLoadingCredentials] = useState<boolean>(true);
 
   if (loadingCredentials) {
     return (
-      <div style={{ textAlign: "center" }}>
+      <div style={{ textAlign: 'center' }}>
         <Spin size="small" />
         <p>Loading your stuff...</p>
       </div>
@@ -86,7 +93,7 @@ const App = (props: IAppProps) => {
     <div className="App">
       {currentUser ? (
         <div>
-          <div style={{ paddingBottom: "60px" }}>
+          <div style={{ paddingBottom: '60px' }}>
             <Header />
           </div>
           <Switch>
@@ -94,6 +101,7 @@ const App = (props: IAppProps) => {
             <Route exact path="/:username" component={UserProfile} />
             <Route exact path="/t/:tag" component={Tags} />
             <Route exact path="/post/:postId" component={ViewPost} />
+            <Route exact path="/account/edit" component={EditAccount} />
             <Route exact path="/test/p" component={ProfileUI} />
 
             {/* <Route component={Homepage} /> */}

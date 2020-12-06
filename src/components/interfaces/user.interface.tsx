@@ -1,26 +1,26 @@
 export enum AgeRating {
-  _18 = "18+",
-  _21 = "21+",
-  _16 = "16+",
-  _12 = "12+",
+  _18 = '18+',
+  _21 = '21+',
+  _16 = '16+',
+  _12 = '12+',
 }
 
 export enum PostTags {
-  BEACH_PARTY = "Beach party",
-  DRUG_PARTY = "Drug party",
-  COCAINE_PARTY = "Cocaine party",
+  BEACH_PARTY = 'Beach party',
+  DRUG_PARTY = 'Drug party',
+  COCAINE_PARTY = 'Cocaine party',
 }
 
 export enum PostPrivacy {
-  PUBLIC = "Public",
-  PRIVATE = "Private",
-  FOLLOWERS = "Followers",
+  PUBLIC = 'Public',
+  PRIVATE = 'Private',
+  FOLLOWERS = 'Followers',
 }
 
 export enum PrivacyStatus {
-  PUBLIC = "Public",
-  PRIVATE = "closed",
-  FOLLOWERS = "following",
+  PUBLIC = 'Public',
+  PRIVATE = 'closed',
+  FOLLOWERS = 'following',
 }
 export interface Comment {
   comment: string;
@@ -79,4 +79,7 @@ export interface RegistrationObject {
   Posts: Array<string>;
   privacy: string;
   bio?: string;
+  website?: string;
+  gender?: string;
+  name?: string;
 }

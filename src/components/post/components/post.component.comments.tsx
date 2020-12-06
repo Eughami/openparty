@@ -1,8 +1,8 @@
-import React from "react";
-import { Post, Comment } from "../../interfaces/user.interface";
-import { Avatar, Col, Row } from "antd";
-import { Link } from "react-router-dom";
-import { replaceAtMentionsWithLinks2 } from "../../mentions/mentions.component";
+import React from 'react';
+import { Post, Comment } from '../../interfaces/user.interface';
+import { Avatar, Col, Row } from 'antd';
+import { Link } from 'react-router-dom';
+import { replaceAtMentionsWithLinks2 } from '../../mentions/mentions.component';
 
 interface IPostCommentsProps {
   post: Post;
@@ -20,7 +20,7 @@ export const PostComments = (props: IPostCommentsProps) => {
               (comment: Comment, index: number) => (
                 <div
                   style={{
-                    padding: "10px",
+                    padding: '10px',
                   }}
                 >
                   <Row justify="start" align="top">
@@ -35,7 +35,7 @@ export const PostComments = (props: IPostCommentsProps) => {
                       span={21}
                       offset={1}
                       // to hide very long weird and probably non-existent one word
-                      style={{ overflowX: "hidden" }}
+                      style={{ overflowX: 'hidden' }}
                     >
                       <span>
                         <Link
@@ -43,8 +43,8 @@ export const PostComments = (props: IPostCommentsProps) => {
                             pathname: `/${comment.user.username}`,
                           }}
                         >
-                          <span style={{ fontWeight: "bold" }}>
-                            {comment.user.username}{" "}
+                          <span style={{ fontWeight: 'bold' }}>
+                            {comment.user.username}{' '}
                           </span>
                         </Link>
                         {replaceAtMentionsWithLinks2(comment.comment)}
@@ -67,15 +67,15 @@ export const PostComments = (props: IPostCommentsProps) => {
                             pathname: `/${comment.user.username}`,
                           }}
                         >
-                          <span style={{ fontWeight: "bold" }}>
-                            {comment.user.username}{" "}
+                          <span style={{ fontWeight: 'bold' }}>
+                            {comment.user.username}{' '}
                           </span>
                         </Link>
                         {replaceAtMentionsWithLinks2(comment.comment)}
                       </span>
                     </Row>
                   ))}
-              <Link to="/">
+              <Link to={`/post/${post.id}`}>
                 <span>
                   View all {Object.keys(post.comments).length} comments
                 </span>

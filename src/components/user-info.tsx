@@ -31,6 +31,7 @@ import {
 import { API_BASE_URL, CAN_USER_VIEW_PROFILE_ENDPOINT } from '../service/api';
 import { ProfileRootPosts } from './profile/components/profile.component.posts';
 import './user-info.style.css';
+import { Link } from 'react-router-dom';
 
 interface IUserProps {
   setCurrentUserListener?: () => Promise<any>;
@@ -387,6 +388,8 @@ const UserProfile = (props: IUserProps) => {
                                   s2.date_of_post - s1.date_of_post
                               ) as any[]
                             );
+
+                            setPostsDoneLoading(true);
                           }
 
                           if (
@@ -474,10 +477,7 @@ const UserProfile = (props: IUserProps) => {
   }
 
   return (
-    <Row
-    // className="user-info"
-    // style={{ paddingLeft: "20%", paddingRight: "20%" }}
-    >
+    <Row>
       <Col
         lg={{ offset: 4, span: 16 }}
         md={{ offset: 3, span: 18 }}
@@ -494,7 +494,9 @@ const UserProfile = (props: IUserProps) => {
                     user={currentUserInfo}
                     style={{ fontSize: 20, float: 'left' }}
                   />
-                  <ProfileActionEdit selfUserInfo={currentUserInfo} />
+                  <Link to={`/account/edit`}>
+                    <ProfileActionEdit selfUserInfo={currentUserInfo} />
+                  </Link>
                 </Row>
 
                 <ProfileStats
@@ -610,12 +612,6 @@ const UserProfile = (props: IUserProps) => {
           <div style={{ textAlign: 'center', marginTop: '15%' }}>
             <Spin size="small" />
           </div>
-          // <Result
-          //     status="403"
-          //     title="That's weird :\"
-          //     subTitle="The page you visited does not exist."
-          // // extra={<Button type="primary">Back Home</Button>}
-          // />
         )}
       </Col>
     </Row>

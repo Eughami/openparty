@@ -6,7 +6,7 @@ import {
   Post,
   RegistrationObject,
 } from '../interfaces/user.interface';
-import { Col, Skeleton, BackTop } from 'antd';
+import { Col, Skeleton, BackTop, Button } from 'antd';
 import { connect } from 'react-redux';
 import {
   setCurrentUserListener,
@@ -258,6 +258,8 @@ const Posts = (props: IPostsProps) => {
         />
         <br />
         You are not following anyone. Follow people to see their posts here.{' '}
+        <br />
+        <Button>Click here to explore posts and users</Button>
       </div>
     );
   }
