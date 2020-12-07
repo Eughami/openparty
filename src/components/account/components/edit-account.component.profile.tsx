@@ -1,11 +1,12 @@
-import React from 'react';
-import { Form, Input, Button, Row, Select } from 'antd';
+import React, { useState } from 'react';
+import { Form, Input, Button, Row, Select, message } from 'antd';
 import { ProfileAvatar } from '../../profile/components/profile.component.pfp';
 import { RegistrationObject } from '../../interfaces/user.interface';
 import { ProfileUsername } from '../../profile/components/profile.component.username';
 import { Link } from 'react-router-dom';
 import { prefixSelector } from '../../register';
 import _ from 'lodash';
+import firebase from 'firebase';
 
 interface IEditProfileInterface {
   user: RegistrationObject;
@@ -25,9 +26,19 @@ const descStyle: React.CSSProperties = {
 export const EditProfile = (props: IEditProfileInterface) => {
   const { user } = props;
   const [form] = Form.useForm();
+  const [updateWorking, setUpdateWorking] = useState<boolean>(false);
 
-  const onFinish = (values: any) => {
-    console.log(values, _.isEqual({}, {}));
+  const onFinish = async (values: any) => {
+    // console.log(values, _.isEqual({}, {}));
+    setUpdateWorking(true);
+    await firebase
+      .database()
+      .ref('Users')
+      .child(user.uid)
+      .update({ ...values });
+
+    message.success('Profile updated 🥂');
+    setUpdateWorking(false);
   };
 
   return (
@@ -42,9 +53,10 @@ export const EditProfile = (props: IEditProfileInterface) => {
         email: user.email,
         bio: user.bio,
         website: user.website,
-        name: user.name,
+        name: user.name || null,
         phone: user.phone,
         prefix: user.prefix,
+        gender: user.gender || null,
       }}
     >
       <Form.Item>
@@ -148,7 +160,7 @@ export const EditProfile = (props: IEditProfileInterface) => {
         </Select>
       </Form.Item>
       <Form.Item wrapperCol={{ ...layout.wrapperCol, offset: 8 }}>
-        <Button type="primary" htmlType="submit">
+        <Button loading={updateWorking} type="primary" htmlType="submit">
           Update
         </Button>
       </Form.Item>

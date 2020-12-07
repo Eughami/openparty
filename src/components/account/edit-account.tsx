@@ -3,6 +3,7 @@ import { Tabs, Row, Col } from 'antd';
 import { connect } from 'react-redux';
 import { EditProfile } from './components/edit-account.component.profile';
 import { ChangePassword } from './components/edit-account.component.password';
+import { EditPrivacy } from './components/edit-account.component.privacy';
 import { RegistrationObject } from '../interfaces/user.interface';
 import { useLocation } from 'react-router-dom';
 
@@ -48,7 +49,7 @@ const EditAccount = (props: IEditAccountInterface) => {
               Notification Settings
             </TabPane>
             <TabPane tab="Privacy" key="4">
-              Privacy Settings
+              <EditPrivacy user={currentUserInfo!} />
             </TabPane>
           </Tabs>
         </Col>

@@ -4,25 +4,25 @@ export interface ValidatorResponse {
   success: boolean;
 }
 
-export enum AgeRating {
+enum AgeRating {
   _18 = '18+',
   _21 = '21+',
   _16 = '16+',
   _12 = '12+',
 }
 
-export enum PostTags {
+enum PostTags {
   BEACH_PARTY = 'Beach party',
   DRUG_PARTY = 'Drug party',
   COCAINE_PARTY = 'Cocaine party',
 }
 
-export enum PostPrivacy {
+enum PostPrivacy {
   PUBLIC = 'Public',
   PRIVATE = 'Private',
   FOLLOWERS = 'Followers',
 }
-export interface Comment {
+interface Comment {
   comment: string;
   likes: number;
   id: string;
@@ -35,14 +35,14 @@ export interface Comment {
   };
 }
 
-export interface PostTags_v2 {
+interface PostTags_v2 {
   Tag: {
     name: string;
     accent: string; //accent = color
   };
 }
 
-export interface Post {
+interface Post {
   uid: string; //ID of the user owning the post
   location?: Map<number, number>; //Lat & Lng of the location of the post
   likes: number;
@@ -62,7 +62,7 @@ export interface Post {
   id: string;
 }
 
-export interface RegistrationObject {
+interface RegistrationObject {
   agreement?: boolean;
   confirm?: string;
   email: string;
@@ -83,7 +83,7 @@ export interface RegistrationObject {
  * Request body format to use during requests
  */
 
-export interface RegistrationRequest {
+interface RegistrationRequest {
   /**
    * Registration email
    */
@@ -95,7 +95,7 @@ export interface RegistrationRequest {
   auth: string;
 }
 
-export interface AddPostRequest {
+interface AddPostRequest {
   caption: string;
   image_url: string;
   privacy: PostPrivacy;
@@ -108,29 +108,29 @@ export interface AddPostRequest {
   date_of_event?: number;
 }
 
-export interface LikePostRequest {
+interface LikePostRequest {
   id: string;
   uid: string;
 }
 
-export interface LikeCommentRequest {
-  id: string;
-  uid: string;
-  postId: string;
-}
-
-export interface UnLikePostRequest {
-  id: string;
-  uid: string;
-}
-
-export interface UnLikeCommentRequest {
+interface LikeCommentRequest {
   id: string;
   uid: string;
   postId: string;
 }
 
-export interface UsernameAvailableRequest {
+interface UnLikePostRequest {
+  id: string;
+  uid: string;
+}
+
+interface UnLikeCommentRequest {
+  id: string;
+  uid: string;
+  postId: string;
+}
+
+interface UsernameAvailableRequest {
   /**
    * Requesting username
    */
@@ -139,7 +139,7 @@ export interface UsernameAvailableRequest {
   open?: string | boolean | number;
 }
 
-export interface ChangeUsernameRequest {
+interface ChangeUsernameRequest {
   /**
    * Requesting username
    */
@@ -147,7 +147,7 @@ export interface ChangeUsernameRequest {
   uid: string;
 }
 
-export interface AddCommentRequest {
+interface AddCommentRequest {
   postId: string;
   user: {
     username: string;
