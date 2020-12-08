@@ -32,9 +32,17 @@
 .Post-image-bg {
   background-color: #efefef;
 }
-.Post-image img {
-  display: block;
+.Post-image {
   width: 100%;
+  height: 100%;
+}
+.Post-image img {
+  width: 100%;
+  height: auto;
+  min-height: 400px;
+  max-height: 700px;
+  object-fit: cover;
+  /* border: black solid; */
 }
 .Post-caption {
   padding: 16px 16px;
@@ -51,37 +59,33 @@
 
 /* fullpage post styling */
 .full__page__post {
-  /* margin-top: 150px; */
-
+  margin-top: 50px;
   /* height: 100%; */
 }
 .full__page__post__divider {
-  border: solid grey 1px;
-  height: 700px;
   width: 50%;
-  max-width: 500px;
-  max-height: 700px;
-}
-.avatar__comment__container {
-  /* border: red solid; */
+  /* min-height: 400px; */
+  max-width: 600px;
+  /* max-height: 700px; */
+  border: grey solid 1px;
 }
 .full__post__avatar__container {
-  height: 70px;
+  height: 10%;
   border-bottom: grey solid 1px;
-  /* border-left: grey solid 1px; */
+  border-left: grey solid 1px;
 }
 .full__post__comments__container {
-  height: 450px;
+  height: 60%;
   width: 100%;
   /* border: green solid; */
 }
 .full__page__post__actions__container {
   padding: 16px;
-  height: 130px;
+  height: 20%;
   width: 100%;
-  border-top: grey solid 1px;
+  border: grey solid 1px;
 }
 .full__post__add__comment__container {
-  height: 50px;
+  height: 10%;
   /* border: blue solid; */
 }

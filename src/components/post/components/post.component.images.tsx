@@ -15,14 +15,8 @@ export const PostImages = (props: IPostImagesProps) => {
       {/* How to handle posts w/out images?? */}
       <Carousel adaptiveHeight swipeToSlide touchMove dotPosition="top">
         {props.post.image_url?.map((url, idx) => (
-          <Row className="Post-image" justify="center" align="middle" key={idx}>
-            <img
-              style={{
-                maxHeight: imageHeight ? `${imageHeight}px` : 'auto',
-              }}
-              alt={props.post.caption}
-              src={url}
-            />
+          <Row className="Post-image" key={idx}>
+            <img id="fucking_image" alt={props.post.caption} src={url} />
           </Row>
         ))}
       </Carousel>

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import './post.css';
 import AsyncMention from '../mentions/mentions.component';
 import { Row, Button, Col } from 'antd';
@@ -21,7 +21,7 @@ import { PostTags as PostTagsComponent } from './components/post.component.tags'
 import { PostComments } from './components/post.component.comments';
 import { PostActions } from './components/post.component.actions';
 import { PostEventTime } from './components/post.component.event-time';
-
+const probe = require('probe-image-size');
 interface IPostProps {
   setCurrentUserListener?: () => Promise<any>;
   setCurrentUserRootDatabaseListener?: (uid: string) => Promise<any>;
@@ -43,7 +43,17 @@ const Post = (props: IPostProps) => {
     timestamp: 0,
     user: { image_url: '', user_id: '', username: '' },
   });
+  const [imageWidth, setImageWidth] = useState<number>(0);
+  const [imageHeight, setImageHeight] = useState<number>(0);
 
+  useEffect(() => {
+    var img = document.getElementById('fucking_image');
+    //or however you get a handle to the IMG
+    var width = img!.clientWidth;
+    var height = img!.clientHeight;
+    console.log('Image Dimension :', img, width, height);
+    setImageHeight(height);
+  }, []);
   props.post.likes = Object.keys(props.post.likes ? props.post.likes : {});
 
   const { image_url: avatar_url, username } = props.post.user;
@@ -81,14 +91,21 @@ const Post = (props: IPostProps) => {
 
   return (
     <>
+      {console.log('Image Dimension :', imageHeight)}
       {fullPage ? (
         <div className="full__page__post">
           <Row justify="center" align="middle">
-            <div className="full__page__post__divider">
+            <div
+              className="full__page__post__divider"
+              style={{ height: imageHeight }}
+            >
               {/* hardcoded image height for the full view  */}
-              <PostImages post={props.post} imageHeight={700} />
+              <PostImages post={props.post} />
             </div>
-            <div className="full__page__post__divider avatar__comment__container">
+            <div
+              className="full__page__post__divider"
+              style={{ height: imageHeight }}
+            >
               <div className="full__post__avatar__container">
                 <PostUser post={props.post} />
               </div>
@@ -119,7 +136,10 @@ const Post = (props: IPostProps) => {
                 </Row>
               </div>
               <Row className="full__post__add__comment__container">
-                <Row style={{ flex: 1 }} className="post__add__comment">
+                <Row
+                  style={{ flex: 1, height: '100%' }}
+                  className="post__add__comment"
+                >
                   <AsyncMention
                     value={comment.comment}
                     onChange={handleCommentChange}
@@ -139,7 +159,7 @@ const Post = (props: IPostProps) => {
                     ).finally(() => resetCommentForm())
                   }
                   disabled={comment.comment.length === 0}
-                  style={{ height: 50 }}
+                  style={{ height: '100%' }}
                 >
                   Post
                 </Button>

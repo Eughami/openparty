@@ -1,10 +1,10 @@
-import React from "react";
-import { Mentions } from "antd";
-import debounce from "lodash/debounce";
-import "./mentions.style.css";
-import reactStringReplace from "react-string-replace";
-import { API_BASE_URL_OPEN, SEARCH_USER_ENDPOINT } from "../../service/api";
-import { Link } from "react-router-dom";
+import React from 'react';
+import { Mentions } from 'antd';
+import debounce from 'lodash/debounce';
+import './mentions.style.css';
+import reactStringReplace from 'react-string-replace';
+import { API_BASE_URL_OPEN, SEARCH_USER_ENDPOINT } from '../../service/api';
+import { Link } from 'react-router-dom';
 
 const { Option } = Mentions;
 
@@ -55,7 +55,7 @@ export const formatLabel = (label: string, value: string) => {
         }
         return prev.concat(
           <Link to={{}} key={value + current}>
-            {"@jinxed".match(/@\S+/g)?.map((str) => `${str}`)}
+            {'@jinxed'.match(/@\S+/g)?.map((str) => `${str}`)}
           </Link>,
           current
         );
@@ -85,7 +85,7 @@ class AsyncMention extends React.Component<IMentionsProps, IMentionsState> {
     this.loadGithubUsers = debounce(this.loadGithubUsers, 800);
 
     this.state = {
-      search: "",
+      search: '',
       loading: false,
       users: [],
     };
@@ -93,7 +93,7 @@ class AsyncMention extends React.Component<IMentionsProps, IMentionsState> {
 
   onSearch = (search: string) => {
     this.setState({ search, loading: !!search, users: [] });
-    console.log("Search:", search);
+    console.log('Search:', search);
     this.loadGithubUsers(search);
   };
 
@@ -130,7 +130,7 @@ class AsyncMention extends React.Component<IMentionsProps, IMentionsState> {
         autoSize={this.props.autoSize}
         onChange={this.props.onChange && this.props.onChange}
         placeholder={this.props.placeholder && this.props.placeholder}
-        style={{ width: "100%" }}
+        style={{ width: '100%' }}
         loading={loading}
         onSearch={this.onSearch}
       >
