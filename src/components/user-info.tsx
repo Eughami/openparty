@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Row, Spin, Result, Empty, Divider, Col } from 'antd';
+import { Row, Spin, Result, Empty, Divider, Col, Modal } from 'antd';
 import firebase from 'firebase';
 import {
   Post,
@@ -32,6 +32,7 @@ import { API_BASE_URL, CAN_USER_VIEW_PROFILE_ENDPOINT } from '../service/api';
 import { ProfileRootPosts } from './profile/components/profile.component.posts';
 import './user-info.style.css';
 import { Link } from 'react-router-dom';
+import MyPost from './post/post';
 
 interface IUserProps {
   setCurrentUserListener?: () => Promise<any>;
@@ -73,7 +74,7 @@ const UserProfile = (props: IUserProps) => {
 
   const [privacyStatus, setPrivacyStatus] = useState<string>('Public');
 
-  const [posts, setPosts] = useState<Array<Post> | boolean>([]);
+  const [posts, setPosts] = useState<Array<Post>>([]);
 
   const awaitFillPosts = async (
     posts: Array<firebase.database.DataSnapshot>,
@@ -478,6 +479,22 @@ const UserProfile = (props: IUserProps) => {
 
   return (
     <Row>
+      {console.log('Freaking Post', posts[0])}
+      {/* <Modal
+        title="Basic Modal"
+        visible={false}
+        onOk={() => {}}
+        onCancel={() => {}}
+        footer={null}
+        centered
+        style={{ minWidth: '800px', width: '100%', minHeight: '900px' }}
+      >
+        <Row>
+          {posts && Object.keys(posts).length > 0 && (
+            <MyPost post={posts[0]} fullPage={false} />
+          )}
+        </Row>
+      </Modal> */}
       <Col
         lg={{ offset: 4, span: 16 }}
         md={{ offset: 3, span: 18 }}
