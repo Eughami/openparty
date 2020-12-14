@@ -1,23 +1,24 @@
-import React from "react";
-import { Post, PostTags as IPostTags } from "../../interfaces/user.interface";
-import { Row, Tag, Tooltip } from "antd";
-import { Link } from "react-router-dom";
-import { getPostTagColor } from "../post.actions";
+import React from 'react';
+import { Post, PostTags as IPostTags } from '../../interfaces/user.interface';
+import { Row, Tag, Tooltip } from 'antd';
+import { Link } from 'react-router-dom';
+import { getPostTagColor } from '../post.actions';
 
 interface IPostTagsProps {
   post: Post;
   showTooltip?: boolean;
   limitTags?: number;
+  style?: React.CSSProperties;
 }
 
 export const PostTags = (props: IPostTagsProps) => {
-  const { post, limitTags, showTooltip = true } = props;
+  const { post, limitTags, showTooltip = true, style } = props;
 
   if (showTooltip) {
     if (limitTags) {
       return (
         <Row
-          style={{ marginBottom: 10 }}
+          style={style ? { ...style } : { marginBottom: 10 }}
           className="post__clikes__and__comments"
           align="middle"
         >
@@ -34,7 +35,7 @@ export const PostTags = (props: IPostTagsProps) => {
                         }}
                       >
                         {tag}
-                      </Link>{" "}
+                      </Link>{' '}
                     </Tag>
                   ))}
             </Tooltip>
@@ -59,7 +60,7 @@ export const PostTags = (props: IPostTagsProps) => {
                       }}
                     >
                       {tag}
-                    </Link>{" "}
+                    </Link>{' '}
                   </Tag>
                 ))}
             </Tooltip>
@@ -86,7 +87,7 @@ export const PostTags = (props: IPostTagsProps) => {
                     }}
                   >
                     {tag}
-                  </Link>{" "}
+                  </Link>{' '}
                 </Tag>
               ))}
         </Row>
@@ -107,7 +108,7 @@ export const PostTags = (props: IPostTagsProps) => {
                   }}
                 >
                   {tag}
-                </Link>{" "}
+                </Link>{' '}
               </Tag>
             ))}
         </Row>

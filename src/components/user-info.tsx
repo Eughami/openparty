@@ -242,6 +242,18 @@ const UserProfile = (props: IUserProps) => {
             //Get data from user's posts
             let temp: any = {};
 
+            if (
+              currentUserEligiblePosts!.filter(
+                (eligible) => eligible.username === username
+              ).length === 0 ||
+              currentUserEligiblePosts === null
+            ) {
+              setPosts([]);
+
+              setPostsDoneLoading(true);
+              return;
+            }
+
             // console.log("@SETTLED COMDS: ", currentUserEligiblePosts!.filter(eligible => eligible.uidRef === username));
             await bluebird
               .map(
@@ -260,6 +272,12 @@ const UserProfile = (props: IUserProps) => {
                     .on(
                       'value',
                       async (ssh) => {
+                        if (!ssh.exists()) {
+                          setPosts([]);
+
+                          setPostsDoneLoading(true);
+                          return;
+                        }
                         //No need to check post privacy again because all posts we have access to are here?
                         temp[`${obj.uidRef + obj.postRef}`] = ssh.val();
                         temp[`${obj.uidRef + obj.postRef}`].key = `${

@@ -1,6 +1,6 @@
-import React from "react";
-import { Post } from "../../interfaces/user.interface";
-import { Row } from "antd";
+import React from 'react';
+import { Post } from '../../interfaces/user.interface';
+import { Row } from 'antd';
 
 interface IPostLikesProps {
   post: Post;
@@ -11,13 +11,15 @@ export const PostLikes = (props: IPostLikesProps) => {
   return (
     <Row align="middle">
       {Array.isArray(post.likes) ? (
-        <p style={{ textAlign: "left", fontWeight: "bold" }}>
-          {post.likes.length} {post.likes.length === 1 ? "like" : "likes"}
+        <p style={{ textAlign: 'left', fontWeight: 'bold' }}>
+          {post.likes.length} {post.likes.length === 1 ? 'like' : 'likes'}
         </p>
+      ) : !post.likes ? (
+        <p style={{ textAlign: 'left', fontWeight: 'bold' }}>0 likes</p>
       ) : (
-        <p style={{ textAlign: "left", fontWeight: "bold" }}>
-          {Object.values(post.likes).length}{" "}
-          {Object.values(post.likes).length === 1 ? "like" : "likes"}
+        <p style={{ textAlign: 'left', fontWeight: 'bold' }}>
+          {Object.values(post.likes).length}{' '}
+          {Object.values(post.likes).length === 1 ? 'like' : 'likes'}
         </p>
       )}
     </Row>

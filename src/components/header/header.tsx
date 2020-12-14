@@ -18,7 +18,6 @@ import {
   DatePicker,
   Space,
   Spin,
-  Tabs,
 } from 'antd';
 import {
   UserOutlined,
@@ -65,8 +64,8 @@ interface IHeaderProps {
 }
 
 const { Search } = Input;
-const { TabPane } = Tabs;
 
+const { Option } = Select;
 const Header = (props: IHeaderProps) => {
   const [modalVisible, setModalVisible] = useState<boolean>(false);
   const [postModalVisible, setPostModalVisible] = useState<boolean>(false);
@@ -75,7 +74,6 @@ const Header = (props: IHeaderProps) => {
   const [loading, setloading] = useState<boolean>(false);
   const [followRequests, setFollowRequests] = useState([]);
   const [userNotifications, setUserNotifications] = useState([]);
-  const { Option } = Select;
   const [form] = Form.useForm();
 
   //Set listener for active follow requests
@@ -210,15 +208,10 @@ const Header = (props: IHeaderProps) => {
           </span>
         </Link>
       </Menu.Item>
-      <Menu.Item key="2" icon={<AlertOutlined />}>
-        Notifications{' '}
-        <span role="img" aria-label="smurth">
-          🧐
-        </span>
-      </Menu.Item>
+
       <Menu.Item
         onClick={() => setPostModalVisible(true)}
-        key="3"
+        key="2"
         icon={<VideoCameraAddOutlined />}
       >
         Add a new Post{' '}
@@ -229,7 +222,7 @@ const Header = (props: IHeaderProps) => {
       <hr />
       <Menu.Item
         onClick={() => firebase.auth().signOut()}
-        key="4"
+        key="3"
         icon={<LogoutOutlined size={25} />}
       >
         Logout
@@ -340,6 +333,12 @@ const Header = (props: IHeaderProps) => {
     console.log('in of focus', e.target.id);
     if (e.target.id !== 'notification-area') {
       setShowNotification(false);
+    }
+  };
+  const focusFollowRequestShit = (e: any) => {
+    console.log('in of focus', e.target.id);
+    if (e.target.id !== 'follow-request-area') {
+      setModalVisible(false);
     }
   };
 
@@ -460,6 +459,24 @@ const Header = (props: IHeaderProps) => {
               accept="image/*"
               onPreview={onPreview}
               name="logo"
+              beforeUpload={(file) => {
+                if (
+                  ![
+                    'image/png',
+                    'image/jpeg',
+                    'image/jpg',
+                    'image/gif',
+                  ].includes(file.type) /*file.type !== 'image/png' */
+                ) {
+                  message.error(`${file.name} is not a valid image`);
+                }
+                return [
+                  'image/png',
+                  'image/jpeg',
+                  'image/jpg',
+                  'image/gif',
+                ].includes(file.type); // file.type === 'image/png';
+              }}
               action={`${API_BASE_URL_OPEN}${PING_ENDPOINT}`}
               progress={{ status: 'success' }}
               listType="picture-card"
@@ -515,7 +532,7 @@ const Header = (props: IHeaderProps) => {
                   <HomeOutlined style={{ fontSize: '22px' }} />
                 </Link>
 
-                {/* <Link
+                <Link
                   onClick={() => setModalVisible(true)}
                   className="nav-link"
                   to={{}}
@@ -526,16 +543,12 @@ const Header = (props: IHeaderProps) => {
                   >
                     <UsergroupAddOutlined style={{ fontSize: '22px' }} />
                   </Badge>
-                </Link> */}
+                </Link>
 
                 <Link
                   to={{}}
                   onClick={() => {
-                    setloading(true);
-                    setShowNotification(!showNotification);
-                    setTimeout(() => {
-                      setloading(false);
-                    }, 1000);
+                    setShowNotification(true);
                   }}
                 >
                   <NotificationTwoTone style={{ fontSize: '22px' }} />
@@ -581,81 +594,24 @@ const Header = (props: IHeaderProps) => {
                   <Spin size="large" />
                 </div>
               ) : (
-                <Tabs centered tabPosition="top">
-                  <TabPane
-                    tab={
-                      <Badge
-                        size="small"
-                        count={followRequests && followRequests.length}
-                      >
-                        <UsergroupAddOutlined style={{ fontSize: '15px' }} />
-                      </Badge>
-                    }
-                    key="1"
-                  >
-                    <List
-                      itemLayout="horizontal"
-                      dataSource={followRequests}
-                      renderItem={(item: any) => (
-                        <List.Item
-                          actions={[
-                            <p
-                              onClick={() => onFollowApproved(item.uid)}
-                              style={{ color: 'green', cursor: 'pointer' }}
-                              key={JSON.stringify(item)}
-                            >
-                              Approve
-                            </p>,
-                            <p
-                              onClick={() => onFollowIgnored(item.uid)}
-                              style={{ color: 'red', cursor: 'pointer' }}
-                              key={JSON.stringify(item)}
-                            >
-                              Ignore
-                            </p>,
-                          ]}
-                        >
-                          <List.Item.Meta
-                            avatar={<Avatar src={item.image_url} />}
-                            title={
-                              <Link to={{ pathname: `/${item.username}` }}>
-                                {item.username}
-                              </Link>
-                            }
-                            description={item.username}
-                          />
-                        </List.Item>
-                      )}
-                    />
-                  </TabPane>
-                  <TabPane
-                    tab={
-                      <span>
-                        <NotificationTwoTone />
-                      </span>
-                    }
-                    key="2"
-                  >
-                    <PerfectScrollbar>
-                      {userNotifications.length > 0 &&
-                        userNotifications.map((not: any, index) => (
-                          <TempHeaderNotification
-                            key={index}
-                            imageUrl={not.image_url}
-                            text={not.desc}
-                            username={not.username}
-                            link={not.ref}
-                          />
-                        ))}
-                    </PerfectScrollbar>
-                  </TabPane>
-                </Tabs>
+                <PerfectScrollbar>
+                  {userNotifications.length > 0 &&
+                    userNotifications.map((not: any, index) => (
+                      <TempHeaderNotification
+                        key={index}
+                        imageUrl={not.image_url}
+                        text={not.desc}
+                        username={not.username}
+                        link={not.ref}
+                      />
+                    ))}
+                </PerfectScrollbar>
               )}
             </Col>
           </Row>
         )}
 
-        {/* {modalVisible && (
+        {modalVisible && (
           <Row
             id="followRequestsCover"
             className="notification__cover"
@@ -715,7 +671,7 @@ const Header = (props: IHeaderProps) => {
               )}
             </Col>
           </Row>
-        )} */}
+        )}
       </Row>
     </nav>
   );

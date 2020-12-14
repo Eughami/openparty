@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
-import { Form, Input, Button, Row, Select, message } from 'antd';
+import { Form, Input, Button, Row, Select, message, Upload } from 'antd';
 import { ProfileAvatar } from '../../profile/components/profile.component.pfp';
 import { RegistrationObject } from '../../interfaces/user.interface';
 import { ProfileUsername } from '../../profile/components/profile.component.username';
 import { Link } from 'react-router-dom';
 import { prefixSelector } from '../../register';
-import _ from 'lodash';
 import firebase from 'firebase';
+import { API_BASE_URL_OPEN, PING_ENDPOINT } from '../../../service/api';
+import { RcFile } from 'antd/lib/upload';
 
 interface IEditProfileInterface {
   user: RegistrationObject;
@@ -27,15 +28,51 @@ export const EditProfile = (props: IEditProfileInterface) => {
   const { user } = props;
   const [form] = Form.useForm();
   const [updateWorking, setUpdateWorking] = useState<boolean>(false);
+  const [selectedImage, setSelectedImage] = useState<{
+    url: string;
+    file?: RcFile;
+  }>({ file: undefined, url: '' });
+
+  const uploadFile = async (file: RcFile): Promise<string> => {
+    const ref = firebase
+      .storage()
+      .ref('user-generated-content')
+      .child(user.uid)
+      .child('uploads')
+      .child('account-images')
+      .child('pfp');
+    const uploaded = await ref.put(file, {
+      contentType: 'image/png',
+    });
+
+    return await uploaded.ref.getDownloadURL();
+  };
 
   const onFinish = async (values: any) => {
     // console.log(values, _.isEqual({}, {}));
     setUpdateWorking(true);
-    await firebase
-      .database()
-      .ref('Users')
-      .child(user.uid)
-      .update({ ...values });
+
+    let newImageUrl: string | undefined = undefined;
+
+    if (selectedImage.file) {
+      newImageUrl = await uploadFile(selectedImage.file);
+    } else {
+      message.info('There was a problem updating your profile picture', 5);
+    }
+
+    if (newImageUrl) {
+      await firebase
+        .database()
+        .ref('Users')
+        .child(user.uid)
+        .update({ ...values, image_url: newImageUrl });
+    } else {
+      await firebase
+        .database()
+        .ref('Users')
+        .child(user.uid)
+        .update({ ...values });
+    }
 
     message.success('Profile updated 🥂');
     setUpdateWorking(false);
@@ -61,15 +98,90 @@ export const EditProfile = (props: IEditProfileInterface) => {
     >
       <Form.Item>
         <Row justify="center" align="top">
-          <span style={{ cursor: 'pointer' }} onClick={() => {}}>
-            <ProfileAvatar imageSize={40} user={user} />
-          </span>
+          <Upload
+            showUploadList={false}
+            multiple={false}
+            accept="image/*"
+            name="logo"
+            beforeUpload={(file) => {
+              if (
+                !['image/png', 'image/jpeg', 'image/jpg', 'image/gif'].includes(
+                  file.type
+                ) /*file.type !== 'image/png' */
+              ) {
+                message.error(`${file.name} is not a valid image`);
+              }
+              return [
+                'image/png',
+                'image/jpeg',
+                'image/jpg',
+                'image/gif',
+              ].includes(file.type); // file.type === 'image/png';
+            }}
+            action={(file) => {
+              const url = URL.createObjectURL(file);
+              setSelectedImage({ file, url });
+              return `${API_BASE_URL_OPEN}${PING_ENDPOINT}`;
+            }}
+          >
+            <span
+              style={{
+                cursor: updateWorking ? 'progress' : 'pointer',
+                pointerEvents: updateWorking ? 'none' : 'auto',
+              }}
+            >
+              <ProfileAvatar
+                dirSrc={
+                  selectedImage.url.length > 0 ? selectedImage.url : undefined
+                }
+                imageSize={40}
+                user={user}
+              />
+            </span>
+          </Upload>
+
           <div style={{ marginLeft: 20 }}>
             <ProfileUsername user={user} />
 
-            <Link to={{}}>
-              <p>Change profile photo</p>
-            </Link>
+            <Upload
+              showUploadList={false}
+              multiple={false}
+              accept="image/*"
+              name="logo"
+              beforeUpload={(file) => {
+                if (
+                  ![
+                    'image/png',
+                    'image/jpeg',
+                    'image/jpg',
+                    'image/gif',
+                  ].includes(file.type) /*file.type !== 'image/png' */
+                ) {
+                  message.error(`${file.name} is not a valid image`);
+                }
+                return [
+                  'image/png',
+                  'image/jpeg',
+                  'image/jpg',
+                  'image/gif',
+                ].includes(file.type); // file.type === 'image/png';
+              }}
+              action={(file) => {
+                const url = URL.createObjectURL(file);
+                setSelectedImage({ file, url });
+                return `${API_BASE_URL_OPEN}${PING_ENDPOINT}`;
+              }}
+            >
+              <Link
+                style={{
+                  cursor: updateWorking ? 'progress' : 'pointer',
+                  pointerEvents: updateWorking ? 'none' : 'auto',
+                }}
+                to={{}}
+              >
+                <p>Change profile photo</p>
+              </Link>
+            </Upload>
           </div>
         </Row>
       </Form.Item>

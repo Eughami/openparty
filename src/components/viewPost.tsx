@@ -1,38 +1,124 @@
-import { Button, Col, Result, Skeleton } from 'antd';
+import { Button, Col, Result, Row, Skeleton, Carousel, Grid } from 'antd';
 import Axios from 'axios';
 import firebase from 'firebase';
 import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import { RouteComponentProps, useParams } from 'react-router-dom';
-import { API_BASE_URL, GET_ONE_POST } from '../service/api';
+import {
+  API_BASE_URL,
+  GET_ONE_POST,
+  PROBE_IMAGE_ENDPOINT,
+} from '../service/api';
 import { Post } from './interfaces/user.interface';
-import MyPost from './post/post';
+// import MyPost from './post/post';
+// import { SPRITE_IMAGE_URL } from './profile/components/profile.posts.component';
+// import AliceCarousel from 'react-alice-carousel';
+import 'react-alice-carousel/lib/alice-carousel.css';
+import { PostUser } from './post/components/post.component.user';
+import { PostActions } from './post/components/post.component.actions';
+import { PostLikes } from './post/components/post.component.likes';
+import { PostTags } from './post/components/post.component.tags';
+import { PostComments } from './post/components/post.component.comments';
+import { PostCaption } from './post/components/post.component.caption';
+import AsyncMention from './mentions/mentions.component';
+import './post/post.css';
 
 interface postIdInterface {
   postId: string;
 }
 interface ViewPostProps extends RouteComponentProps<any> {
   currentUserToken?: string;
+  currentUser?: firebase.User;
 }
+
+interface ProbeResult {
+  width: number;
+  height: number;
+  type: string;
+  mime: string;
+  wUnits: string;
+  hUnits: string;
+  length: number;
+  url: string;
+}
+
+const { useBreakpoint } = Grid;
+
+// const handleDragStart = (e: any) => e.preventDefault();
+
 const ViewPost = (props: ViewPostProps) => {
+  const { xl, md, xs, lg, sm, xxl } = useBreakpoint();
+  console.log(useBreakpoint());
+
   const { postId: id }: postIdInterface = useParams();
   const [post, setPost] = useState<Post>();
   const [error, setError] = useState<any>(null);
   const [loadingPost, setLoadingPost] = useState<boolean>(false);
+  const [initImageDim, setInitImageDim] = useState<ProbeResult>({
+    width: 0,
+    height: 0,
+    type: '',
+    mime: '',
+    wUnits: '',
+    hUnits: '',
+    length: 0,
+    url: '',
+  });
+  // const [postImagesCarousel, setPostImagesCarousel] = useState<any[]>([]);
 
-  const fetchPost = async (postId: string, userId: string) => {
+  const fetchPost = async (postId: string, userId: string, token: string) => {
     setLoadingPost(true);
     firebase
       .database()
       .ref('Postsv2')
       .child(userId)
       .child(postId)
-      .on('value', async (ssh) => {
-        if (ssh.exists()) {
-          setPost(ssh.val());
-          setLoadingPost(false);
-        }
-      });
+      .on(
+        'value',
+        async (ssh) => {
+          if (ssh.exists()) {
+            await Axios.post(
+              `${API_BASE_URL}${PROBE_IMAGE_ENDPOINT}`,
+              {
+                imageUrl: ssh.val().image_url[0],
+              },
+              {
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                },
+              }
+            ).then((res) => {
+              console.log('@IMAGE DIM: ', res.data);
+              // const images = ssh
+              //   .val()
+              //   .image_url.map((url: string, index: number) => (
+              //     <img
+              //       style={{
+              //         objectFit: 'cover',
+              //         height:
+              //           initImageDim.height / 2 <= 400
+              //             ? 500
+              //             : initImageDim.height / 2,
+              //          maxHeight: 500,
+              //         width: '100%',
+              //         aspectRatio: '3/2',
+              //       }}
+              //       key={index}
+              //       src={url}
+              //       alt={ssh.val().caption || 'img'}
+              //       onDragStart={handleDragStart}
+              //       className="img-carousel"
+              //     />
+              //   ));
+              // setPostImagesCarousel(images);
+              setInitImageDim(res.data);
+              setPost(ssh.val());
+              setLoadingPost(false);
+            });
+          }
+        },
+        (e: any) => console.log(e)
+      );
   };
   useEffect(() => {
     props.currentUserToken !== null &&
@@ -49,9 +135,13 @@ const ViewPost = (props: ViewPostProps) => {
       )
         .then((res) => {
           console.log('New endpoint', res.data);
-          res.data !== null
-            ? fetchPost(id, res.data)
-            : setError('Post Not Found');
+
+          if (res.data === null) {
+            // setPostImagesCarousel([]);
+            setError('Post Not Found');
+            return;
+          }
+          fetchPost(id, res.data, props.currentUserToken!);
         })
         .catch((e) => setError('New endpoint Error :' + e));
     // fetchPost(id);
@@ -77,7 +167,118 @@ const ViewPost = (props: ViewPostProps) => {
           }
         />
       )}
-      {post && <MyPost post={post} fullPage={true} />}
+
+      {post && (
+        <Row justify="center" align="middle">
+          <Col
+            // style={{ paddingLeft: 5 }}
+            className="gutter-row"
+            xl={8}
+            md={12}
+            xs={24}
+          >
+            <div className="full__post__avatar__container">
+              <PostUser post={post!} />
+            </div>
+            <div>
+              {/* <AliceCarousel
+                autoHeight
+                mouseTracking
+                items={postImagesCarousel}
+              /> */}
+              <Carousel>
+                {post.image_url?.map((url, index) => (
+                  <div key={index}>
+                    <img
+                      style={{
+                        objectFit: 'cover',
+                        height:
+                          initImageDim.height / 2 <= 400
+                            ? 500
+                            : initImageDim.height / 2,
+                        // minHeight: initImageDim.height,
+                        maxHeight: 500,
+                        width: '100%',
+                        // width: initImageDim.width,
+                        // height: '100%',
+                        aspectRatio: '3/2',
+                      }}
+                      onClick={() => history.push(`/post/${post.id}`)}
+                      alt={post.caption}
+                      src={url}
+                    />
+                  </div>
+                ))}
+              </Carousel>
+              {/* <img
+                style={{
+                  objectFit: 'cover',
+                  height:
+                    initImageDim.height / 2 <= 400
+                      ? 500
+                      : initImageDim.height / 2,
+                  // minHeight: initImageDim.height,
+                  maxHeight: 500,
+                  width: '100%',
+                  // width: initImageDim.width,
+                  // height: '100%',
+                  aspectRatio: '3/2',
+                }}
+                onClick={() => history.push(`/post/${post.id}`)}
+                alt={post.caption}
+                src={post.image_url![0]}
+              /> */}
+            </div>
+            <Row justify="space-between" align="middle">
+              <PostActions currentUser={props.currentUser!} post={post!} />
+              <PostTags style={{}} post={post!} limitTags={3} />
+            </Row>
+            {/* <div style={{ marginTop: -20 }}> */}
+            <PostLikes post={post!} />
+            {/* </div> */}
+          </Col>
+
+          <Col
+            // style={{ padding: -5 }}
+            className="gutter-row"
+            xl={8}
+            md={12}
+            xs={24}
+          >
+            {/* <PostCaption post={post!} /> */}
+            <PostUser
+              style={{
+                visibility: 'hidden',
+                display: (sm && !md) || xs || !sm ? 'none' : '',
+              }}
+              post={post!}
+            />
+            <div
+              style={{
+                height:
+                  initImageDim.height / 2 <= 400
+                    ? 500
+                    : initImageDim.height / 2,
+                maxHeight: 500,
+              }}
+            >
+              <PostComments full={!true} post={post!} />
+            </div>
+            <Row>
+              <Row style={{ flex: 1 }} className="post__add__comment">
+                <AsyncMention
+                  value={'comment.comment'}
+                  onChange={() => {}}
+                  placeholder="Add a comment..."
+                />
+              </Row>
+              <Button style={{ height: 50 }}>Post</Button>
+            </Row>
+          </Col>
+        </Row>
+      )}
+
+      {/* {post && <MyPost post={post} fullPage={true} />} */}
     </>
   );
 };
@@ -85,6 +286,7 @@ const ViewPost = (props: ViewPostProps) => {
 const mapStateToProps = (state: any) => {
   return {
     currentUserToken: state.user.currentUserToken,
+    currentUser: state.user.currentUser,
   };
 };
 

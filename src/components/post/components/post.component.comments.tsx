@@ -19,6 +19,7 @@ export const PostComments = (props: IPostCommentsProps) => {
             Object.values(post.comments).map(
               (comment: Comment, index: number) => (
                 <div
+                  key={index}
                   style={{
                     padding: '10px',
                   }}
@@ -60,7 +61,7 @@ export const PostComments = (props: IPostCommentsProps) => {
                 Object.values(post.comments)
                   .slice(0, 3)
                   .map((comment: Comment, index: number) => (
-                    <Row justify="start" align="middle">
+                    <Row justify="start" align="middle" key={index}>
                       <span>
                         <Link
                           to={{

@@ -20,7 +20,9 @@ export const PostActions = (props: IPostActionsProps) => {
   const history = useHistory();
 
   const [userLikePost, setUserLikePost] = useState<boolean>(
-    Array.isArray(post.likes)
+    !post.likes
+      ? false
+      : Array.isArray(post.likes)
       ? post.likes.indexOf(currentUser?.uid!) !== -1
       : Object.values(post.likes).indexOf(currentUser?.uid!) !== -1
   );
