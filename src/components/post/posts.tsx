@@ -235,16 +235,10 @@ const Posts = (props: IPostsProps) => {
 
   if (loading) {
     return (
-      <Col
-        span="12"
-        style={
-          {
-            /* marginLeft: "20%", marginRight: "20%", marginTop: "5%", textAlign: "center" */
-          }
-        }
-      >
-        {/* <Spin size="large" /> */}
-        <Skeleton avatar active paragraph={{ rows: 4 }} />
+      <Col offset={6} span={12}>
+        {[1, 1, 1, 1].map((_, index) => (
+          <Skeleton key={index} avatar active paragraph={{ rows: 4 }} />
+        ))}
       </Col>
     );
   }

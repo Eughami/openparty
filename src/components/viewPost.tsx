@@ -9,7 +9,7 @@ import {
   GET_ONE_POST,
   PROBE_IMAGE_ENDPOINT,
 } from '../service/api';
-import { Post } from './interfaces/user.interface';
+import { Post, ProbeResult } from './interfaces/user.interface';
 // import MyPost from './post/post';
 // import { SPRITE_IMAGE_URL } from './profile/components/profile.posts.component';
 // import AliceCarousel from 'react-alice-carousel';
@@ -31,17 +31,6 @@ interface ViewPostProps extends RouteComponentProps<any> {
   currentUser?: firebase.User;
 }
 
-interface ProbeResult {
-  width: number;
-  height: number;
-  type: string;
-  mime: string;
-  wUnits: string;
-  hUnits: string;
-  length: number;
-  url: string;
-}
-
 const { useBreakpoint } = Grid;
 
 // const handleDragStart = (e: any) => e.preventDefault();
@@ -53,6 +42,7 @@ const ViewPost = (props: ViewPostProps) => {
   const { postId: id }: postIdInterface = useParams();
   const [post, setPost] = useState<Post>();
   const [error, setError] = useState<any>(null);
+  const [aspectRation, setAspectRatio] = useState<number>(0);
   const [loadingPost, setLoadingPost] = useState<boolean>(false);
   const [initImageDim, setInitImageDim] = useState<ProbeResult>({
     width: 0,
@@ -89,6 +79,10 @@ const ViewPost = (props: ViewPostProps) => {
               }
             ).then((res) => {
               console.log('@IMAGE DIM: ', res.data);
+              const { width, height } = res.data;
+              console.log('@IMAGE DIM AspecRatio: ', width / height);
+
+              setAspectRatio(width / height);
               // const images = ssh
               //   .val()
               //   .image_url.map((url: string, index: number) => (
@@ -173,11 +167,14 @@ const ViewPost = (props: ViewPostProps) => {
           <Col
             // style={{ paddingLeft: 5 }}
             className="gutter-row"
-            xl={8}
-            md={12}
-            xs={24}
+            xxl={aspectRation > 1 ? 9 : 5}
+            xl={aspectRation > 1 ? 10 : 6}
+            lg={aspectRation > 1 ? 11 : 8}
+            md={aspectRation > 1 ? 18 : 9}
+            sm={aspectRation > 1 ? 20 : 13}
+            xs={aspectRation > 1 ? 22 : 17}
           >
-            <div className="full__post__avatar__container">
+            <div className="full_postavatar_container">
               <PostUser post={post!} />
             </div>
             <div>
@@ -192,15 +189,13 @@ const ViewPost = (props: ViewPostProps) => {
                     <img
                       style={{
                         objectFit: 'cover',
+                        minHeight: aspectRation > 1 ? 400 : 500,
                         height:
                           initImageDim.height / 2 <= 400
-                            ? 500
+                            ? 400
                             : initImageDim.height / 2,
-                        // minHeight: initImageDim.height,
-                        maxHeight: 500,
+                        maxHeight: 700,
                         width: '100%',
-                        // width: initImageDim.width,
-                        // height: '100%',
                         aspectRatio: '3/2',
                       }}
                       onClick={() => history.push(`/post/${post.id}`)}
@@ -241,9 +236,12 @@ const ViewPost = (props: ViewPostProps) => {
           <Col
             // style={{ padding: -5 }}
             className="gutter-row"
-            xl={8}
-            md={12}
-            xs={24}
+            xxl={aspectRation > 1 ? 9 : 5}
+            xl={aspectRation > 1 ? 10 : 6}
+            lg={aspectRation > 1 ? 11 : 8}
+            md={aspectRation > 1 ? 18 : 9}
+            sm={aspectRation > 1 ? 20 : 13}
+            xs={aspectRation > 1 ? 22 : 17}
           >
             {/* <PostCaption post={post!} /> */}
             <PostUser
@@ -255,17 +253,18 @@ const ViewPost = (props: ViewPostProps) => {
             />
             <div
               style={{
+                minHeight: aspectRation > 1 ? 400 : 500,
                 height:
                   initImageDim.height / 2 <= 400
-                    ? 500
+                    ? 400
                     : initImageDim.height / 2,
-                maxHeight: 500,
+                maxHeight: 700,
               }}
             >
               <PostComments full={!true} post={post!} />
             </div>
             <Row>
-              <Row style={{ flex: 1 }} className="post__add__comment">
+              <Row style={{ flex: 1 }} className="post_add_comment">
                 <AsyncMention
                   value={'comment.comment'}
                   onChange={() => {}}

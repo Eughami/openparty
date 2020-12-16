@@ -32,6 +32,7 @@ import { API_BASE_URL, CAN_USER_VIEW_PROFILE_ENDPOINT } from '../service/api';
 import { ProfileRootPosts } from './profile/components/profile.component.posts';
 import './user-info.style.css';
 import { Link } from 'react-router-dom';
+import { LOADER_OBJECTS } from './images/index';
 
 interface IUserProps {
   setCurrentUserListener?: () => Promise<any>;
@@ -489,7 +490,13 @@ const UserProfile = (props: IUserProps) => {
   if (loading) {
     return (
       <div style={{ textAlign: 'center' }}>
-        <Spin size="small" />
+        {/* <Spin size="small" /> */}
+        <img
+          height="200"
+          width="100"
+          src={LOADER_OBJECTS.GET_RANDOM_LOADER()}
+          alt="LOADING"
+        />
       </div>
     );
   }

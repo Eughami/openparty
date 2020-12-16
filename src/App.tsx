@@ -16,7 +16,7 @@ import RegistrationForm from './components/register';
 import UserProfile from './components/user-info';
 import Tags from './components/tags';
 import { RegistrationObject } from './components/interfaces/user.interface';
-import { Spin } from 'antd';
+import { Spin, message } from 'antd';
 import Header from './components/header/header';
 import ProfileUI from './components/test';
 import EditAccount from './components/account/edit-account';
@@ -24,6 +24,7 @@ import EditAccount from './components/account/edit-account';
 import firebase from 'firebase';
 import ViewPost from './components/viewPost';
 import 'react-perfect-scrollbar/dist/css/styles.css';
+import { LOADER_OBJECTS } from './components/images';
 
 // const currentUser = true
 
@@ -55,7 +56,9 @@ const App = (props: IAppProps) => {
           await setCurrentUserRootDatabaseListener!(currentUser.uid);
           setLoadingCredentials(false);
         })
-        .catch(() => setLoadingCredentials(false));
+        .catch(() => {
+          setLoadingCredentials(false);
+        });
     }
   }, [
     currentUser,
@@ -79,18 +82,44 @@ const App = (props: IAppProps) => {
   console.log('APP.TSX PROPS:  ', props.currentUserToken);
 
   const [loadingCredentials, setLoadingCredentials] = useState<boolean>(true);
+  const [loadingCredentialsError, setLoadingCredentialsError] = useState<{
+    error?: string | null;
+  }>({ error: null });
 
   if (loadingCredentials) {
     return (
       <div style={{ textAlign: 'center' }}>
-        <Spin size="small" />
-        <p>Loading your stuff...</p>
+        {/* <Spin size="small" />
+        <p>Loading your stuff...</p> */}
+        <img
+          height="200"
+          width="100"
+          src={LOADER_OBJECTS.GET_RANDOM_LOADER()}
+          alt="LOADING"
+        />
       </div>
     );
   }
 
+  // else if (loadingCredentialsError.error) {
+  //   return (
+  //     <div style={{ textAlign: 'center' }}>
+  //       {/* <Spin size="small" />
+  //       <p>Loading your stuff...</p> */}
+  //        <img
+  //         height="200"
+  //         width="100"
+  //         src={LOADER_OBJECTS.GET_RANDOM_LOADER()}
+  //         alt="LOADING"
+  //       />
+  //     </div>
+  //   );
+  // }
+
   return (
     <div className="App">
+      {loadingCredentialsError.error &&
+        message.warning('An error ocurred...', 10)}
       {currentUser ? (
         <div>
           <div style={{ paddingBottom: '60px' }}>

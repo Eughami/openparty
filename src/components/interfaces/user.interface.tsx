@@ -35,6 +35,16 @@ export interface Comment {
   };
 }
 
+export interface ProbeResult {
+  width: number;
+  height: number;
+  type: string;
+  mime: string;
+  wUnits: string;
+  hUnits: string;
+  length: number;
+  url: string;
+}
 export interface PostTags_v2 {
   Tag: {
     name: string;

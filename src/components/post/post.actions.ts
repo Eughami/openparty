@@ -8,6 +8,27 @@ import {
 import { ADD_COMMENT_ENDPOINT, API_BASE_URL } from '../../service/api';
 import axios from 'axios';
 
+const POST_TAG_COLORS = [
+  'blue',
+  'cyan',
+  'gold',
+  'green',
+  'lime',
+  'magenta',
+  'orange',
+  'pink',
+  'purple',
+  'red',
+  'yellow',
+  'default',
+  'geekblue',
+  'volcano',
+  'success',
+  'processing',
+  'error',
+  'warning',
+];
+
 //TODO: Maybe to make things appear faster, we can fake increase/decrease the
 //number of likes-- before posting to our endpoint. We can catch any errors afterwards and
 // act appropriately
@@ -51,16 +72,17 @@ export const handlePostLike = async (
 };
 
 export const getPostTagColor = (tag: PostTags): string => {
-  switch (tag) {
-    case PostTags.BEACH_PARTY:
-      return 'magenta';
-    case PostTags.COCAINE_PARTY:
-      return 'processing';
-    case PostTags.DRUG_PARTY:
-      return 'red';
-    default:
-      return 'green';
-  }
+  return POST_TAG_COLORS[Math.floor(Math.random() * POST_TAG_COLORS.length)];
+  // switch (tag) {
+  //   case PostTags.BEACH_PARTY:
+  //     return 'magenta';
+  //   case PostTags.COCAINE_PARTY:
+  //     return 'processing';
+  //   case PostTags.DRUG_PARTY:
+  //     return 'red';
+  //   default:
+  //     return 'green';
+  // }
 };
 
 export const onPostComment = async (
