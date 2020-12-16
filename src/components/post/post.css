@@ -51,9 +51,7 @@
 
 /* fullpage post styling */
 .full__page__post {
-  /* margin-top: 150px; */
-
-  /* height: 100%; */
+  margin-top: 50px;
 }
 .full__page__post__divider {
   border: solid grey 1px;
@@ -66,24 +64,24 @@
   /* border: red solid; */
 }
 .full__post__avatar__container {
-  height: 70px;
+  height: 60px;
   border-bottom: grey solid 1px;
-  border-left: grey solid 1px;
   border-top: grey solid 1px;
   border-right: grey solid 1px;
 }
 .full__post__comments__container {
-  height: 450px;
   width: 100%;
-  /* border: green solid; */
+  border-right: grey solid 1px;
 }
 .full__page__post__actions__container {
   padding: 16px;
   height: 130px;
   width: 100%;
   border-top: grey solid 1px;
+  border-right: grey solid 1px;
 }
 .full__post__add__comment__container {
   height: 50px;
-  /* border: blue solid; */
+  border-right: grey solid 1px;
+  border-bottom: grey solid 1px;
 }

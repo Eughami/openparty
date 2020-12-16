@@ -9,7 +9,10 @@ import {
   GET_ONE_POST,
   PROBE_IMAGE_ENDPOINT,
 } from '../service/api';
-import { Post } from './interfaces/user.interface';
+import { Comment, Post as PostInterface } from './interfaces/user.interface';
+import PerfectScrollbar from 'react-perfect-scrollbar';
+
+import { Post, RegistrationObject } from './interfaces/user.interface';
 // import MyPost from './post/post';
 // import { SPRITE_IMAGE_URL } from './profile/components/profile.posts.component';
 // import AliceCarousel from 'react-alice-carousel';
@@ -17,18 +20,29 @@ import 'react-alice-carousel/lib/alice-carousel.css';
 import { PostUser } from './post/components/post.component.user';
 import { PostActions } from './post/components/post.component.actions';
 import { PostLikes } from './post/components/post.component.likes';
-import { PostTags } from './post/components/post.component.tags';
 import { PostComments } from './post/components/post.component.comments';
 import { PostCaption } from './post/components/post.component.caption';
 import AsyncMention from './mentions/mentions.component';
 import './post/post.css';
+import { PostEventTime } from './post/components/post.component.event-time';
+import { PostTags } from './post/components/post.component.tags';
+import { onPostComment } from './post/post.actions';
+import {
+  setCurrentUserListener,
+  setCurrentUserRootDatabaseListener,
+} from '../redux/user/user.actions';
 
 interface postIdInterface {
   postId: string;
 }
 interface ViewPostProps extends RouteComponentProps<any> {
-  currentUserToken?: string;
+  setCurrentUserListener?: () => Promise<any>;
+  setCurrentUserRootDatabaseListener?: (uid: string) => Promise<any>;
   currentUser?: firebase.User;
+  currentUserInfo?: RegistrationObject;
+  currentUserToken?: string;
+  post: PostInterface;
+  fullPage: boolean;
 }
 
 interface ProbeResult {
@@ -47,9 +61,6 @@ const { useBreakpoint } = Grid;
 // const handleDragStart = (e: any) => e.preventDefault();
 
 const ViewPost = (props: ViewPostProps) => {
-  const { xl, md, xs, lg, sm, xxl } = useBreakpoint();
-  console.log(useBreakpoint());
-
   const { postId: id }: postIdInterface = useParams();
   const [post, setPost] = useState<Post>();
   const [error, setError] = useState<any>(null);
@@ -65,7 +76,46 @@ const ViewPost = (props: ViewPostProps) => {
     length: 0,
     url: '',
   });
-  // const [postImagesCarousel, setPostImagesCarousel] = useState<any[]>([]);
+  const [postCommentLoading, setPostCommentLoading] = useState<boolean>(false);
+  const [comment, setComment] = useState<Comment>({
+    comment: '',
+    comments: [],
+    id: '',
+    likes: 0,
+    timestamp: 0,
+    user: { image_url: '', user_id: '', username: '' },
+  });
+
+  const { currentUser, currentUserInfo, currentUserToken, fullPage } = props;
+
+  const resetCommentForm = () =>
+    setComment({
+      comment: '',
+      comments: [],
+      id: '',
+      likes: 0,
+      timestamp: 0,
+      user: { image_url: '', user_id: '', username: '' },
+    });
+
+  const handleCommentChange = (value: string) => {
+    if (value.length > 0) {
+      setComment({
+        comment: value,
+        user: {
+          user_id: currentUser ? currentUser.uid : '-user',
+          image_url: post!.user.image_url,
+          username: currentUserInfo ? currentUserInfo.username : '-user',
+        },
+        comments: [],
+        likes: 0,
+        id: '', //generate new comment_id here,
+        timestamp: 0,
+      });
+    } else {
+      setComment({ ...comment, comment: '' });
+    }
+  };
 
   const fetchPost = async (postId: string, userId: string, token: string) => {
     setLoadingPost(true);
@@ -94,28 +144,7 @@ const ViewPost = (props: ViewPostProps) => {
               console.log('@IMAGE DIM AspecRatio: ', width / height);
 
               setAspectRatio(width / height);
-              // const images = ssh
-              //   .val()
-              //   .image_url.map((url: string, index: number) => (
-              //     <img
-              //       style={{
-              //         objectFit: 'cover',
-              //         height:
-              //           initImageDim.height / 2 <= 400
-              //             ? 500
-              //             : initImageDim.height / 2,
-              //          maxHeight: 500,
-              //         width: '100%',
-              //         aspectRatio: '3/2',
-              //       }}
-              //       key={index}
-              //       src={url}
-              //       alt={ssh.val().caption || 'img'}
-              //       onDragStart={handleDragStart}
-              //       className="img-carousel"
-              //     />
-              //   ));
-              // setPostImagesCarousel(images);
+
               setInitImageDim(res.data);
               setPost(ssh.val());
               setLoadingPost(false);
@@ -142,7 +171,6 @@ const ViewPost = (props: ViewPostProps) => {
           console.log('New endpoint', res.data);
 
           if (res.data === null) {
-            // setPostImagesCarousel([]);
             setError('Post Not Found');
             return;
           }
@@ -174,9 +202,8 @@ const ViewPost = (props: ViewPostProps) => {
       )}
 
       {post && (
-        <Row justify="center" align="middle">
+        <Row justify="center" align="middle" className="full__page__post">
           <Col
-            // style={{ paddingLeft: 5 }}
             className="gutter-row"
             xxl={aspectRation > 1 ? 9 : 5}
             xl={aspectRation > 1 ? 10 : 6}
@@ -185,29 +212,20 @@ const ViewPost = (props: ViewPostProps) => {
             sm={aspectRation > 1 ? 20 : 13}
             xs={aspectRation > 1 ? 22 : 17}
           >
-            <div className="full__post__avatar__container">
-              <PostUser post={post!} />
-            </div>
             <div>
-              {/* <AliceCarousel
-                autoHeight
-                mouseTracking
-                items={postImagesCarousel}
-              /> */}
               <Carousel>
                 {post.image_url?.map((url, index) => (
                   <div key={index}>
                     <img
                       style={{
                         objectFit: 'cover',
-                        minHeight: aspectRation > 1 ? 400 : 500,
+                        minHeight: aspectRation > 1 ? 400 : 600,
                         height:
                           initImageDim.height / 2 <= 400
                             ? 400
                             : initImageDim.height / 2,
-                        maxHeight: 700,
+                        maxHeight: 800,
                         width: '100%',
-                        aspectRatio: '3/2',
                       }}
                       onClick={() => history.push(`/post/${post.id}`)}
                       alt={post.caption}
@@ -216,88 +234,104 @@ const ViewPost = (props: ViewPostProps) => {
                   </div>
                 ))}
               </Carousel>
-              {/* <img
-                style={{
-                  objectFit: 'cover',
-                  height:
-                    initImageDim.height / 2 <= 400
-                      ? 500
-                      : initImageDim.height / 2,
-                  // minHeight: initImageDim.height,
-                  maxHeight: 500,
-                  width: '100%',
-                  // width: initImageDim.width,
-                  // height: '100%',
-                  aspectRatio: '3/2',
-                }}
-                onClick={() => history.push(`/post/${post.id}`)}
-                alt={post.caption}
-                src={post.image_url![0]}
-              /> */}
             </div>
-            <Row justify="space-between" align="middle">
-              <PostActions currentUser={props.currentUser!} post={post!} />
-              <PostTags style={{}} post={post!} limitTags={3} />
-            </Row>
-            {/* <div style={{ marginTop: -20 }}> */}
-            <PostLikes post={post!} />
-            {/* </div> */}
           </Col>
-
           <Col
-            // style={{ padding: -5 }}
             className="gutter-row"
-            xxl={aspectRation > 1 ? 9 : 5}
-            xl={aspectRation > 1 ? 10 : 6}
-            lg={aspectRation > 1 ? 11 : 8}
+            xxl={aspectRation > 1 ? 7 : 5}
+            xl={aspectRation > 1 ? 8 : 6}
+            lg={aspectRation > 1 ? 9 : 8}
             md={aspectRation > 1 ? 18 : 9}
             sm={aspectRation > 1 ? 20 : 13}
             xs={aspectRation > 1 ? 22 : 17}
           >
-            {/* <PostCaption post={post!} /> */}
-            <PostUser
-              style={{
-                visibility: 'hidden',
-                display: (sm && !md) || xs || !sm ? 'none' : '',
-              }}
-              post={post!}
-            />
+            <div className="full__post__avatar__container">
+              <PostUser post={post!} />
+            </div>
             <div
+              className="full__post__comments__container"
               style={{
-                minHeight: aspectRation > 1 ? 400 : 500,
+                minHeight: aspectRation > 1 ? 160 : 360,
                 height:
                   initImageDim.height / 2 <= 400
-                    ? 400
-                    : initImageDim.height / 2,
-                maxHeight: 700,
+                    ? 160
+                    : initImageDim.height / 2 - 240,
+                maxHeight: 560,
               }}
             >
-              <PostComments full={!true} post={post!} />
+              <PerfectScrollbar>
+                <PostComments full={true} post={post!} />
+              </PerfectScrollbar>
             </div>
-            <Row>
-              <Row style={{ flex: 1 }} className="post__add__comment">
+
+            <div className="full__page__post__actions__container">
+              <Row justify="start" align="top">
+                <Col span={12}>
+                  <PostActions currentUser={currentUser!} post={post} />
+                </Col>
+                <Col span={12}>
+                  <PostEventTime post={post} />
+                </Col>
+              </Row>
+              <Row>
+                <Col span={4}>
+                  <PostLikes post={post} />
+                </Col>
+                <Col span={20}>
+                  <PostTags post={post} />
+                </Col>
+                <Row>
+                  <PostCaption post={post} />
+                </Row>
+              </Row>
+            </div>
+            <Row className="full__post__add__comment__container">
+              <Row style={{ flex: 1 }}>
                 <AsyncMention
-                  value={'comment.comment'}
-                  onChange={() => {}}
+                  value={comment.comment}
+                  onChange={handleCommentChange}
                   placeholder="Add a comment..."
                 />
               </Row>
-              <Button style={{ height: 50 }}>Post</Button>
+              <Button
+                loading={postCommentLoading}
+                onClick={() =>
+                  onPostComment(
+                    setPostCommentLoading,
+                    currentUserInfo!,
+                    post.id,
+                    post.user.username,
+                    comment,
+                    currentUserToken!
+                  ).finally(() => resetCommentForm())
+                }
+                disabled={comment.comment.length === 0}
+                style={{ height: '100%' }}
+              >
+                Post
+              </Button>
             </Row>
           </Col>
         </Row>
       )}
-
-      {/* {post && <MyPost post={post} fullPage={true} />} */}
     </>
   );
 };
 
 const mapStateToProps = (state: any) => {
   return {
-    currentUserToken: state.user.currentUserToken,
     currentUser: state.user.currentUser,
+    currentUserInfo: state.user.userInfo,
+    currentUserToken: state.user.currentUserToken,
   };
 };
 
-export default connect(mapStateToProps, null)(ViewPost);
+const mapDispatchToProps = (dispatch: any) => {
+  return {
+    setCurrentUserListener: () => dispatch(setCurrentUserListener()),
+    setCurrentUserRootDatabaseListener: (uid: string) =>
+      dispatch(setCurrentUserRootDatabaseListener(uid)),
+  };
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(ViewPost);
