@@ -15,9 +15,7 @@ import {
   Select,
   Upload,
   message,
-  Progress,
   DatePicker,
-  Divider,
   Space,
   Spin,
 } from 'antd';
@@ -28,7 +26,6 @@ import {
   UsergroupAddOutlined,
   VideoCameraAddOutlined,
   AlertOutlined,
-  UploadOutlined,
   NotificationTwoTone,
 } from '@ant-design/icons';
 
@@ -76,12 +73,12 @@ const Header = (props: IHeaderProps) => {
   const [showNotification, setShowNotification] = useState<boolean>(false);
   const [loading, setloading] = useState<boolean>(false);
   const [followRequests, setFollowRequests] = useState([]);
-  const { Option } = Select;
+  const [userNotifications, setUserNotifications] = useState([]);
   const [form] = Form.useForm();
 
   //Set listener for active follow requests
   useEffect(() => {
-    const unsub = firebase
+    const un_sub = firebase
       .database()
       .ref('FollowRequests')
       .child(props.currentUser?.uid!)
@@ -102,7 +99,56 @@ const Header = (props: IHeaderProps) => {
       );
 
     return () =>
-      firebase.database().ref('FollowingRequests').off('value', unsub);
+      firebase
+        .database()
+        .ref('FollowRequests')
+        .child(props.currentUser?.uid!)
+        .off('value', un_sub);
+  }, [props.currentUser]);
+
+  //Set listener for user notifications
+  useEffect(() => {
+    const un_sub = firebase
+      .database()
+      .ref('Notifications')
+      .child(props.currentUser?.uid!)
+      .on(
+        'value',
+        (ssh) => {
+          if (ssh.exists()) {
+            const temp: any = {};
+
+            ssh.forEach((post) => {
+              if (post.val().likes) {
+                temp[`${post.key}`] = Object.values(post.val().likes);
+                temp[`${post.key}`].ref = post.key;
+              }
+            });
+            console.log(
+              '@SSH DEBUG NOTIF: ',
+              [].concat(...(Object.values(temp) as any[]))
+            );
+
+            setUserNotifications(
+              []
+                .concat(...(Object.values(temp) as any[]))
+                .sort((n1: any, n2: any) => n1.time - n2.time) as any
+            );
+          } else {
+            setUserNotifications([]);
+          }
+        },
+        (error: any) => {
+          console.log(error);
+        }
+      );
+
+    return () =>
+      firebase
+        .database()
+        .ref('Notifications')
+        .child(props.currentUser?.uid!)
+        .off('value', un_sub);
   }, [props.currentUser]);
 
   const handleOk = () => {
@@ -141,7 +187,7 @@ const Header = (props: IHeaderProps) => {
     );
   };
 
-  const handleMenuClick = (e: any) => {
+  const handleMenuClick = () => {
     // message.info('Click on menu item.');
     // console.log('click', e);
   };
@@ -162,15 +208,10 @@ const Header = (props: IHeaderProps) => {
           </span>
         </Link>
       </Menu.Item>
-      <Menu.Item key="2" icon={<AlertOutlined />}>
-        Notifications{' '}
-        <span role="img" aria-label="smurth">
-          🧐
-        </span>
-      </Menu.Item>
+
       <Menu.Item
         onClick={() => setPostModalVisible(true)}
-        key="3"
+        key="2"
         icon={<VideoCameraAddOutlined />}
       >
         Add a new Post{' '}
@@ -181,7 +222,7 @@ const Header = (props: IHeaderProps) => {
       <hr />
       <Menu.Item
         onClick={() => firebase.auth().signOut()}
-        key="4"
+        key="3"
         icon={<LogoutOutlined size={25} />}
       >
         Logout
@@ -294,13 +335,19 @@ const Header = (props: IHeaderProps) => {
       setShowNotification(false);
     }
   };
+  const focusFollowRequestShit = (e: any) => {
+    console.log('in of focus', e.target.id);
+    if (e.target.id !== 'follow-request-area') {
+      setModalVisible(false);
+    }
+  };
 
   return (
     <nav className="Nav">
       <Modal
         style={{ height: '50%' }}
         title="Approve or Ignore Follow Requests"
-        visible={modalVisible}
+        visible={false}
         onOk={handleOk}
         footer={null}
         onCancel={handleCancel}
@@ -412,6 +459,24 @@ const Header = (props: IHeaderProps) => {
               accept="image/*"
               onPreview={onPreview}
               name="logo"
+              beforeUpload={(file) => {
+                if (
+                  ![
+                    'image/png',
+                    'image/jpeg',
+                    'image/jpg',
+                    'image/gif',
+                  ].includes(file.type) /*file.type !== 'image/png' */
+                ) {
+                  message.error(`${file.name} is not a valid image`);
+                }
+                return [
+                  'image/png',
+                  'image/jpeg',
+                  'image/jpg',
+                  'image/gif',
+                ].includes(file.type); // file.type === 'image/png';
+              }}
               action={`${API_BASE_URL_OPEN}${PING_ENDPOINT}`}
               progress={{ status: 'success' }}
               listType="picture-card"
@@ -429,8 +494,12 @@ const Header = (props: IHeaderProps) => {
         </Form>
       </Modal>
       <div className="Nav-menus">
-        <Row align="middle">
-          <Col span={6} offset={4}>
+        <Row align="middle" className="test-border">
+          <Col
+            lg={{ span: 6, offset: 4 }}
+            md={{ span: 6, offset: 2 }}
+            xs={{ span: 8, offset: 2 }}
+          >
             <Link
               to={{
                 pathname: '/',
@@ -444,10 +513,14 @@ const Header = (props: IHeaderProps) => {
               />
             </Link>
           </Col>
-          <Col span={6}>
+          <Col xl={{ span: 4 }} md={{ span: 6 }} xs={{ span: 0 }}>
             <Search style={{ width: '80%' }} placeholder="Search" />
           </Col>
-          <Col span={7} offset={1}>
+          <Col
+            lg={{ span: 7, offset: 1 }}
+            md={{ span: 8, offset: 2 }}
+            xs={{ span: 6, offset: 4 }}
+          >
             <Row justify="start" align="stretch">
               <Space direction="horizontal" size="large">
                 <Link
@@ -475,15 +548,7 @@ const Header = (props: IHeaderProps) => {
                 <Link
                   to={{}}
                   onClick={() => {
-                    if (showNotification) {
-                      setShowNotification(!showNotification);
-                      return;
-                    }
-                    setloading(true);
-                    setTimeout(() => {
-                      setShowNotification(!showNotification);
-                      setloading(false);
-                    }, 1000);
+                    setShowNotification(true);
                   }}
                 >
                   <NotificationTwoTone style={{ fontSize: '22px' }} />
@@ -494,43 +559,22 @@ const Header = (props: IHeaderProps) => {
                     overlay={menu(props)}
                     placement="bottomCenter"
                     arrow
-                    trigger={['click']}
+                    // trigger={['click']}
                   >
                     <Avatar
                       style={{ fontSize: '22px' }}
                       src={props.currentUserInfo?.image_url}
-                    ></Avatar>
+                    />
                   </Dropdown>
                 </Link>
               </Space>
             </Row>
           </Col>
         </Row>
-        <div className="Nav-brand"></div>
-        <Col
-          className=""
-          xs={{ span: 0 }}
-          lg={{ span: 6, offset: 2 }}
-          xxl={{ span: 5, offset: 1 }}
-        >
-          {/* SearchBar */}
-        </Col>
-        <Col className="" offset={1} span={6}>
-          <Row style={{ alignItems: 'center', justifyContent: 'space-around' }}>
-            {/* <Col span="3">
-                            
-                        </Col> */}
-          </Row>
-        </Col>
       </div>
       <Row>
-        {loading && (
-          <Col className="profile__dropdown__loading" offset={14}>
-            <Spin size="large" />
-          </Col>
-        )}
         {showNotification && (
-          <div
+          <Row
             id="notificationCover"
             className="notification__cover"
             onClick={(e: any) => focusShit(e)}
@@ -538,39 +582,95 @@ const Header = (props: IHeaderProps) => {
             <Col
               id="notification-area"
               className="profile__dropdown"
-              offset={14}
+              xxl={{ span: 5, offset: 14 }}
+              xl={{ span: 6, offset: 14 }}
+              lg={{ span: 7, offset: 15 }}
+              md={{ span: 8, offset: 13 }}
+              sm={{ span: 12, offset: 10 }}
+              xs={{ span: 15, offset: 8 }}
             >
-              <PerfectScrollbar>
-                <p>GG bitches</p>
-                <p>GG bitches</p>
-                <p>GG bitches</p>
-                <p>GG bitches</p>
-                <p>GG bitches</p>
-                <p>GG bitches</p>
-                <p>GG bitches</p>
-                <p>GG bitches</p>
-                <p>GG bitches</p>
-                <p>GG bitches</p>
-                <p>GG bitches</p>
-                <p>GG bitches</p>
-                <p>GG bitches</p>
-                <p>GG bitches</p>
-                <p>GG bitches</p>
-                <p>GG bitches</p>
-                <p>GG bitches</p>
-                <p>GG bitches</p>
-                <p>GG bitches</p>
-                <p>GG bitches</p>
-                <p>GG bitches</p>
-                <p>GG bitches</p>
-                <p>GG bitches</p>
-                <p>GG bitches</p>
-                <p>GG bitches</p>
-                <p>GG bitches</p>
-              </PerfectScrollbar>
-              <div>No Notifications</div>
+              {loading ? (
+                <div className="profile__dropdown__loading">
+                  <Spin size="large" />
+                </div>
+              ) : (
+                <PerfectScrollbar>
+                  {userNotifications.length > 0 &&
+                    userNotifications.map((not: any, index) => (
+                      <TempHeaderNotification
+                        key={index}
+                        imageUrl={not.image_url}
+                        text={not.desc}
+                        username={not.username}
+                        link={not.ref}
+                      />
+                    ))}
+                </PerfectScrollbar>
+              )}
             </Col>
-          </div>
+          </Row>
+        )}
+
+        {modalVisible && (
+          <Row
+            id="followRequestsCover"
+            className="notification__cover"
+            onClick={(e: any) => focusFollowRequestShit(e)}
+          >
+            <Col
+              id="follow-request-area"
+              className="profile__dropdown"
+              xxl={{ span: 5, offset: 14 }}
+              xl={{ span: 6, offset: 14 }}
+              lg={{ span: 7, offset: 15 }}
+              md={{ span: 8, offset: 13 }}
+              sm={{ span: 12, offset: 10 }}
+              xs={{ span: 15, offset: 8 }}
+            >
+              {loading ? (
+                <div className="profile__dropdown__loading">
+                  <Spin size="large" />
+                </div>
+              ) : (
+                <PerfectScrollbar>
+                  <List
+                    itemLayout="horizontal"
+                    dataSource={followRequests}
+                    renderItem={(item: any) => (
+                      <List.Item
+                        actions={[
+                          <p
+                            onClick={() => onFollowApproved(item.uid)}
+                            style={{ color: 'green', cursor: 'pointer' }}
+                            key={JSON.stringify(item)}
+                          >
+                            Approve
+                          </p>,
+                          <p
+                            onClick={() => onFollowIgnored(item.uid)}
+                            style={{ color: 'red', cursor: 'pointer' }}
+                            key={JSON.stringify(item)}
+                          >
+                            Ignore
+                          </p>,
+                        ]}
+                      >
+                        <List.Item.Meta
+                          avatar={<Avatar src={item.image_url} />}
+                          title={
+                            <Link to={{ pathname: `/${item.username}` }}>
+                              {item.username}
+                            </Link>
+                          }
+                          description={item.username}
+                        />
+                      </List.Item>
+                    )}
+                  />
+                </PerfectScrollbar>
+              )}
+            </Col>
+          </Row>
         )}
       </Row>
     </nav>

@@ -51,14 +51,11 @@
 
 /* fullpage post styling */
 .full__page__post {
-  margin: auto;
-  margin-top: 150px;
-  width: 80%;
+  /* margin-top: 150px; */
 
   /* height: 100%; */
 }
 .full__page__post__divider {
-  /* border: black solid; */
   border: solid grey 1px;
   height: 700px;
   width: 50%;
@@ -71,7 +68,9 @@
 .full__post__avatar__container {
   height: 70px;
   border-bottom: grey solid 1px;
-  /* border-left: grey solid 1px; */
+  border-left: grey solid 1px;
+  border-top: grey solid 1px;
+  border-right: grey solid 1px;
 }
 .full__post__comments__container {
   height: 450px;

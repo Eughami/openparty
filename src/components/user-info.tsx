@@ -16,13 +16,11 @@ import {
 } from '../redux/user/user.actions';
 import axios from 'axios';
 import bluebird from 'bluebird';
-import {
-  EditOutlined,
-  AppleOutlined,
-  AndroidOutlined,
-  UserAddOutlined,
-  UserDeleteOutlined,
-} from '@ant-design/icons';
+import { confirmUnfollow } from './profile/profile.actions';
+import { ProfileAvatar } from './profile/components/profile.component.pfp';
+import { ProfileUsername } from './profile/components/profile.component.username';
+import { ProfileStats } from './profile/components/profile.component.stats';
+import { ProfileBio } from './profile/components/profile.component.bio';
 import {
   ProfileActionFollow,
   ProfileActionMessage,
@@ -177,14 +175,14 @@ const UserProfile = (props: IUserProps) => {
    * our database
    */
   useEffect(() => {
+    if (!currentUser) return;
+
+    if (!currentUserToken) {
+      props.setCurrentUserToken!(currentUser);
+      return;
+    }
+
     const decodeProfile = async () => {
-      if (!currentUser) return;
-
-      if (!currentUserToken) {
-        props.setCurrentUserToken!(currentUser);
-        return;
-      }
-
       // const result = await axios.post("http://localhost:5000/openpaarty/us-central1/api/v1/users/can-view-user-profile", {
       const result = await axios.post(
         `${API_BASE_URL}${CAN_USER_VIEW_PROFILE_ENDPOINT}`,
@@ -207,6 +205,8 @@ const UserProfile = (props: IUserProps) => {
         } else {
           setPrivacyStatus(result.data.privacy);
 
+          //If following user, then target user's posts is in the global eligible posts state. Simply
+          // filter by username and add listeners to database [to make it real time]
           if (result.data.privacy === 'following') {
             setFollowActionLoading(false);
 
@@ -346,6 +346,7 @@ const UserProfile = (props: IUserProps) => {
                 console.log('DONE MAPPING');
               });
           } else {
+            //Else add listeners for any change in follow requests
             firebase
               .database()
               .ref('FollowRequests')
@@ -503,41 +504,17 @@ const UserProfile = (props: IUserProps) => {
       >
         {selfUser && currentUserInfo ? (
           <div>
-            <Row style={{ alignItems: 'center' }}>
-              <Avatar src={currentUserInfo!.image_url} size={150} />
-              <div style={{ marginLeft: 50 }}>
-                <Row
-                  style={{
-                    justifyContent: 'space-around',
-                    alignItems: 'center',
-                  }}
-                >
-                  <h1
-                    style={{
-                      marginBottom: 5,
-                      // marginTop: 15,
-                      fontWeight: 'bold',
-                    }}
-                  >
-                    {currentUserInfo!.username}
-                  </h1>
-                  <Button icon={<EditOutlined />}>Edit</Button>
-                  {/* <h1>Edit</h1> */}
-                </Row>
-
-                <Row
-                  style={{
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                  }}
-                >
-                  <p style={{ marginRight: 20 }}>
-                    {(posts as Post[]).length} Posts
-                  </p>
-                  <p style={{ marginRight: 20 }}>
-                    {currentUserInfo!.followers_count} Followers
-                  </p>
-                  <p>{currentUserInfo!.following_count} Following</p>
+            <Row align="middle">
+              <ProfileAvatar user={currentUserInfo} />
+              <div style={{ marginLeft: '5%' }}>
+                <Row align="middle" justify="start">
+                  <ProfileUsername
+                    user={currentUserInfo}
+                    style={{ fontSize: 20, float: 'left' }}
+                  />
+                  <Link to={`/account/edit`}>
+                    <ProfileActionEdit selfUserInfo={currentUserInfo} />
+                  </Link>
                 </Row>
 
                 <ProfileStats
@@ -550,157 +527,77 @@ const UserProfile = (props: IUserProps) => {
 
             <Divider />
             <div className="posts__container">
-              {
-                <Tabs defaultActiveKey="1">
-                  <TabPane
-                    tab={
-                      <span>
-                        <AppleOutlined />
-                        Posts
-                      </span>
-                    }
-                    key="self-user-tab-1"
-                  >
-                    {(posts as Post[]).length > 0 ? (
-                      (posts as Post[]).map((post, index) => (
-                        <MyPost key={index} post={post} fullPage={false} />
-                      ))
-                    ) : (
-                      <h1 style={{ textAlign: 'center' }}>You Have No Posts</h1>
-                    )}
-                  </TabPane>
-                  <TabPane
-                    tab={
-                      <span>
-                        <AndroidOutlined />
-                        Tab 2
-                      </span>
-                    }
-                    key="self-user-tab-2"
-                  >
-                    Tab 2
-                  </TabPane>
-                </Tabs>
-              }
+              {!postsDoneLoading ? (
+                <Spin size="small" />
+              ) : (posts as Post[]).length > 0 ? (
+                <ProfileRootPosts
+                  currentUser={currentUser!}
+                  post={posts as Post[]}
+                  type="self-user"
+                />
+              ) : (
+                <h1 style={{ textAlign: 'center' }}>You Have No Posts</h1>
+              )}
             </div>
           </div>
         ) : !selfUser && otherUserInfo ? (
           <div>
             <Row style={{ alignItems: 'center' }}>
-              <Avatar src={otherUserInfo!.image_url} size={150} />
-              <div style={{ marginLeft: 50 }}>
-                <Col
-                  style={{
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                  }}
-                >
-                  <h1
-                    style={{
-                      marginBottom: 5,
-                      // marginTop: 15,
-                      fontWeight: 'bold',
-                    }}
-                  >
-                    {otherUserInfo!.username}
-                  </h1>
-                  <span style={{ cursor: 'pointer' }}>
-                    {followActionLoading ? (
+              <ProfileAvatar user={otherUserInfo} />
+              <div style={{ paddingLeft: '5%' }}>
+                <>
+                  <ProfileUsername
+                    user={otherUserInfo}
+                    style={{ fontSize: 20 }}
+                  />
+                  <Row justify="start" align="middle">
+                    {profileActionLoading ? (
                       <Spin size="small" />
-                    ) : privacyStatus === 'following' ? (
-                      <Popconfirm
-                        title="You will have to send a request to follow again."
-                        onConfirm={() => confirm(otherUserInfo)}
-                        onCancel={cancel}
-                        okText="Unfollow"
-                        cancelText="Cancel"
-                      >
-                        <Button icon={<UserDeleteOutlined />}>Unfollow</Button>
-                        {/* <p>Unfollow</p> */}
-                      </Popconfirm>
-                    ) : privacyStatus === 'Public' ? (
-                      requestedFollow ? (
-                        <Button
-                          onClick={() =>
-                            handleCancelFollowRequest(otherUserInfo)
-                          }
-                        >
-                          Cancel Request
-                        </Button>
-                      ) : (
-                        // <p
-                        //   onClick={() =>
-                        //     handleCancelFollowRequest(otherUserInfo)
-                        //   }
-                        // >
-
-                        //   Cancel Request
-                        // </p>
-                        <Button
-                          onClick={() => handleFollowRequest(otherUserInfo)}
-                          icon={<UserAddOutlined />}
-                        >
-                          Follow
-                        </Button>
-                      )
+                    ) : privacyStatus === PrivacyStatus.FOLLOWERS ? (
+                      <ProfileActionUnfollow
+                        otherUserInfo={otherUserInfo}
+                        onConfirm={() =>
+                          confirmUnfollow(
+                            otherUserInfo,
+                            currentUserToken!
+                          ).finally(() =>
+                            setCurrentUserEligiblePosts!(currentUser!)
+                          )
+                        }
+                      />
                     ) : requestedFollow ? (
-                      <Button
-                        onClick={() => handleCancelFollowRequest(otherUserInfo)}
-                      >
-                        Cancel Request
-                      </Button>
+                      <ProfileActionCancelFollowRequest
+                        otherUserInfo={otherUserInfo}
+                        currentUserToken={currentUserToken!}
+                      />
                     ) : (
-                      // <p
-                      //   onClick={() =>
-                      //     handleCancelFollowRequest(otherUserInfo)
-                      //   }
-                      // >
-                      //   Cancel Request
-                      // </p>
-                      <Button
-                        onClick={() => handleFollowRequest(otherUserInfo)}
-                        icon={<UserAddOutlined />}
-                      >
-                        Follow
-                      </Button>
+                      <ProfileActionFollow
+                        selfUserInfo={currentUserInfo!}
+                        otherUserInfo={otherUserInfo}
+                        currentUserToken={currentUserToken!}
+                      />
                     )}
-                  </span>
-                </Col>
+                    <ProfileActionMessage
+                      selfUserInfo={currentUserInfo!}
+                      otherUserInfo={otherUserInfo}
+                    />
+                  </Row>
+                </>
                 {!otherUserPrivacy ? (
                   <>
-                    <Row
-                      style={{
-                        justifyContent: 'space-between',
-                        alignItems: 'center',
-                      }}
-                    >
-                      <p style={{ marginRight: 20 }}>
-                        {(posts as Post[]).length} Posts
-                      </p>
-                      <p style={{ marginRight: 20 }}>
-                        {otherUserInfo!.followers_count} Followers
-                      </p>
-                      <p>{otherUserInfo!.following_count} Following</p>
-                    </Row>
-                    {otherUserInfo.bio && <span>{otherUserInfo.bio}</span>}
+                    <ProfileStats
+                      user={otherUserInfo}
+                      postsCount={(posts as Post[]).length}
+                    />
+                    <ProfileBio user={otherUserInfo} />
                   </>
                 ) : (
                   <>
-                    <Row
-                      style={{
-                        justifyContent: 'space-between',
-                        alignItems: 'center',
-                      }}
-                    >
-                      <p style={{ marginRight: 20 }}>
-                        {otherUserInfo.posts_count} Posts
-                      </p>
-                      <p style={{ marginRight: 20 }}>
-                        {otherUserInfo.followers_count} Followers
-                      </p>
-                      <p>{otherUserInfo.following_count} Following</p>
-                    </Row>
-                    {otherUserInfo.bio && <span>{otherUserInfo.bio}</span>}
+                    <ProfileStats
+                      user={otherUserInfo}
+                      postsCount={otherUserInfo.posts_count}
+                    />
+                    <ProfileBio user={otherUserInfo} />
                   </>
                 )}
               </div>
@@ -709,38 +606,19 @@ const UserProfile = (props: IUserProps) => {
             <Divider />
             <div className="posts__container">
               {!otherUserPrivacy ? (
-                <Tabs defaultActiveKey="1">
-                  <TabPane
-                    tab={
-                      <span>
-                        <AppleOutlined />
-                        Posts
-                      </span>
-                    }
-                    key="other-user-tab-1"
-                  >
-                    {(posts as Post[]).length > 0 ? (
-                      (posts as Post[]).map((post, index) => (
-                        <MyPost key={index} post={post} fullPage={false} />
-                      ))
-                    ) : (
-                      <h1 style={{ textAlign: 'center' }}>
-                        <Empty />
-                      </h1>
-                    )}
-                  </TabPane>
-                  <TabPane
-                    tab={
-                      <span>
-                        <AndroidOutlined />
-                        Tab 2
-                      </span>
-                    }
-                    key="other-user-tab-2"
-                  >
-                    Tab 2
-                  </TabPane>
-                </Tabs>
+                !postsDoneLoading ? (
+                  <Spin style={{ textAlign: 'center' }} size="small" />
+                ) : (posts as Post[]).length > 0 ? (
+                  <ProfileRootPosts
+                    currentUser={currentUser!}
+                    post={posts as Post[]}
+                    type="other-user"
+                  />
+                ) : (
+                  <h1 style={{ textAlign: 'center' }}>
+                    <Empty />
+                  </h1>
+                )
               ) : (
                 <p style={{ textAlign: 'center' }}>
                   This user's profile is private. Follow them to see more
@@ -752,15 +630,9 @@ const UserProfile = (props: IUserProps) => {
           <div style={{ textAlign: 'center', marginTop: '15%' }}>
             <Spin size="small" />
           </div>
-          // <Result
-          //     status="403"
-          //     title="That's weird :\"
-          //     subTitle="The page you visited does not exist."
-          // // extra={<Button type="primary">Back Home</Button>}
-          // />
         )}
-      </div>
-    </div>
+      </Col>
+    </Row>
   );
 };
 

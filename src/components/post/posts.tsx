@@ -4,16 +4,14 @@ import firebase from 'firebase';
 import {
   Comment,
   Post,
-  PostPrivacy,
   RegistrationObject,
 } from '../interfaces/user.interface';
-import { Spin, Empty, Col, Skeleton, BackTop } from 'antd';
+import { Col, Skeleton, BackTop, Button } from 'antd';
 import { connect } from 'react-redux';
 import {
   setCurrentUserListener,
   setCurrentUserRootDatabaseListener,
 } from '../../redux/user/user.actions';
-import axios from 'axios';
 import bluebird from 'bluebird';
 
 interface IPostsProps {
@@ -124,7 +122,7 @@ export const awaitFillPosts = async (
 };
 
 const Posts = (props: IPostsProps) => {
-  const { currentUser, currentUserInfo, currentUserEligiblePosts } = props;
+  const { currentUser, currentUserEligiblePosts } = props;
 
   console.log('CARDS.TSX PROPS: ', props);
 
@@ -133,6 +131,10 @@ const Posts = (props: IPostsProps) => {
 
   useEffect(() => {
     if (!currentUser) return;
+    if (currentUserEligiblePosts === null) {
+      setLoading(false);
+      return;
+    }
     // if (currentUserEligiblePosts!.length === 0) {
     //     setLoading(false);
     //     return;
@@ -202,12 +204,8 @@ const Posts = (props: IPostsProps) => {
                   console.log('@SSH ERROR: ', error);
                   if (error.code) {
                     if (error.code === 'PERMISSION_DENIED') {
-                      const lastKey = error.message.split(':')[0].split('/')[3];
-
                       // delete temp[lastKey];
-
                       // setPosts(Object.values(temp));
-
                       //TODO: Maybe show 'post not available message'?
                     }
                   }
@@ -239,12 +237,11 @@ const Posts = (props: IPostsProps) => {
     return (
       <Col
         span="12"
-        style={{
-          marginLeft: '20%',
-          marginRight: '20%',
-          marginTop: '5%',
-          textAlign: 'center',
-        }}
+        style={
+          {
+            /* marginLeft: "20%", marginRight: "20%", marginTop: "5%", textAlign: "center" */
+          }
+        }
       >
         {/* <Spin size="large" /> */}
         <Skeleton avatar active paragraph={{ rows: 4 }} />
@@ -252,22 +249,28 @@ const Posts = (props: IPostsProps) => {
     );
   }
 
+  if (currentUserEligiblePosts === null) {
+    return (
+      <div style={{ textAlign: 'center' }}>
+        <img
+          alt="empty"
+          src="https://humornama.com/wp-content/uploads/2020/05/lonely-vs-alone-meme.png"
+        />
+        <br />
+        You are not following anyone. Follow people to see their posts here.{' '}
+        <br />
+        <Button>Click here to explore posts and users</Button>
+      </div>
+    );
+  }
+
   return (
     <div className="posts__container">
       <BackTop />
-      {
-        posts.length > 0 &&
-          posts.map((val) => (
-            <MyPost key={val.key} post={val} fullPage={false} />
-          ))
-        // :
-        // <p style={{ textAlign: "center" }}>You are not following anyone. To see posts here go follow people.</p>
-      }
-      {props.currentUserEligiblePosts!.length === 0 && (
-        <p style={{ textAlign: 'center' }}>
-          You are not following anyone. To see posts here go follow people.
-        </p>
-      )}
+      {posts.length > 0 &&
+        posts.map((val) => (
+          <MyPost fullPage={false} key={val.key} post={val} />
+        ))}
     </div>
   );
 

@@ -6,68 +6,94 @@ import { replaceAtMentionsWithLinks2 } from '../../mentions/mentions.component';
 
 interface IPostCommentsProps {
   post: Post;
+  full: boolean;
 }
 
 export const PostComments = (props: IPostCommentsProps) => {
-  const { post } = props;
-  // const { image_url, username } = post.user;
+  const { post, full } = props;
   return (
     <>
-      {post.comments &&
-        Object.values(post.comments).map((comment: Comment, index: number) => (
-          <div
-            style={{
-              padding: '10px',
-            }}
-          >
-            <Row justify="start" align="top">
-              <Col span={2}>
-                <Avatar
-                  alt="user avatar"
-                  src={comment.user.image_url}
-                  size={36}
-                />
-              </Col>
-              <Col span={21} offset={1}>
+      {post.comments && (
+        <>
+          {full ? (
+            Object.values(post.comments).map(
+              (comment: Comment, index: number) => (
+                <div
+                  key={index}
+                  style={{
+                    padding: '10px',
+                  }}
+                >
+                  <Row justify="start" align="top">
+                    <Col span={2}>
+                      <Avatar
+                        alt="user avatar"
+                        src={comment.user.image_url}
+                        size={36}
+                      />
+                    </Col>
+                    <Col
+                      span={21}
+                      offset={1}
+                      // to hide very long weird and probably non-existent one word
+                      style={{ overflowX: 'hidden' }}
+                    >
+                      <span>
+                        <Link
+                          to={{
+                            pathname: `/${comment.user.username}`,
+                          }}
+                        >
+                          <span style={{ fontWeight: 'bold' }}>
+                            {comment.user.username}{' '}
+                          </span>
+                        </Link>
+                        {replaceAtMentionsWithLinks2(comment.comment)}
+                      </span>
+                    </Col>
+                  </Row>
+                </div>
+              )
+            )
+          ) : (
+            <>
+              {post.comments &&
+                Object.values(post.comments)
+                  .slice(0, 3)
+                  .map((comment: Comment, index: number) => (
+                    <Row justify="start" align="middle" key={index}>
+                      <span>
+                        <Link
+                          to={{
+                            pathname: `/${comment.user.username}`,
+                          }}
+                        >
+                          <span style={{ fontWeight: 'bold' }}>
+                            {comment.user.username}{' '}
+                          </span>
+                        </Link>
+                        {replaceAtMentionsWithLinks2(comment.comment)}
+                      </span>
+                    </Row>
+                  ))}
+              <Link to={`/post/${post.id}`}>
                 <span>
-                  <Link
-                    to={{
-                      pathname: `/${comment.user.username}`,
-                    }}
-                  >
-                    <span style={{ fontWeight: 'bold' }}>
-                      {comment.user.username}{' '}
-                    </span>
-                  </Link>
+                  View all {Object.keys(post.comments).length} comments
                 </span>
-                <span style={{ marginLeft: '10px' }}>
-                  {replaceAtMentionsWithLinks2(comment.comment)}
-                </span>
-              </Col>
-            </Row>
-          </div>
-          //   <Row style={{ alignContent: 'center' }} key={index}>
-          //     <Link
-          //       to={{
-          //         pathname: `/${comment.user.username}`,
-          //       }}
-          //     >
-          //       <span style={{ fontWeight: 'bold' }}>
-          //         {comment.user.username}{' '}
-          //       </span>
-          //     </Link>
-
-          //     {/* <span style={{ marginLeft: 10 }}>{comment.comment.match(/@\S+/g)?.map(str => `<a href="/${str}" />`)}</span><br /> */}
-          //     <span style={{ marginLeft: 10 }}>
-          //       {replaceAtMentionsWithLinks2(comment.comment)}
-          //     </span>
-          //     <br />
-          //     {/* <span style={{ float: "right", fontSize: "small" }}>
-
-          //           </span> */}
-          //     {/* <span style={{ marginLeft: 10, float: "right" }}>{"16 Oct 2020"}</span><br /> */}
-          //   </Row>
-        ))}
+              </Link>
+            </>
+          )}
+        </>
+      )}
     </>
   );
+};
+
+interface IPostCommentsNumberProps {
+  post: Post;
+}
+
+export const PostCommentsNumber = (props: IPostCommentsNumberProps) => {
+  const { post } = props;
+  return <>{post.comments ? Object.keys(post.comments).length : 0}</>;
 };

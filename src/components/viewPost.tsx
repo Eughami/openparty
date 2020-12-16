@@ -26,7 +26,26 @@ import './post/post.css';
 interface postIdInterface {
   postId: string;
 }
-interface ViewPostProps extends RouteComponentProps<any> {}
+interface ViewPostProps extends RouteComponentProps<any> {
+  currentUserToken?: string;
+  currentUser?: firebase.User;
+}
+
+interface ProbeResult {
+  width: number;
+  height: number;
+  type: string;
+  mime: string;
+  wUnits: string;
+  hUnits: string;
+  length: number;
+  url: string;
+}
+
+const { useBreakpoint } = Grid;
+
+// const handleDragStart = (e: any) => e.preventDefault();
+
 const ViewPost = (props: ViewPostProps) => {
   const { xl, md, xs, lg, sm, xxl } = useBreakpoint();
   console.log(useBreakpoint());
@@ -274,12 +293,11 @@ const ViewPost = (props: ViewPostProps) => {
   );
 };
 
-  const { history, match } = props;
-  return (
-    <>
-      {post ? <MyPost post={post} fullPage={true} /> : <h1>404 NOT FOUND!</h1>}
-    </>
-  );
+const mapStateToProps = (state: any) => {
+  return {
+    currentUserToken: state.user.currentUserToken,
+    currentUser: state.user.currentUser,
+  };
 };
 
 export default connect(mapStateToProps, null)(ViewPost);

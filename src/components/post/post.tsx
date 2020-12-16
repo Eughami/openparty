@@ -83,8 +83,7 @@ const Post = (props: IPostProps) => {
     <>
       {fullPage ? (
         <div className="full__page__post">
-          {console.log('full page View')}
-          <Row justify="center" align="middle" style={{ height: '100%' }}>
+          <Row justify="center" align="middle">
             <div className="full__page__post__divider">
               {/* hardcoded image height for the full view  */}
               <PostImages post={props.post} imageHeight={700} />
@@ -95,7 +94,7 @@ const Post = (props: IPostProps) => {
               </div>
               <div className="full__post__comments__container">
                 <PerfectScrollbar>
-                  <PostComments post={props.post} />
+                  <PostComments post={props.post} full={true} />
                 </PerfectScrollbar>
               </div>
               <div className="full__page__post__actions__container">
@@ -161,7 +160,7 @@ const Post = (props: IPostProps) => {
             <PostCaption post={props.post} />
             <br />
             {/* <p style={{ fontWeight: "bold" }}>Comments</p><br /> */}
-            <PostComments post={props.post} />
+            <PostComments post={props.post} full={false} />
           </div>
           <Row>
             <Row style={{ flex: 1 }} className="post__add__comment">
