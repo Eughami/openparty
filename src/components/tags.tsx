@@ -5,7 +5,7 @@ import {
   setCurrentUserRootDatabaseListener,
   setCurrentUserEligiblePosts,
 } from '../redux/user/user.actions';
-import { Post, RegistrationObject, Comment } from './interfaces/user.interface';
+import { Post, RegistrationObject } from './interfaces/user.interface';
 import MyPost from './post/post';
 import { connect } from 'react-redux';
 import axios from 'axios';
@@ -28,16 +28,10 @@ interface ITagsProps {
 
 const Tags = (props: ITagsProps) => {
   console.log('Tag Props: ', props);
-  const {
-    currentUser,
-    currentUserInfo,
-    currentUserEligiblePosts,
-    setCurrentUserEligiblePosts,
-    currentUserToken,
-  } = props;
+  const { currentUser, currentUserToken } = props;
   const { tag } = props.match.params;
   const [loading, setLoading] = useState<boolean>(true);
-  const [posts, setPosts] = useState<Array<Post>>([]);
+  const [posts, setPosts] = useState<Array<Post> | null>([]);
 
   useEffect(() => {
     const decodeProfile = async () => {
@@ -64,6 +58,11 @@ const Tags = (props: ITagsProps) => {
       console.log(result.data);
 
       if (result.data.success) {
+        if (result.data.uFP.length === 0) {
+          setLoading(false);
+          setPosts(null);
+          return;
+        }
         let temp: any = {};
 
         await bluebird
@@ -119,14 +118,8 @@ const Tags = (props: ITagsProps) => {
                     console.log('@SSH ERROR: ', error);
                     if (error.code) {
                       if (error.code === 'PERMISSION_DENIED') {
-                        const lastKey = error.message
-                          .split(':')[0]
-                          .split('/')[3];
-
                         // delete temp[lastKey];
-
                         // setPosts(Object.values(temp));
-
                         //TODO: Maybe show 'post not available message'?
                       }
                     }
@@ -150,22 +143,18 @@ const Tags = (props: ITagsProps) => {
   if (loading) {
     return (
       <Col
-        span="12"
-        style={{
-          marginLeft: '20%',
-          marginRight: '20%',
-          marginTop: '7%',
-          textAlign: 'center',
-        }}
+        xs={{ span: 22, offset: 1 }}
+        lg={{ span: 16, offset: 2 }}
+        xl={{ span: 10, offset: 4 }}
+        span={12}
       >
-        {/* <Spin size="large" /> */}
         <Skeleton avatar active paragraph={{ rows: 4 }} />
       </Col>
     );
   }
 
   return (
-    <div style={{ marginLeft: '20%', marginRight: '20%', marginTop: '5%' }}>
+    <div>
       <div>
         <BackTop />
         {

@@ -15,6 +15,8 @@ export const GET_ALL_POST_ENDPOINT = 'posts';
 
 export const ADD_COMMENT_ENDPOINT = 'posts/add-comment';
 
+export const PROBE_IMAGE_ENDPOINT = 'posts/probe-image';
+
 export const LIKE_COMMENT_ENDPOINT = 'posts/like-comment';
 
 export const LIKE_POST_ENDPOINT = 'posts/like-post';
@@ -46,4 +48,6 @@ export const SEND_FOLLOW_REQUEST_ENDPOINT = 'users/send-follow-request';
 export const UNFOLOW_REQUEST_ENDPOINT = 'users/unfollow-user';
 
 export const CANCEL_FOLLOW_REQUEST_ENDPOINT = 'users/cancel-follow-request';
+
+export const GET_ONE_POST = 'posts/post';
 // export const _ENDPOINT = ""

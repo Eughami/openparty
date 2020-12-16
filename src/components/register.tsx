@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
   Form,
   Input,
@@ -11,12 +11,8 @@ import {
   // Alert
 } from 'antd';
 import { QuestionCircleOutlined } from '@ant-design/icons';
-import firebase from 'firebase';
-import { RegistrationRequest } from './interfaces/interface';
 import { emailSignInStart, signUpStart } from '../redux/user/user.actions';
 import { connect } from 'react-redux';
-import { API_BASE_URL, REGISTRATION_ENDPOINT } from '../service/api';
-import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
 import { RegistrationObject } from './interfaces/user.interface';
 import { Link } from 'react-router-dom';
 
@@ -54,6 +50,19 @@ const tailFormItemLayout = {
   },
 };
 
+export const prefixSelector = (
+  <Form.Item name="prefix" noStyle>
+    <Select
+      style={{
+        width: 70,
+      }}
+    >
+      <Option value="357">+357</Option>
+      <Option value="90">+90</Option>
+    </Select>
+  </Form.Item>
+);
+
 const RegistrationForm = ({ emailSignInStart, signUpStart, history }: any) => {
   const [form] = Form.useForm();
   const [registerWorking, setRegisterWorking] = useState<boolean>(false);
@@ -87,19 +96,7 @@ const RegistrationForm = ({ emailSignInStart, signUpStart, history }: any) => {
     }
   };
 
-  const prefixSelector = (
-    <Form.Item name="prefix" noStyle>
-      <Select
-        style={{
-          width: 70,
-        }}
-      >
-        <Option value="357">+357</Option>
-        <Option value="90">+90</Option>
-      </Select>
-    </Form.Item>
-  );
-
+  // TODO: ADD RESPONSIVENESS HERE TOO
   return (
     <Col
       span="12"

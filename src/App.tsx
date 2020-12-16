@@ -1,8 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { Switch, Route, Redirect } from 'react-router-dom';
+import { Switch, Route } from 'react-router-dom';
 import { connect } from 'react-redux';
-// import { createStructuredSelector } from 'reselect';
-// import { selectCurrentUser } from './redux/user/user.selectors';
 import {
   setCurrentUserListener,
   setCurrentUserRootDatabaseListener,
@@ -18,8 +16,10 @@ import RegistrationForm from './components/register';
 import UserProfile from './components/user-info';
 import Tags from './components/tags';
 import { RegistrationObject } from './components/interfaces/user.interface';
-import { Col, Spin, Tabs } from 'antd';
+import { Spin } from 'antd';
 import Header from './components/header/header';
+import ProfileUI from './components/test';
+import EditAccount from './components/account/edit-account';
 
 import firebase from 'firebase';
 import ViewPost from './components/viewPost';
@@ -40,25 +40,29 @@ interface IAppProps {
 const App = (props: IAppProps) => {
   const {
     currentUser,
-    currentUserToken,
     currentUserInfo,
     setCurrentUserListener,
     setCurrentUserRootDatabaseListener,
     setCurrentUserEligiblePosts,
     setCurrentUserToken,
   } = props;
-  const { TabPane } = Tabs;
 
   useEffect(() => {
     if (!currentUser) {
       setCurrentUserListener!()
-        .then((currentUser: any) => {
-          setCurrentUserToken!(currentUser);
+        .then(async (currentUser: any) => {
+          await setCurrentUserToken!(currentUser);
+          await setCurrentUserRootDatabaseListener!(currentUser.uid);
           setLoadingCredentials(false);
         })
         .catch(() => setLoadingCredentials(false));
     }
-  }, [currentUser, setCurrentUserListener, setCurrentUserToken]);
+  }, [
+    currentUser,
+    setCurrentUserListener,
+    setCurrentUserToken,
+    setCurrentUserRootDatabaseListener,
+  ]);
 
   useEffect(() => {
     if (!currentUserInfo && currentUser) {
@@ -72,48 +76,24 @@ const App = (props: IAppProps) => {
     setCurrentUserEligiblePosts,
   ]);
 
-  // useEffect(() => {
-
-  //   setTimeout(() => {
-  //     if (currentUser)
-  //       setCurrentUserToken!(currentUser!)
-  //   }, 3300);
-  // }, [currentUser, setCurrentUserToken])
-
   console.log('APP.TSX PROPS:  ', props.currentUserToken);
 
-  // useEffect(() => {
-  //   if (!currentUser) return;
-  //   console.log("@DB TEST EFFECT ", currentUser?.email);
-
-  //   firebase.database().ref("Postsv2").child("iILfbJyqoPaoV5yjPZuMwIBXCVn1/0").on("value", snapshot => {
-  //     console.log("@DB DEBUG ", snapshot.val());
-
-  //   }, (error: any) => {
-  //     console.log(error);
-
-  //   })
-  // }, [currentUser])
-
   const [loadingCredentials, setLoadingCredentials] = useState<boolean>(true);
-
-  // return (
-  //   <AsyncMention />
-  // );
 
   if (loadingCredentials) {
     return (
       <div style={{ textAlign: 'center' }}>
         <Spin size="small" />
+        <p>Loading your stuff...</p>
       </div>
     );
   }
 
   return (
-    <div className="">
+    <div className="App">
       {currentUser ? (
         <div>
-          <div style={{ marginBottom: 60 }}>
+          <div style={{ paddingBottom: '60px' }}>
             <Header />
           </div>
           <Switch>
@@ -121,20 +101,16 @@ const App = (props: IAppProps) => {
             <Route exact path="/:username" component={UserProfile} />
             <Route exact path="/t/:tag" component={Tags} />
             <Route exact path="/post/:postId" component={ViewPost} />
+            <Route exact path="/account/edit" component={EditAccount} />
+            <Route exact path="/test/p" component={ProfileUI} />
+
+            {/* <Route component={Homepage} /> */}
           </Switch>
         </div>
       ) : (
         <Switch>
-          <Route path="/login" component={Login} />
-          <Route path="/register" component={RegistrationForm} />
-          <Redirect
-            to={{
-              pathname:
-                window.location.pathname === '/register'
-                  ? '/register'
-                  : '/login',
-            }}
-          />
+          <Route exact path="/register" component={RegistrationForm} />
+          <Route component={Login} />
         </Switch>
       )}
     </div>

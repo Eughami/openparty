@@ -45,8 +45,6 @@ import { Link } from 'react-router-dom';
 import { RcFile } from 'antd/lib/upload/interface';
 import bluebird from 'bluebird';
 import { makeId } from '../post/post.actions';
-import ImgCrop from 'antd-img-crop';
-import { Moment } from 'moment';
 import AsyncMention from '../mentions/mentions.component';
 import PerfectScrollbar from 'react-perfect-scrollbar';
 
@@ -58,6 +56,7 @@ import {
   IGNORE_FOLLOW_ENDPOINT,
   PING_ENDPOINT,
 } from '../../service/api';
+import TempHeaderNotification from './temp-header';
 
 interface IHeaderProps {
   setCurrentUserListener?: () => Promise<any>;
@@ -69,6 +68,7 @@ interface IHeaderProps {
 
 const { Search } = Input;
 
+const { Option } = Select;
 const Header = (props: IHeaderProps) => {
   const [modalVisible, setModalVisible] = useState<boolean>(false);
   const [postModalVisible, setPostModalVisible] = useState<boolean>(false);
