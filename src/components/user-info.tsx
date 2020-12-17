@@ -212,7 +212,7 @@ const UserProfile = (props: IUserProps) => {
             setFollowActionLoading(false);
 
             if (currentUserEligiblePosts === null) {
-              //serious issues here
+              //serious issues here?
             }
 
             //Get data from user root profile
@@ -243,10 +243,12 @@ const UserProfile = (props: IUserProps) => {
             //Get data from user's posts
             let temp: any = {};
 
+            const filteredEligiblePosts = currentUserEligiblePosts!.filter(
+              (post) => post.uidRef === result.data.targetUid
+            );
+
             if (
-              currentUserEligiblePosts!.filter(
-                (eligible) => eligible.username === username
-              ).length === 0 ||
+              filteredEligiblePosts.length === 0 ||
               currentUserEligiblePosts === null
             ) {
               setPosts([]);
@@ -258,9 +260,7 @@ const UserProfile = (props: IUserProps) => {
             // console.log("@SETTLED COMDS: ", currentUserEligiblePosts!.filter(eligible => eligible.uidRef === username));
             await bluebird
               .map(
-                currentUserEligiblePosts!.filter(
-                  (eligible) => eligible.username === username
-                ),
+                filteredEligiblePosts,
                 async (
                   obj: { uidRef: string; postRef: string },
                   index: number
@@ -302,11 +302,7 @@ const UserProfile = (props: IUserProps) => {
                         }
 
                         if (
-                          index ===
-                            currentUserEligiblePosts!.filter(
-                              (eligible) => eligible.username === username
-                            ).length -
-                              1 &&
+                          index === filteredEligiblePosts.length - 1 &&
                           !localStorage.getItem('otherUserPostsSet')
                         ) {
                           console.log('IN COND: ', Object.values(temp));
@@ -338,9 +334,7 @@ const UserProfile = (props: IUserProps) => {
                     );
                 },
                 {
-                  concurrency: currentUserEligiblePosts!.filter(
-                    (eligible) => eligible.username === username
-                  ).length,
+                  concurrency: filteredEligiblePosts.length,
                 }
               )
               .then(() => {
@@ -494,7 +488,7 @@ const UserProfile = (props: IUserProps) => {
         <img
           height="200"
           width="100"
-          src={LOADER_OBJECTS.GET_RANDOM_LOADER()}
+          src={LOADER_OBJECTS.LOADING_GEARS_01}
           alt="LOADING"
         />
       </div>

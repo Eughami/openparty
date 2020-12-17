@@ -74,6 +74,8 @@ export const EditProfile = (props: IEditProfileInterface) => {
         .update({ ...values });
     }
 
+    setSelectedImage({ url: '', file: undefined });
+
     message.success('Profile updated 🥂');
     setUpdateWorking(false);
   };

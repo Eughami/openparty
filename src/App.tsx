@@ -56,8 +56,9 @@ const App = (props: IAppProps) => {
           await setCurrentUserRootDatabaseListener!(currentUser.uid);
           setLoadingCredentials(false);
         })
-        .catch(() => {
+        .catch((e) => {
           setLoadingCredentials(false);
+          setLoadingCredentialsError({ error: e });
         });
     }
   }, [
@@ -94,27 +95,12 @@ const App = (props: IAppProps) => {
         <img
           height="200"
           width="100"
-          src={LOADER_OBJECTS.GET_RANDOM_LOADER()}
+          src={LOADER_OBJECTS.LOADING_PINKY_PIG_01}
           alt="LOADING"
         />
       </div>
     );
   }
-
-  // else if (loadingCredentialsError.error) {
-  //   return (
-  //     <div style={{ textAlign: 'center' }}>
-  //       {/* <Spin size="small" />
-  //       <p>Loading your stuff...</p> */}
-  //        <img
-  //         height="200"
-  //         width="100"
-  //         src={LOADER_OBJECTS.GET_RANDOM_LOADER()}
-  //         alt="LOADING"
-  //       />
-  //     </div>
-  //   );
-  // }
 
   return (
     <div className="App">

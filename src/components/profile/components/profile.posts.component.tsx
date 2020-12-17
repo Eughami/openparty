@@ -5,8 +5,18 @@
 
 //or we can just have 5 exported components lol
 
-import { Card, Col, Row, Empty } from 'antd';
-import React from 'react';
+import React, { useState } from 'react';
+import {
+  Card,
+  Col,
+  Row,
+  Empty,
+  Modal,
+  Popover,
+  Carousel,
+  Typography,
+  Input,
+} from 'antd';
 import { PostCaption } from '../../post/components/post.component.caption';
 import { PostLikesNumber } from '../../post/components/post.component.likes';
 import { PostTags as PostTagsComponent } from '../../post/components/post.component.tags';
@@ -19,6 +29,7 @@ import { Post, RegistrationObject } from '../../interfaces/user.interface';
 import { CardMetaProps } from 'antd/lib/card';
 import { EllipsisOutlined } from '@ant-design/icons';
 import { useHistory } from 'react-router-dom';
+import AsyncMention from '../../mentions/mentions.component';
 
 export const SPRITE_IMAGE_URL =
   'https://firebasestorage.googleapis.com/v0/b/openpaarty.appspot.com/o/defaults%2Ficons%2F65c15d7731ea.png?alt=media&token=0870e69e-ae19-42f6-aeb8-5bd40f1e040c';
@@ -36,6 +47,8 @@ interface IRenderPostCardProps {
   type: 'self-user' | 'other-user';
   Meta: React.FC<CardMetaProps>;
 }
+
+const { Paragraph } = Typography;
 
 /**
  * Return card view of self user's open post
@@ -107,11 +120,96 @@ export const ProfileOtherUserOpenPosts = (props: IProfilePostsProps) => {
   );
 };
 
+const EditPost = (props: { post: Post }) => {
+  const { post } = props;
+
+  return (
+    <div>
+      <Carousel>
+        {post.image_url?.map((url, index) => (
+          <div key={index}>
+            <img
+              style={{
+                objectFit: 'contain',
+                width: '100%',
+                height: '50vh',
+              }}
+              // className="zoom"
+              alt={post.caption}
+              src={url}
+            />
+          </div>
+        ))}
+      </Carousel>
+    </div>
+  );
+};
+
+const onPostSave = async (post: Post) => {};
+
 const RenderPostCard = (props: IRenderPostCardProps) => {
   const { currentUser, post, Meta } = props;
+  const [postPopoverVisible, setPostPopoverVisible] = useState<boolean>(false);
+  const [selectedPost, setSelectedPost] = useState<Post>();
+  const [editedPost, setEditedPost] = useState<Post>();
   const history = useHistory();
   return (
     <Row>
+      {selectedPost && (
+        <Modal
+          title={
+            <div style={{ width: '70%' }}>
+              <Paragraph
+                editable={{
+                  onChange: (v) => {
+                    selectedPost.caption = v;
+                    console.log('@IMPV :', selectedPost);
+                  },
+                }}
+              >
+                {selectedPost.caption}
+              </Paragraph>
+            </div>
+          }
+          visible={postPopoverVisible}
+          okButtonProps={{ disabled: true }}
+          onOk={() => {
+            onPostSave(selectedPost).finally(() =>
+              setPostPopoverVisible(false)
+            );
+          }}
+        >
+          <Card
+            hoverable
+            cover={
+              <div>
+                <img
+                  style={{
+                    objectFit: 'contain',
+                    width: '100%',
+                    height: '50vh',
+                  }}
+                  alt={selectedPost.caption}
+                  src={selectedPost.image_url![0]}
+                />
+              </div>
+            }
+          >
+            <Meta
+              description={
+                selectedPost.tags && (
+                  <PostTagsComponent
+                    showTooltip={false}
+                    limitTags={2}
+                    post={selectedPost}
+                  />
+                )
+              }
+            />
+          </Card>
+        </Modal>
+      )}
+
       {post.length === 0 ? (
         <h1 style={{ textAlign: 'center' }}>
           <Empty />
@@ -177,7 +275,23 @@ const RenderPostCard = (props: IRenderPostCardProps) => {
                   <PostCommentsNumber post={post} />
                 </Row>,
                 <span style={{ fontSize: '25px' }}>
-                  <EllipsisOutlined />
+                  {/* <Popover
+                    content={
+                      <>
+                        <a>Edit</a> <a>Delete</a>
+                      </>
+                    }
+                    title="Title"
+                    trigger="click"
+                    visible={postPopoverVisible}
+                    onVisibleChange={(v) => setPostPopoverVisible(v)}
+                  ></Popover> */}
+                  <EllipsisOutlined
+                    onClick={() => {
+                      setSelectedPost(post);
+                      setPostPopoverVisible(true);
+                    }}
+                  />
                 </span>,
               ]}
             >
