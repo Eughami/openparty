@@ -15,5 +15,9 @@
     "titleBar.inactiveBackground": "#1f0f0699",
     "titleBar.inactiveForeground": "#e7e7e799"
   },
-  "peacock.color": "#1f0f06"
+  "peacock.color": "#1f0f06",
+  "cSpell.words": [
+    "NOTIF",
+    "pepepoggers"
+  ]
 }

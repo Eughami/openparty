@@ -16,6 +16,9 @@ import {
   Carousel,
   Typography,
   Input,
+  Select,
+  DatePicker,
+  message,
 } from 'antd';
 import { PostCaption } from '../../post/components/post.component.caption';
 import { PostLikesNumber } from '../../post/components/post.component.likes';
@@ -27,9 +30,17 @@ import {
 } from '../../post/components/post.component.actions';
 import { Post, RegistrationObject } from '../../interfaces/user.interface';
 import { CardMetaProps } from 'antd/lib/card';
-import { EllipsisOutlined } from '@ant-design/icons';
+import {
+  EllipsisOutlined,
+  DeleteOutlined,
+  ExclamationCircleOutlined,
+} from '@ant-design/icons';
 import { useHistory } from 'react-router-dom';
 import AsyncMention from '../../mentions/mentions.component';
+import Moment from 'moment';
+import Axios, { AxiosResponse } from 'axios';
+import { API_BASE_URL, DELETE_POST_ENDPOINT } from '../../../service/api';
+import firebase from 'firebase';
 
 export const SPRITE_IMAGE_URL =
   'https://firebasestorage.googleapis.com/v0/b/openpaarty.appspot.com/o/defaults%2Ficons%2F65c15d7731ea.png?alt=media&token=0870e69e-ae19-42f6-aeb8-5bd40f1e040c';
@@ -120,39 +131,81 @@ export const ProfileOtherUserOpenPosts = (props: IProfilePostsProps) => {
   );
 };
 
-const EditPost = (props: { post: Post }) => {
-  const { post } = props;
-
-  return (
-    <div>
-      <Carousel>
-        {post.image_url?.map((url, index) => (
-          <div key={index}>
-            <img
-              style={{
-                objectFit: 'contain',
-                width: '100%',
-                height: '50vh',
-              }}
-              // className="zoom"
-              alt={post.caption}
-              src={url}
-            />
-          </div>
-        ))}
-      </Carousel>
-    </div>
-  );
-};
-
-const onPostSave = async (post: Post) => {};
+const { Option } = Select;
 
 const RenderPostCard = (props: IRenderPostCardProps) => {
   const { currentUser, post, Meta } = props;
+  const [editPostModalVisible, setEditPostVisible] = useState<boolean>(false);
   const [postPopoverVisible, setPostPopoverVisible] = useState<boolean>(false);
+  const [editPostWorking, setEditPostWorking] = useState<boolean>(false);
   const [selectedPost, setSelectedPost] = useState<Post>();
   const [editedPost, setEditedPost] = useState<Post>();
   const history = useHistory();
+
+  const deletePost = async (post: Post) => {
+    const token = await currentUser.getIdToken(true);
+
+    await Axios.delete(
+      `${API_BASE_URL}${DELETE_POST_ENDPOINT}`.replace(/:postId/g, post.id),
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    )
+      .catch((e) => {
+        console.log('@DELETE POST ERROR: ', e);
+        message.error('There was an error while deleting your post...');
+        return;
+      })
+      .then((__res) => {
+        message.success('Post successfully deleted 👏');
+      });
+  };
+
+  //TODO: FIX UNDEFINED VALS WITH NULL
+  const saveEditedPost = async (post: Post) => {
+    setEditPostWorking(true);
+
+    console.log(post);
+
+    await firebase
+      .database()
+      .ref('Postsv2')
+      .child(currentUser!.uid)
+      .child(post.id)
+      .update({ ...post })
+      .then(() => {
+        message.success('Post edited 🍻');
+      })
+      .catch((e) => {
+        console.log('@EDIT POST ERROR: ', e);
+        message.error('There was a problem while editing your post...');
+      })
+      .finally(() => setEditPostWorking(false));
+  };
+
+  const showModalDeletePostMessage = (post: Post) => {
+    Modal.confirm({
+      title: 'Delete this post?',
+      async onOk() {
+        try {
+          return new Promise(async (resolve, __reject) => {
+            await deletePost(post);
+            return resolve(null);
+          });
+        } catch (e) {
+          return console.log('Oops errors! ', e);
+        }
+      },
+      centered: true,
+      okText: 'Yes',
+      cancelText: 'No',
+      onCancel: () => setPostPopoverVisible(false),
+      icon: <ExclamationCircleOutlined />,
+    });
+  };
+
   return (
     <Row>
       {selectedPost && (
@@ -162,8 +215,8 @@ const RenderPostCard = (props: IRenderPostCardProps) => {
               <Paragraph
                 editable={{
                   onChange: (v) => {
-                    selectedPost.caption = v;
-                    console.log('@IMPV :', selectedPost);
+                    // selectedPost.caption = v;
+                    setSelectedPost({ ...selectedPost, caption: v });
                   },
                 }}
               >
@@ -171,16 +224,17 @@ const RenderPostCard = (props: IRenderPostCardProps) => {
               </Paragraph>
             </div>
           }
-          visible={postPopoverVisible}
-          okButtonProps={{ disabled: true }}
+          visible={editPostModalVisible}
+          okButtonProps={{ loading: editPostWorking }}
+          onCancel={() => setEditPostVisible(false)}
           onOk={() => {
-            onPostSave(selectedPost).finally(() =>
-              setPostPopoverVisible(false)
+            saveEditedPost(selectedPost).finally(() =>
+              setEditPostVisible(false)
             );
           }}
         >
           <Card
-            hoverable
+            bordered={false}
             cover={
               <div>
                 <img
@@ -194,16 +248,49 @@ const RenderPostCard = (props: IRenderPostCardProps) => {
                 />
               </div>
             }
+            // actions={[
+            //   // <Select defaultValue={selectedPost.privacy}>
+            //   //   <Option value="open">Public</Option>
+            //   //   <Option value="hard-closed">Private</Option>
+            //   //   <Option value="followers">Followers</Option>
+            //   // </Select>,
+            //   <DatePicker showTime format="YYYY-MM-DD HH:mm:ss" />,
+            // ]}
           >
             <Meta
               description={
-                selectedPost.tags && (
-                  <PostTagsComponent
-                    showTooltip={false}
-                    limitTags={2}
-                    post={selectedPost}
+                <div>
+                  <Select
+                    onChange={(v) => {
+                      setSelectedPost({ ...selectedPost, privacy: v as any });
+                    }}
+                    defaultValue={selectedPost.privacy}
+                  >
+                    <Option value="open">Public</Option>
+                    <Option value="hard-closed">Private</Option>
+                    <Option value="followers">Followers</Option>
+                  </Select>
+                  <DatePicker
+                    onOk={(date) => {
+                      // console.log(date.unix());
+
+                      setSelectedPost({
+                        ...selectedPost,
+                        date_of_event: date.unix(),
+                      });
+                    }}
+                    value={Moment.unix(selectedPost.date_of_event!)}
+                    showTime
+                    format="YYYY-MM-DD HH:mm:ss"
                   />
-                )
+                </div>
+                // selectedPost.tags && (
+                //   <PostTagsComponent
+                //     showTooltip={false}
+                //     // limitTags={2}
+                //     post={selectedPost}
+                //   />
+                // )
               }
             />
           </Card>
@@ -275,21 +362,18 @@ const RenderPostCard = (props: IRenderPostCardProps) => {
                   <PostCommentsNumber post={post} />
                 </Row>,
                 <span style={{ fontSize: '25px' }}>
-                  {/* <Popover
-                    content={
-                      <>
-                        <a>Edit</a> <a>Delete</a>
-                      </>
-                    }
-                    title="Title"
-                    trigger="click"
-                    visible={postPopoverVisible}
-                    onVisibleChange={(v) => setPostPopoverVisible(v)}
-                  ></Popover> */}
                   <EllipsisOutlined
                     onClick={() => {
                       setSelectedPost(post);
-                      setPostPopoverVisible(true);
+                      setEditPostVisible(true);
+                    }}
+                  />
+                </span>,
+                <span style={{ color: 'red', fontSize: '25px' }}>
+                  <DeleteOutlined
+                    onClick={() => {
+                      setSelectedPost(post);
+                      showModalDeletePostMessage(post);
                     }}
                   />
                 </span>,

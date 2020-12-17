@@ -11,6 +11,8 @@ export const REGISTRATION_ENDPOINT = 'users';
 
 export const ADD_POST_ENDPOINT = 'posts';
 
+export const DELETE_POST_ENDPOINT = 'posts/:postId';
+
 export const GET_ALL_POST_ENDPOINT = 'posts';
 
 export const ADD_COMMENT_ENDPOINT = 'posts/add-comment';

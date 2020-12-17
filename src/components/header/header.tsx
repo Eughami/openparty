@@ -18,6 +18,7 @@ import {
   DatePicker,
   Space,
   Spin,
+  notification,
 } from 'antd';
 import {
   UserOutlined,
@@ -25,7 +26,7 @@ import {
   HomeOutlined,
   UsergroupAddOutlined,
   VideoCameraAddOutlined,
-  AlertOutlined,
+  SmileOutlined,
   NotificationTwoTone,
 } from '@ant-design/icons';
 
@@ -62,6 +63,39 @@ interface IHeaderProps {
   currentUserInfo?: RegistrationObject;
   currentUserToken?: string;
 }
+
+//We can also use gifs 👀
+const LIKED_POST_REACTION_ARRAY = [
+  <span aria-label="not" role="img">
+    👀
+  </span>,
+  <span aria-label="not" role="img">
+    🙌
+  </span>,
+  <span aria-label="not" role="img">
+    🎉
+  </span>,
+  <span aria-label="not" role="img">
+    🤳
+  </span>,
+  <span aria-label="not" role="img">
+    👍
+  </span>,
+  <img
+    height="50px"
+    style={{ objectFit: 'contain' }}
+    width="30px"
+    src={require('../images/poggers.png')}
+    alt="poggers"
+  />,
+  <img
+    height="50px"
+    style={{ objectFit: 'contain' }}
+    width="30px"
+    src={require('../images/pepepoggers.jpg')}
+    alt="pepe-poggers"
+  />,
+];
 
 const { Search } = Input;
 
@@ -119,7 +153,7 @@ const Header = (props: IHeaderProps) => {
             const temp: any = {};
 
             ssh.forEach((post) => {
-              if (post.val().likes) {
+              if (post.val().likes && post.key !== 'HOT UPDATE') {
                 temp[`${post.key}`] = Object.values(post.val().likes);
                 temp[`${post.key}`].ref = post.key;
               }
@@ -132,7 +166,7 @@ const Header = (props: IHeaderProps) => {
             setUserNotifications(
               []
                 .concat(...(Object.values(temp) as any[]))
-                .sort((n1: any, n2: any) => n1.time - n2.time) as any
+                .sort((n1: any, n2: any) => n2.time - n1.time) as any
             );
           } else {
             setUserNotifications([]);
@@ -149,6 +183,44 @@ const Header = (props: IHeaderProps) => {
         .ref('Notifications')
         .child(props.currentUser?.uid!)
         .off('value', un_sub);
+  }, [props.currentUser]);
+
+  //Set listener for every hot notification update
+  useEffect(() => {
+    const un_sub = firebase
+      .database()
+      .ref('Notifications')
+      .child(props.currentUser?.uid!)
+      .child('HOT UPDATE')
+      .on(
+        'child_changed',
+        (ssh, __prevSsh) => {
+          if (ssh.exists()) {
+            if (ssh.child('desc').exists()) {
+              notification.open({
+                message: ssh.val().desc,
+                description: ssh.val().desc,
+                icon:
+                  LIKED_POST_REACTION_ARRAY[
+                    Math.floor(Math.random() * LIKED_POST_REACTION_ARRAY.length)
+                  ],
+                placement: 'bottomRight',
+              });
+            }
+          }
+        },
+        (error: any) => {
+          console.log(error);
+        }
+      );
+
+    return () =>
+      firebase
+        .database()
+        .ref('Notifications')
+        .child(props.currentUser?.uid!)
+        .child('HOT UPDATE')
+        .off('child_changed', un_sub);
   }, [props.currentUser]);
 
   const handleOk = () => {
