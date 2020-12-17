@@ -224,7 +224,7 @@ const ViewPost = (props: ViewPostProps) => {
                           initImageDim.height / 2 <= 400
                             ? 400
                             : initImageDim.height / 2,
-                        maxHeight: 800,
+                        maxHeight: 600,
                         width: '100%',
                       }}
                       onClick={() => history.push(`/post/${post.id}`)}
@@ -256,7 +256,7 @@ const ViewPost = (props: ViewPostProps) => {
                   initImageDim.height / 2 <= 400
                     ? 160
                     : initImageDim.height / 2 - 240,
-                maxHeight: 560,
+                maxHeight: 360,
               }}
             >
               <PerfectScrollbar>
