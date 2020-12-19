@@ -65,7 +65,7 @@ const ViewPost = (props: ViewPostProps) => {
   const [post, setPost] = useState<Post>();
   const [error, setError] = useState<any>(null);
   const [aspectRation, setAspectRatio] = useState<number>(0);
-  const [loadingPost, setLoadingPost] = useState<boolean>(false);
+  const [loadingPost, setLoadingPost] = useState<boolean>(true);
   const [initImageDim, setInitImageDim] = useState<ProbeResult>({
     width: 0,
     height: 0,
@@ -141,7 +141,7 @@ const ViewPost = (props: ViewPostProps) => {
             ).then((res) => {
               console.log('@IMAGE DIM: ', res.data);
               const { width, height } = res.data;
-              console.log('@IMAGE DIM AspecRatio: ', width / height);
+              console.log('@IMAGE DIM AspectRatio: ', width / height);
 
               setAspectRatio(width / height);
 

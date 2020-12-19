@@ -22,7 +22,9 @@ export const PostActions = (props: IPostActionsProps) => {
   const [userLikePost, setUserLikePost] = useState<boolean>(
     Array.isArray(post.likes)
       ? post.likes.indexOf(currentUser?.uid!) !== -1
-      : Object.values(post.likes).indexOf(currentUser?.uid!) !== -1
+      : Object.values(post.likes ? post.likes : {}).indexOf(
+          currentUser?.uid!
+        ) !== -1
   );
 
   useEffect(() => {

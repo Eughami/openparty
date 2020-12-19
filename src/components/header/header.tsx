@@ -205,6 +205,8 @@ const Header = (props: IHeaderProps) => {
                     Math.floor(Math.random() * LIKED_POST_REACTION_ARRAY.length)
                   ],
                 placement: 'bottomRight',
+                onClick: () => setShowNotification(true),
+                style: { cursor: 'pointer' },
               });
             }
           }
