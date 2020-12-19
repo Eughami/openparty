@@ -396,6 +396,9 @@ const RenderPostCard = (props: IRenderPostCardProps) => {
                     <Option value="followers">Followers</Option>
                   </Select>
                   <DatePicker
+                    dropdownAlign={{
+                      overflow: { adjustX: false, adjustY: false },
+                    }}
                     onOk={(date) => {
                       setSelectedPost({
                         ...selectedPost,

@@ -52,11 +52,17 @@ const App = (props: IAppProps) => {
     if (!currentUser) {
       setCurrentUserListener!()
         .then(async (currentUser: any) => {
-          await setCurrentUserToken!(currentUser);
-          await setCurrentUserRootDatabaseListener!(currentUser.uid);
-          setLoadingCredentials(false);
+          if (currentUser) {
+            await setCurrentUserToken!(currentUser);
+            await setCurrentUserRootDatabaseListener!(currentUser.uid);
+            setLoadingCredentials(false);
+          } else {
+            setLoadingCredentials(false);
+          }
         })
         .catch((e) => {
+          console.log('@APP.TSX LOADING CRED ERROR: ', e);
+
           setLoadingCredentials(false);
           setLoadingCredentialsError({ error: e });
         });
