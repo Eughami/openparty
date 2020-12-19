@@ -1,4 +1,5 @@
 import { Button, Col, Result, Row, Skeleton, Carousel, Grid } from 'antd';
+import { RightCircleTwoTone, LeftCircleTwoTone } from '@ant-design/icons';
 import Axios from 'axios';
 import firebase from 'firebase';
 import React, { useEffect, useState } from 'react';
@@ -221,7 +222,11 @@ const ViewPost = (props: ViewPostProps) => {
               </div>
             </Col>
             <div>
-              <Carousel>
+              <Carousel
+                nextArrow={<RightCircleTwoTone twoToneColor="#ccc" />}
+                prevArrow={<LeftCircleTwoTone twoToneColor="#ccc" />}
+                arrows
+              >
                 {post.image_url?.map((url, index) => (
                   <div key={index}>
                     <img
