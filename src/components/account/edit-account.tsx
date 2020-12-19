@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Tabs, Row, Col } from 'antd';
 import { connect } from 'react-redux';
 import { EditProfile } from './components/edit-account.component.profile';
@@ -19,6 +19,10 @@ const EditAccount = (props: IEditAccountInterface) => {
   const location = useLocation();
   console.log('EDIT ACCOUNT: ', props);
 
+  useEffect(() => {
+    document.title = `Open Party • Edit Profile`;
+  }, []);
+
   return (
     <>
       <Row
@@ -35,7 +39,7 @@ const EditAccount = (props: IEditAccountInterface) => {
           {/* TODO: Change position to 'top' when in mobile view */}
           <Tabs
             tabPosition="left"
-            defaultActiveKey={
+            activeKey={
               location.hash.length > 0 ? location.hash.replace(/#/g, '') : '1'
             }
           >

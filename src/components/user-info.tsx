@@ -123,6 +123,14 @@ const UserProfile = (props: IUserProps) => {
   };
 
   useEffect(() => {
+    if (realUser) {
+      document.title = `Open Party • @${username}`;
+    } else {
+      document.title = `Open Party • Content Not Available`;
+    }
+  }, [username, realUser]);
+
+  useEffect(() => {
     if (currentUserInfo?.username === username) {
       setPosts([]);
       setPostsDoneLoading(false);

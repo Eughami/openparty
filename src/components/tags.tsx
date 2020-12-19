@@ -34,6 +34,10 @@ const Tags = (props: ITagsProps) => {
   const [posts, setPosts] = useState<Array<Post> | null>([]);
 
   useEffect(() => {
+    document.title = `Open Party • Tags • ${tag} 👓`; 
+  }, [tag]);
+
+  useEffect(() => {
     const decodeProfile = async () => {
       if (!currentUser) return;
 

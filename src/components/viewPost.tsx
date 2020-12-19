@@ -64,7 +64,7 @@ const { useBreakpoint } = Grid;
 const ViewPost = (props: ViewPostProps) => {
   const { postId: id }: postIdInterface = useParams();
   const [post, setPost] = useState<Post>();
-  const [error, setError] = useState<any>(null);
+  const [postExists, setPostExists] = useState<boolean>(true);
   const [aspectRation, setAspectRatio] = useState<number>(0);
   const [loadingPost, setLoadingPost] = useState<boolean>(true);
   const [initImageDim, setInitImageDim] = useState<ProbeResult>({
@@ -155,9 +155,17 @@ const ViewPost = (props: ViewPostProps) => {
         (e: any) => console.log(e)
       );
   };
+
   useEffect(() => {
-    props.currentUserToken !== null &&
-      Axios.post(
+    if (post) {
+      document.title = `@${post.user.username} • "${post.caption}"`;
+      return;
+    }
+  }, [post]);
+
+  useEffect(() => {
+    const getPost = async () => {
+      await Axios.post(
         `${API_BASE_URL}${GET_ONE_POST}`,
         {
           postId: id,
@@ -172,36 +180,50 @@ const ViewPost = (props: ViewPostProps) => {
           console.log('New endpoint', res.data);
 
           if (res.data === null) {
-            setError('Post Not Found');
+            setPostExists(false);
+            setLoadingPost(false);
             return;
           }
           fetchPost(id, res.data, props.currentUserToken!);
+          setLoadingPost(false);
+          setPostExists(true);
         })
-        .catch((e) => setError('New endpoint Error :' + e));
-    // fetchPost(id);
+        .catch((e) => {
+          console.log('@GET POST ERROR: ', e);
+          setPostExists(false);
+          setLoadingPost(false);
+        });
+    };
+    getPost();
   }, [props.currentUserToken, id]);
 
   const { history } = props;
+
+  if (loadingPost) {
+    return (
+      <Col offset={6} span={12} style={{ paddingTop: '100px' }}>
+        <Skeleton avatar active paragraph={{ rows: 4 }} />
+      </Col>
+    );
+  }
+
+  if (!postExists) {
+    return (
+      <Result
+        status="404"
+        title="404"
+        subTitle="Sorry, the Post you visited does not exist."
+        extra={
+          <Button type="primary" onClick={() => history.goBack()}>
+            Go Back
+          </Button>
+        }
+      />
+    );
+  }
+
   return (
     <>
-      {loadingPost && (
-        <Col offset={6} span={12} style={{ paddingTop: '100px' }}>
-          <Skeleton avatar active paragraph={{ rows: 4 }} />
-        </Col>
-      )}
-      {error !== null && (
-        <Result
-          status="404"
-          title="404"
-          subTitle="Sorry, the Post you visited does not exist."
-          extra={
-            <Button type="primary" onClick={() => history.goBack()}>
-              Go Back
-            </Button>
-          }
-        />
-      )}
-
       {post && (
         <Row justify="center" align="middle" className="full__page__post">
           <Col
