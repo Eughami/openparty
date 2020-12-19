@@ -48,10 +48,11 @@ import {
 } from '../../../service/api';
 import firebase from 'firebase';
 import { PopupboxContainer, PopupboxManager } from 'react-popupbox';
-import 'react-popupbox/dist/react-popupbox.css';
 
 export const SPRITE_IMAGE_URL =
   'https://firebasestorage.googleapis.com/v0/b/openpaarty.appspot.com/o/defaults%2Ficons%2F65c15d7731ea.png?alt=media&token=0870e69e-ae19-42f6-aeb8-5bd40f1e040c';
+export const DEFAULT_IMAGE_URL =
+  'https://firebasestorage.googleapis.com/v0/b/openpaarty.appspot.com/o/defaults%2Fprofile_picture%2Fdefault.profile-image.png?alt=media&token=c0ee9455-36c6-4562-bfe3-eb86e02e5188';
 
 interface IProfilePostsProps {
   currentUser: firebase.User;

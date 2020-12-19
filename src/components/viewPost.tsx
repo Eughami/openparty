@@ -324,6 +324,7 @@ const ViewPost = (props: ViewPostProps) => {
               <Row className="full__post__add__comment__container">
                 <Col flex="auto">
                   <AsyncMention
+                    border="none"
                     value={comment.comment}
                     onChange={handleCommentChange}
                     placeholder="Add a comment..."

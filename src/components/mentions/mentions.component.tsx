@@ -70,6 +70,7 @@ interface IMentionsProps {
   rows?: number;
   value?: string;
   onChange?: any;
+  border?: string;
 }
 
 interface IMentionsState {
@@ -130,7 +131,11 @@ class AsyncMention extends React.Component<IMentionsProps, IMentionsState> {
         autoSize={this.props.autoSize}
         onChange={this.props.onChange && this.props.onChange}
         placeholder={this.props.placeholder && this.props.placeholder}
-        style={{ width: '100%', height: '100%', border: 'none' }}
+        style={{
+          width: '100%',
+          height: '100%',
+          border: this.props.border ? this.props.border : undefined,
+        }}
         loading={loading}
         onSearch={this.onSearch}
       >

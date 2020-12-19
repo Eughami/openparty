@@ -54,20 +54,26 @@ export const handlePostLike = async (
     setUserLikePost(false);
     return false;
   } else {
-    await firebase
+    return firebase
       .database()
       .ref('Postsv2')
       .child(user_id)
       .child(post_id)
-      .child('likes')
-      .child(currentUser?.uid!)
-      .set(currentUser?.uid!);
+      .once('value', async (ssh) => {
+        if (!ssh.exists()) {
+          message.error(
+            "Sorry, this post doesn't seem to existing any longer..."
+          );
+        }
+        await ssh
+          .child('likes')
+          .child(currentUser?.uid!)
+          .ref.set(currentUser?.uid!);
 
-    message.success('You 💖 this post');
+        message.success('You 💖 this post');
 
-    setUserLikePost(true);
-
-    return true;
+        setUserLikePost(true);
+      });
   }
 };
 

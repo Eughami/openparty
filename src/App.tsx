@@ -24,6 +24,7 @@ import EditAccount from './components/account/edit-account';
 import firebase from 'firebase';
 import ViewPost from './components/viewPost';
 import 'react-perfect-scrollbar/dist/css/styles.css';
+import 'react-popupbox/dist/react-popupbox.css';
 import { LOADER_OBJECTS } from './components/images';
 
 // const currentUser = true

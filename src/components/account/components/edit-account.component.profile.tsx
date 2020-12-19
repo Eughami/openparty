@@ -1,16 +1,36 @@
 import React, { useState } from 'react';
-import { Form, Input, Button, Row, Select, message, Upload } from 'antd';
+import {
+  Form,
+  Input,
+  Button,
+  Row,
+  Select,
+  message,
+  Upload,
+  List,
+  Popconfirm,
+} from 'antd';
+import { QuestionCircleOutlined } from '@ant-design/icons';
 import { ProfileAvatar } from '../../profile/components/profile.component.pfp';
 import { RegistrationObject } from '../../interfaces/user.interface';
 import { ProfileUsername } from '../../profile/components/profile.component.username';
 import { Link } from 'react-router-dom';
 import { prefixSelector } from '../../register';
 import firebase from 'firebase';
-import { API_BASE_URL_OPEN, PING_ENDPOINT } from '../../../service/api';
+import {
+  API_BASE_URL,
+  API_BASE_URL_OPEN,
+  PING_ENDPOINT,
+  USERNAME_AVAILABLE_ENDPOINT,
+} from '../../../service/api';
 import { RcFile } from 'antd/lib/upload';
+import { PopupboxContainer, PopupboxManager } from 'react-popupbox';
+import { DEFAULT_IMAGE_URL } from '../../profile/components/profile.posts.component';
+import Axios from 'axios';
 
 interface IEditProfileInterface {
   user: RegistrationObject;
+  currentUser: firebase.User;
 }
 
 const { Option } = Select;
@@ -25,9 +45,13 @@ const descStyle: React.CSSProperties = {
 };
 
 export const EditProfile = (props: IEditProfileInterface) => {
-  const { user } = props;
+  const { user, currentUser } = props;
   const [form] = Form.useForm();
   const [updateWorking, setUpdateWorking] = useState<boolean>(false);
+  const [
+    deleteProfilePictureWorking,
+    setDeleteProfilePictureWorking,
+  ] = useState<boolean>(false);
   const [selectedImage, setSelectedImage] = useState<{
     url: string;
     file?: RcFile;
@@ -56,77 +80,239 @@ export const EditProfile = (props: IEditProfileInterface) => {
 
     if (selectedImage.file) {
       newImageUrl = await uploadFile(selectedImage.file);
-    } else {
-      message.info('There was a problem updating your profile picture', 5);
+    }
+    // else {
+    //   message.info('There was a problem updating your profile picture', 5);
+    // }
+
+    let usernameChanged = false,
+      usernameAvailable = false;
+
+    if (values.username !== user.username) {
+      usernameChanged = true;
+      const token = await currentUser.getIdToken(true);
+
+      try {
+        const res = await Axios.post(
+          `${API_BASE_URL}${USERNAME_AVAILABLE_ENDPOINT}`,
+          {
+            username: values.username,
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        if (res.status === 200) {
+          usernameAvailable = res.data.available;
+          if (!res.data.available) {
+            setUpdateWorking(false);
+            return message.warn('Sorry, this username is already taken.');
+          }
+        } else {
+          setUpdateWorking(false);
+          return message.error(
+            'Something went wrong while updating your profile.'
+          );
+        }
+      } catch (error) {
+        console.log('@AXIOS CHECK USERNAME AVAILABLE ERROR: ', error);
+
+        setUpdateWorking(false);
+        return message.error(
+          'Something went wrong while updating your profile.'
+        );
+      }
     }
 
-    if (newImageUrl) {
-      await firebase
-        .database()
-        .ref('Users')
-        .child(user.uid)
-        .update({ ...values, image_url: newImageUrl });
+    if (!usernameChanged) {
+      if (newImageUrl) {
+        await firebase
+          .database()
+          .ref('Users')
+          .child(user.uid)
+          .update({ ...values, image_url: newImageUrl });
+      } else {
+        await firebase
+          .database()
+          .ref('Users')
+          .child(user.uid)
+          .update({ ...values });
+      }
+
+      setSelectedImage({ url: '', file: undefined });
+
+      message.success('Profile updated 🥂');
+      setUpdateWorking(false);
     } else {
-      await firebase
-        .database()
-        .ref('Users')
-        .child(user.uid)
-        .update({ ...values });
+      if (usernameAvailable) {
+        if (newImageUrl) {
+          await firebase
+            .database()
+            .ref('Users')
+            .child(user.uid)
+            .update({ ...values, image_url: newImageUrl });
+        } else {
+          await firebase
+            .database()
+            .ref('Users')
+            .child(user.uid)
+            .update({ ...values });
+        }
+
+        setSelectedImage({ url: '', file: undefined });
+
+        message.success('Profile updated 🥂');
+        setUpdateWorking(false);
+      }
     }
+  };
 
-    setSelectedImage({ url: '', file: undefined });
+  const setDefaultImageUrl = async () => {
+    await firebase
+      .database()
+      .ref('Users')
+      .child(user.uid)
+      .update({ image_url: DEFAULT_IMAGE_URL })
+      .then(() => {
+        message.success('Profile image removed');
+      })
+      .catch((e) => {
+        console.log('@REVERT DEFAULT IMAGE URL ERROR: ', e);
 
-    message.success('Profile updated 🥂');
-    setUpdateWorking(false);
+        message.error('There was an error while removing your profile image');
+      })
+      .finally(() => {
+        setDeleteProfilePictureWorking(false);
+        PopupboxManager.close();
+      });
+  };
+
+  const showModalEditProfileImageOptions = () => {
+    const content = (
+      <List
+        size="small"
+        header={null}
+        footer={null}
+        dataSource={[
+          <span style={{ width: '100%', textAlign: 'center' }}>
+            <Upload
+              showUploadList={false}
+              multiple={false}
+              accept="image/*"
+              name="logo"
+              beforeUpload={(file) => {
+                if (
+                  ![
+                    'image/png',
+                    'image/jpeg',
+                    'image/jpg',
+                    'image/gif',
+                  ].includes(file.type)
+                ) {
+                  message.error(`${file.name} is not a valid image`);
+                }
+                return [
+                  'image/png',
+                  'image/jpeg',
+                  'image/jpg',
+                  'image/gif',
+                ].includes(file.type);
+              }}
+              action={(file) => {
+                const url = URL.createObjectURL(file);
+                setSelectedImage({ file, url });
+                PopupboxManager.close();
+                return `${API_BASE_URL_OPEN}${PING_ENDPOINT}`;
+              }}
+            >
+              <Button style={{ fontWeight: 'bold' }} block type="link">
+                Upload photo
+              </Button>
+            </Upload>
+          </span>,
+          <Popconfirm
+            okButtonProps={{ loading: deleteProfilePictureWorking }}
+            title="Are you sure？"
+            onConfirm={() => setDefaultImageUrl()}
+            icon={<QuestionCircleOutlined style={{ color: 'red' }} />}
+          >
+            <Button style={{ fontWeight: 'bold' }} block type="link" danger>
+              Remove Photo
+            </Button>
+          </Popconfirm>,
+
+          <Button
+            onClick={() => PopupboxManager.close()}
+            style={{ fontWeight: 'bold' }}
+            block
+            type="link"
+          >
+            Cancel
+          </Button>,
+        ]}
+        renderItem={(item) => <List.Item>{item}</List.Item>}
+      />
+    );
+    PopupboxManager.open({ content });
   };
 
   return (
-    <Form
-      scrollToFirstError
-      form={form}
-      {...layout}
-      name="account-edit"
-      onFinish={onFinish}
-      initialValues={{
-        username: user.username,
-        email: user.email,
-        bio: user.bio,
-        website: user.website,
-        name: user.name || null,
-        phone: user.phone,
-        prefix: user.prefix,
-        gender: user.gender || null,
-      }}
-    >
-      <Form.Item>
-        <Row justify="center" align="top">
-          <Upload
-            showUploadList={false}
-            multiple={false}
-            accept="image/*"
-            name="logo"
-            beforeUpload={(file) => {
-              if (
-                !['image/png', 'image/jpeg', 'image/jpg', 'image/gif'].includes(
-                  file.type
-                ) /*file.type !== 'image/png' */
-              ) {
-                message.error(`${file.name} is not a valid image`);
-              }
-              return [
-                'image/png',
-                'image/jpeg',
-                'image/jpg',
-                'image/gif',
-              ].includes(file.type); // file.type === 'image/png';
-            }}
-            action={(file) => {
-              const url = URL.createObjectURL(file);
-              setSelectedImage({ file, url });
-              return `${API_BASE_URL_OPEN}${PING_ENDPOINT}`;
-            }}
-          >
+    <>
+      <PopupboxContainer />
+      <Form
+        scrollToFirstError
+        form={form}
+        {...layout}
+        name="account-edit"
+        onFinish={onFinish}
+        initialValues={{
+          username: user.username,
+          email: user.email,
+          bio: user.bio || null,
+          website: user.website || null,
+          name: user.name || null,
+          phone: user.phone || null,
+          prefix: user.prefix,
+          gender: user.gender || null,
+        }}
+      >
+        <Form.Item>
+          <Row justify="center" align="top">
+            {/* <Upload
+              showUploadList={false}
+              multiple={false}
+              accept="image/*"
+              name="logo"
+              beforeUpload={(file) => {
+                if (
+                  ![
+                    'image/png',
+                    'image/jpeg',
+                    'image/jpg',
+                    'image/gif',
+                  ].includes(file.type)
+                ) {
+                  message.error(`${file.name} is not a valid image`);
+                }
+                return [
+                  'image/png',
+                  'image/jpeg',
+                  'image/jpg',
+                  'image/gif',
+                ].includes(file.type);
+              }}
+              action={(file) => {
+                const url = URL.createObjectURL(file);
+
+                setSelectedImage({ file, url });
+                return `${API_BASE_URL_OPEN}${PING_ENDPOINT}`;
+              }}
+            >
+            </Upload> */}
             <span
+              onClick={() => showModalEditProfileImageOptions()}
               style={{
                 cursor: updateWorking ? 'progress' : 'pointer',
                 pointerEvents: updateWorking ? 'none' : 'auto',
@@ -140,41 +326,12 @@ export const EditProfile = (props: IEditProfileInterface) => {
                 user={user}
               />
             </span>
-          </Upload>
 
-          <div style={{ marginLeft: 20 }}>
-            <ProfileUsername user={user} />
+            <div style={{ marginLeft: 20 }}>
+              <ProfileUsername user={user} />
 
-            <Upload
-              showUploadList={false}
-              multiple={false}
-              accept="image/*"
-              name="logo"
-              beforeUpload={(file) => {
-                if (
-                  ![
-                    'image/png',
-                    'image/jpeg',
-                    'image/jpg',
-                    'image/gif',
-                  ].includes(file.type) /*file.type !== 'image/png' */
-                ) {
-                  message.error(`${file.name} is not a valid image`);
-                }
-                return [
-                  'image/png',
-                  'image/jpeg',
-                  'image/jpg',
-                  'image/gif',
-                ].includes(file.type); // file.type === 'image/png';
-              }}
-              action={(file) => {
-                const url = URL.createObjectURL(file);
-                setSelectedImage({ file, url });
-                return `${API_BASE_URL_OPEN}${PING_ENDPOINT}`;
-              }}
-            >
               <Link
+                onClick={() => showModalEditProfileImageOptions()}
                 style={{
                   cursor: updateWorking ? 'progress' : 'pointer',
                   pointerEvents: updateWorking ? 'none' : 'auto',
@@ -183,101 +340,105 @@ export const EditProfile = (props: IEditProfileInterface) => {
               >
                 <p>Change profile photo</p>
               </Link>
-            </Upload>
-          </div>
-        </Row>
-      </Form.Item>
-      <Form.Item
-        help={<p style={{ ...descStyle }}>Changes may take time to reflect*</p>}
-        name="name"
-        label="Name"
-      >
-        <Input />
-      </Form.Item>
-      <Form.Item
-        help={<p style={{ ...descStyle }}>Changes may take time to reflect*</p>}
-        name="username"
-        label="Username"
-        rules={[
-          {
-            required: true,
-            message: 'Please input your Username',
-          },
-        ]}
-      >
-        <Input />
-      </Form.Item>
-      <Form.Item
-        name="email"
-        label="Email"
-        rules={[
-          {
-            type: 'email',
-            message: 'The input is not valid E-mail!',
-          },
-          {
-            required: true,
-            message: 'Please input your E-mail!',
-          },
-        ]}
-      >
-        <Input />
-      </Form.Item>
-      <Form.Item
-        rules={[
-          {
-            type: 'url',
-            message: 'The input is not valid url',
-          },
-        ]}
-        name="website"
-        label="Website"
-      >
-        <Input />
-      </Form.Item>
-      <Form.Item
-        name="phone"
-        label="Phone Number"
-        rules={[
-          {
-            required: true,
-            message: 'Please input your phone number!',
-          },
-        ]}
-      >
-        <Input
-          addonBefore={prefixSelector}
-          style={{
-            width: '100%',
-          }}
-        />
-      </Form.Item>
-      <Form.Item
-        help={
-          <p style={{ ...descStyle }}>
-            A short info about you{' '}
-            <span role="img" aria-label="smile-blush">
-              😊
-            </span>
-          </p>
-        }
-        name="bio"
-        label="Bio"
-      >
-        <Input.TextArea />
-      </Form.Item>
-      <Form.Item name="gender" label="Gender">
-        <Select>
-          <Option value="male">Male 🎩</Option>
-          <Option value="female">Female 👒</Option>
-          <Option value="other">Other 🤔</Option>
-        </Select>
-      </Form.Item>
-      <Form.Item wrapperCol={{ ...layout.wrapperCol, offset: 8 }}>
-        <Button loading={updateWorking} type="primary" htmlType="submit">
-          Update
-        </Button>
-      </Form.Item>
-    </Form>
+            </div>
+          </Row>
+        </Form.Item>
+        <Form.Item
+          help={
+            <p style={{ ...descStyle }}>Changes may take time to reflect*</p>
+          }
+          name="name"
+          label="Name"
+        >
+          <Input />
+        </Form.Item>
+        <Form.Item
+          help={
+            <p style={{ ...descStyle }}>Changes may take time to reflect*</p>
+          }
+          name="username"
+          label="Username"
+          rules={[
+            {
+              required: true,
+              message: 'Please input your Username',
+            },
+          ]}
+        >
+          <Input />
+        </Form.Item>
+        <Form.Item
+          name="email"
+          label="Email"
+          rules={[
+            {
+              type: 'email',
+              message: 'The input is not valid E-mail!',
+            },
+            {
+              required: true,
+              message: 'Please input your E-mail!',
+            },
+          ]}
+        >
+          <Input />
+        </Form.Item>
+        <Form.Item
+          rules={[
+            {
+              type: 'url',
+              message: 'The input is not valid url',
+            },
+          ]}
+          name="website"
+          label="Website"
+        >
+          <Input />
+        </Form.Item>
+        <Form.Item
+          name="phone"
+          label="Phone Number"
+          rules={[
+            {
+              required: true,
+              message: 'Please input your phone number!',
+            },
+          ]}
+        >
+          <Input
+            addonBefore={prefixSelector}
+            style={{
+              width: '100%',
+            }}
+          />
+        </Form.Item>
+        <Form.Item
+          help={
+            <p style={{ ...descStyle }}>
+              A short info about you{' '}
+              <span role="img" aria-label="smile-blush">
+                😊
+              </span>
+            </p>
+          }
+          name="bio"
+          label="Bio"
+        >
+          <Input.TextArea />
+        </Form.Item>
+        <Form.Item name="gender" label="Gender">
+          <Select>
+            <Option value="male">Male 🎩</Option>
+            <Option value="female">Female 👒</Option>
+            <Option value="other">Other 🤔</Option>
+          </Select>
+        </Form.Item>
+        <Form.Item wrapperCol={{ ...layout.wrapperCol, offset: 8 }}>
+          <Button loading={updateWorking} type="primary" htmlType="submit">
+            Update
+          </Button>
+        </Form.Item>
+      </Form>
+    </>
   );
 };

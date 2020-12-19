@@ -39,12 +39,12 @@ const EditAccount = (props: IEditAccountInterface) => {
           {/* TODO: Change position to 'top' when in mobile view */}
           <Tabs
             tabPosition="left"
-            activeKey={
+            defaultActiveKey={
               location.hash.length > 0 ? location.hash.replace(/#/g, '') : '1'
             }
           >
             <TabPane tab="Edit Profile" key="1">
-              <EditProfile user={currentUserInfo!} />
+              <EditProfile currentUser={currentUser!} user={currentUserInfo!} />
             </TabPane>
             <TabPane tab="Change Password" key="2">
               <ChangePassword user={currentUser!} />
