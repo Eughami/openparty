@@ -1,5 +1,6 @@
 import React from 'react';
 import { Carousel, Row } from 'antd';
+import { RightCircleTwoTone, LeftCircleTwoTone } from '@ant-design/icons';
 import { Post } from '../../interfaces/user.interface';
 
 interface IPostImagesProps {
@@ -13,7 +14,15 @@ export const PostImages = (props: IPostImagesProps) => {
     <div className="">
       {/* <div className="Post-image-bg"> */}
       {/* How to handle posts w/out images?? */}
-      <Carousel adaptiveHeight swipeToSlide touchMove dotPosition="top">
+      <Carousel
+        nextArrow={<RightCircleTwoTone twoToneColor="#ccc" />}
+        prevArrow={<LeftCircleTwoTone twoToneColor="#ccc" />}
+        arrows
+        adaptiveHeight
+        swipeToSlide
+        touchMove
+        dotPosition="top"
+      >
         {props.post.image_url?.map((url, idx) => (
           <Row className="Post-image" justify="center" align="middle" key={idx}>
             <img

@@ -251,13 +251,18 @@ const UserProfile = (props: IUserProps) => {
               filteredEligiblePosts.length === 0 ||
               currentUserEligiblePosts === null
             ) {
+              console.log(
+                "USER'S POST IS 0",
+                filteredEligiblePosts,
+                currentUserEligiblePosts
+              );
+
               setPosts([]);
 
               setPostsDoneLoading(true);
               return;
             }
 
-            // console.log("@SETTLED COMDS: ", currentUserEligiblePosts!.filter(eligible => eligible.uidRef === username));
             await bluebird
               .map(
                 filteredEligiblePosts,
@@ -315,6 +320,8 @@ const UserProfile = (props: IUserProps) => {
                           );
 
                           setPostsDoneLoading(true);
+                          // setTimeout(() => {
+                          // }, 1000);
 
                           console.log('@POSTS DEBUG: ', Object.values(temp));
 
@@ -529,7 +536,9 @@ const UserProfile = (props: IUserProps) => {
             <Divider />
             <div className="posts__container">
               {!postsDoneLoading ? (
-                <Spin size="small" />
+                <div style={{ textAlign: 'center' }}>
+                  <Spin size="small" />
+                </div>
               ) : (posts as Post[]).length > 0 ? (
                 <ProfileRootPosts
                   currentUser={currentUser!}
@@ -608,7 +617,15 @@ const UserProfile = (props: IUserProps) => {
             <div className="posts__container">
               {!otherUserPrivacy ? (
                 !postsDoneLoading ? (
-                  <Spin style={{ textAlign: 'center' }} size="small" />
+                  // <img
+                  //   width="50px"
+                  //   height="50px"
+                  //   src={LOADER_OBJECTS.LOADING_PROGRESS_01}
+                  //   alt="loader"
+                  // />
+                  <div style={{ textAlign: 'center' }}>
+                    <Spin size="small" />
+                  </div>
                 ) : (posts as Post[]).length > 0 ? (
                   <ProfileRootPosts
                     currentUser={currentUser!}
@@ -617,7 +634,7 @@ const UserProfile = (props: IUserProps) => {
                   />
                 ) : (
                   <h1 style={{ textAlign: 'center' }}>
-                    <Empty />
+                    {!postsDoneLoading ? <Empty /> : <Spin size="small" />}
                   </h1>
                 )
               ) : (

@@ -5,22 +5,22 @@
 
 //here we will have two-three tabs depending on props: all posts, open posts, private posts?
 
-import React from "react";
-import { Tabs } from "antd";
-import { AppleOutlined, AndroidOutlined } from "@ant-design/icons";
-import { Post, RegistrationObject } from "../../interfaces/user.interface";
+import React from 'react';
+import { Tabs } from 'antd';
+import { AppleOutlined, AndroidOutlined } from '@ant-design/icons';
+import { Post, RegistrationObject } from '../../interfaces/user.interface';
 import {
   ProfileOtherUserOpenPosts,
   ProfileOtherUserPosts,
   ProfileSelfUserOpenPosts,
   ProfileSelfUserPosts,
   ProfileSelfUserPrivatePosts,
-} from "./profile.posts.component";
+} from './profile.posts.component';
 
 interface IProfilePostsRootProps {
   currentUser: firebase.User;
   post: Post[];
-  type: "self-user" | "other-user";
+  type: 'self-user' | 'other-user';
   user?: RegistrationObject;
 }
 
@@ -32,7 +32,7 @@ interface IProfilePostsRootProps {
 export const ProfileRootPosts = (props: IProfilePostsRootProps) => {
   const { user, post, type, currentUser } = props;
 
-  return type === "self-user" ? (
+  return type === 'self-user' ? (
     <ProfileRootSelfUserPosts
       currentUser={currentUser}
       user={user}
@@ -81,14 +81,19 @@ export const ProfileRootSelfUserPosts = (props: IProfilePostsRootProps) => {
         <ProfileSelfUserOpenPosts
           type={type}
           currentUser={currentUser}
-          post={post.filter((post) => (post.privacy as any) === "open")}
+          post={post.filter((post) => (post.privacy as any) === 'open')}
         />
       </TabPane>
 
       <TabPane
         tab={
           <span>
-            <AppleOutlined />
+            {/* <AppleOutlined /> */}
+            <img
+              style={{ marginRight: 10, height: 20, width: 20 }}
+              src={require('../../images/incognito.svg')}
+              alt="incog"
+            />
             Private Posts
           </span>
         }
@@ -97,7 +102,7 @@ export const ProfileRootSelfUserPosts = (props: IProfilePostsRootProps) => {
         <ProfileSelfUserPrivatePosts
           type={type}
           currentUser={currentUser}
-          post={post.filter((post) => (post.privacy as any) === "hard-closed")}
+          post={post.filter((post) => (post.privacy as any) === 'hard-closed')}
         />
       </TabPane>
     </Tabs>
@@ -136,7 +141,7 @@ export const ProfileRootOtherUserPosts = (props: IProfilePostsRootProps) => {
         <ProfileOtherUserOpenPosts
           type={type}
           currentUser={currentUser}
-          post={post.filter((post) => (post.privacy as any) === "open")}
+          post={post.filter((post) => (post.privacy as any) === 'open')}
         />
       </TabPane>
     </Tabs>

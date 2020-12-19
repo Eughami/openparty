@@ -130,7 +130,7 @@ class AsyncMention extends React.Component<IMentionsProps, IMentionsState> {
         autoSize={this.props.autoSize}
         onChange={this.props.onChange && this.props.onChange}
         placeholder={this.props.placeholder && this.props.placeholder}
-        style={{ width: '100%' }}
+        style={{ width: '100%', height: '100%', border: 'none' }}
         loading={loading}
         onSearch={this.onSearch}
       >

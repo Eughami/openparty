@@ -12,13 +12,14 @@ import {
   Row,
   Empty,
   Modal,
-  Popover,
-  Carousel,
   Typography,
-  Input,
   Select,
   DatePicker,
   message,
+  Button,
+  List,
+  Carousel,
+  Input,
 } from 'antd';
 import { PostCaption } from '../../post/components/post.component.caption';
 import { PostLikesNumber } from '../../post/components/post.component.likes';
@@ -34,13 +35,20 @@ import {
   EllipsisOutlined,
   DeleteOutlined,
   ExclamationCircleOutlined,
+  RightCircleTwoTone,
+  LeftCircleTwoTone,
 } from '@ant-design/icons';
 import { useHistory } from 'react-router-dom';
-import AsyncMention from '../../mentions/mentions.component';
 import Moment from 'moment';
-import Axios, { AxiosResponse } from 'axios';
-import { API_BASE_URL, DELETE_POST_ENDPOINT } from '../../../service/api';
+import Axios from 'axios';
+import {
+  API_BASE_URL,
+  DELETE_POST_ENDPOINT,
+  EDIT_POST_ENDPOINT,
+} from '../../../service/api';
 import firebase from 'firebase';
+import { PopupboxContainer, PopupboxManager } from 'react-popupbox';
+import 'react-popupbox/dist/react-popupbox.css';
 
 export const SPRITE_IMAGE_URL =
   'https://firebasestorage.googleapis.com/v0/b/openpaarty.appspot.com/o/defaults%2Ficons%2F65c15d7731ea.png?alt=media&token=0870e69e-ae19-42f6-aeb8-5bd40f1e040c';
@@ -60,6 +68,36 @@ interface IRenderPostCardProps {
 }
 
 const { Paragraph } = Typography;
+
+const { Option } = Select;
+
+const fallbackCopyTextToClipboard = (text: string) => {
+  var textArea = document.createElement('textarea');
+  textArea.value = text;
+
+  // Avoid scrolling to bottom
+  textArea.style.top = '0';
+  textArea.style.left = '0';
+  textArea.style.position = 'fixed';
+
+  document.body.appendChild(textArea);
+  textArea.focus();
+  textArea.select();
+
+  try {
+    var successful = document.execCommand('copy');
+    if (successful) {
+      message.info('Post link copied to clipboard');
+    } else {
+      message.error('Unable to copy post link at this time');
+    }
+  } catch (err) {
+    console.error('Fallback: Oops, unable to copy', err);
+    message.error('Unable to copy post link at this time');
+  }
+
+  document.body.removeChild(textArea);
+};
 
 /**
  * Return card view of self user's open post
@@ -131,15 +169,12 @@ export const ProfileOtherUserOpenPosts = (props: IProfilePostsProps) => {
   );
 };
 
-const { Option } = Select;
-
 const RenderPostCard = (props: IRenderPostCardProps) => {
-  const { currentUser, post, Meta } = props;
+  const { currentUser, post, type, Meta } = props;
   const [editPostModalVisible, setEditPostVisible] = useState<boolean>(false);
-  const [postPopoverVisible, setPostPopoverVisible] = useState<boolean>(false);
   const [editPostWorking, setEditPostWorking] = useState<boolean>(false);
   const [selectedPost, setSelectedPost] = useState<Post>();
-  const [editedPost, setEditedPost] = useState<Post>();
+  const [selectedPostTags, setSelectedPostTags] = useState<string>('');
   const history = useHistory();
 
   const deletePost = async (post: Post) => {
@@ -163,25 +198,31 @@ const RenderPostCard = (props: IRenderPostCardProps) => {
       });
   };
 
-  //TODO: FIX UNDEFINED VALS WITH NULL
   const saveEditedPost = async (post: Post) => {
     setEditPostWorking(true);
 
     console.log(post);
 
-    await firebase
-      .database()
-      .ref('Postsv2')
-      .child(currentUser!.uid)
-      .child(post.id)
-      .update({ ...post })
-      .then(() => {
+    const token = await currentUser.getIdToken(true);
+
+    await Axios.patch(
+      `${API_BASE_URL}${EDIT_POST_ENDPOINT}`.replace(/:postId/g, post.id),
+      post,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    )
+      .then((__res) => {
         message.success('Post edited 🍻');
       })
       .catch((e) => {
         console.log('@EDIT POST ERROR: ', e);
-        message.error('There was a problem while editing your post...');
+        message.error('There was an error while editing this post...');
+        return;
       })
+
       .finally(() => setEditPostWorking(false));
   };
 
@@ -201,21 +242,66 @@ const RenderPostCard = (props: IRenderPostCardProps) => {
       centered: true,
       okText: 'Yes',
       cancelText: 'No',
-      onCancel: () => setPostPopoverVisible(false),
       icon: <ExclamationCircleOutlined />,
     });
   };
 
+  const showModalPostOptions = (post: Post) => {
+    const content = (
+      <List
+        size="small"
+        header={null}
+        footer={null}
+        dataSource={[
+          <Button style={{ fontWeight: 'bold' }} block type="link" danger>
+            Report Post
+          </Button>,
+          <Button style={{ fontWeight: 'bold' }} block type="link" danger>
+            Unfollow
+          </Button>,
+          <Button style={{ fontWeight: 'bold' }} block type="link">
+            Share
+          </Button>,
+          <Button
+            onClick={() =>
+              fallbackCopyTextToClipboard(
+                `http://localhost:3000/post/${post.id}`
+              )
+            }
+            style={{ fontWeight: 'bold' }}
+            block
+            type="link"
+          >
+            Copy Link
+          </Button>,
+          <Button
+            onClick={() => PopupboxManager.close()}
+            style={{ fontWeight: 'bold' }}
+            block
+            type="link"
+          >
+            Cancel
+          </Button>,
+        ]}
+        renderItem={(item) => <List.Item>{item}</List.Item>}
+      />
+    );
+    PopupboxManager.open({ content });
+  };
+
   return (
     <Row>
+      {selectedPost && <PopupboxContainer />}
       {selectedPost && (
         <Modal
+          style={{ top: 20 }}
+          okText="Save"
           title={
             <div style={{ width: '70%' }}>
               <Paragraph
+                ellipsis
                 editable={{
                   onChange: (v) => {
-                    // selectedPost.caption = v;
                     setSelectedPost({ ...selectedPost, caption: v });
                   },
                 }}
@@ -236,35 +322,74 @@ const RenderPostCard = (props: IRenderPostCardProps) => {
           <Card
             bordered={false}
             cover={
-              <div>
-                <img
-                  style={{
-                    objectFit: 'contain',
-                    width: '100%',
-                    height: '50vh',
+              <>
+                <Input
+                  style={{ marginBottom: 10 }}
+                  prefix={
+                    <img
+                      width="30"
+                      height="40"
+                      src={require('../../images/hashtag.svg')}
+                      alt="#hashtag"
+                    />
+                  }
+                  onBlur={() => {
+                    console.log(selectedPost);
                   }}
-                  alt={selectedPost.caption}
-                  src={selectedPost.image_url![0]}
+                  onChange={(e) => {
+                    setSelectedPost({
+                      ...selectedPost,
+                      tags: (e.target.value.match(/#\S+/g)
+                        ? e.target.value
+                            .match(/#\S+/g)!
+                            .map((str: string) =>
+                              str.replace(/#/g, '').replace(/,/g, '')
+                            )
+                        : []) as any,
+                    });
+                    setSelectedPostTags(e.target.value);
+                  }}
+                  value={selectedPostTags}
+                  placeholder="(Use # to separate tags)"
                 />
-              </div>
+                {/* {selectedPost.tags && (
+                  // <PostTagsComponent showTooltip={false} post={selectedPost} />
+                )} */}
+                <Carousel
+                  nextArrow={<RightCircleTwoTone twoToneColor="#ccc" />}
+                  prevArrow={<LeftCircleTwoTone twoToneColor="#ccc" />}
+                  autoplay
+                  arrows
+                  adaptiveHeight
+                >
+                  {selectedPost.image_url?.map((url, index) => (
+                    // my failed attempt to try and center stubborn images
+                    <div style={{ textAlign: 'center' }} key={index}>
+                      <img
+                        id="userEditPostModalImage"
+                        style={{
+                          objectFit: 'contain',
+                          // width: '100%',
+                          height: '50vh',
+                        }}
+                        alt={selectedPost.caption}
+                        src={url}
+                      />
+                    </div>
+                  ))}
+                </Carousel>
+              </>
             }
-            // actions={[
-            //   // <Select defaultValue={selectedPost.privacy}>
-            //   //   <Option value="open">Public</Option>
-            //   //   <Option value="hard-closed">Private</Option>
-            //   //   <Option value="followers">Followers</Option>
-            //   // </Select>,
-            //   <DatePicker showTime format="YYYY-MM-DD HH:mm:ss" />,
-            // ]}
           >
             <Meta
               description={
-                <div>
+                <Row justify="space-between" align="middle">
                   <Select
+                    style={{ marginBottom: 10 }}
                     onChange={(v) => {
                       setSelectedPost({ ...selectedPost, privacy: v as any });
                     }}
-                    defaultValue={selectedPost.privacy}
+                    value={selectedPost.privacy}
                   >
                     <Option value="open">Public</Option>
                     <Option value="hard-closed">Private</Option>
@@ -272,8 +397,6 @@ const RenderPostCard = (props: IRenderPostCardProps) => {
                   </Select>
                   <DatePicker
                     onOk={(date) => {
-                      // console.log(date.unix());
-
                       setSelectedPost({
                         ...selectedPost,
                         date_of_event: date.unix(),
@@ -283,14 +406,7 @@ const RenderPostCard = (props: IRenderPostCardProps) => {
                     showTime
                     format="YYYY-MM-DD HH:mm:ss"
                   />
-                </div>
-                // selectedPost.tags && (
-                //   <PostTagsComponent
-                //     showTooltip={false}
-                //     // limitTags={2}
-                //     post={selectedPost}
-                //   />
-                // )
+                </Row>
               }
             />
           </Card>
@@ -365,24 +481,43 @@ const RenderPostCard = (props: IRenderPostCardProps) => {
                   <EllipsisOutlined
                     onClick={() => {
                       setSelectedPost(post);
-                      setEditPostVisible(true);
+                      if (type === 'self-user') {
+                        setSelectedPostTags(
+                          post.tags
+                            ? post.tags
+                                .map((str) => '#' + str)
+                                .join(', ')
+                                .toString()
+                            : ''
+                        );
+                        return setEditPostVisible(true);
+                      }
+                      return showModalPostOptions(post);
                     }}
                   />
                 </span>,
+
                 <span style={{ color: 'red', fontSize: '25px' }}>
                   <DeleteOutlined
                     onClick={() => {
-                      setSelectedPost(post);
+                      // setSelectedPost(post);
                       showModalDeletePostMessage(post);
                     }}
                   />
                 </span>,
-              ]}
+              ].slice(0, type === 'self-user' ? 4 : 3)}
             >
               <Meta
                 description={
                   !post.tags ? (
-                    <div style={{ marginBottom: 10 }}>
+                    <div
+                      style={{
+                        marginBottom: 10,
+                        whiteSpace: 'nowrap',
+                        textOverflow: 'ellipsis',
+                        overflow: 'hidden',
+                      }}
+                    >
                       <PostCaption post={post} />
                     </div>
                   ) : (

@@ -1,16 +1,16 @@
-import React from "react";
-import { RegistrationObject } from "../../interfaces/user.interface";
-import { Popconfirm, Button } from "antd";
+import React from 'react';
+import { RegistrationObject } from '../../interfaces/user.interface';
+import { Popconfirm, Button } from 'antd';
 import {
   MessageOutlined,
   UserAddOutlined,
   UserDeleteOutlined,
   EditOutlined,
-} from "@ant-design/icons";
+} from '@ant-design/icons';
 import {
   handleCancelFollowRequest,
   handleFollowRequest,
-} from "../profile.actions";
+} from '../profile.actions';
 
 interface IProfileActionUnfollowProps {
   selfUserInfo?: RegistrationObject;
@@ -41,10 +41,10 @@ export const ProfileActionUnfollow = (props: IProfileActionUnfollowProps) => {
         </Button>
       ) : (
         <Popconfirm
-          title={title || "You will have to send a request to follow again."}
+          title={title || 'You will have to send a request to follow again.'}
           onConfirm={onConfirm}
-          okText={okText || "Unfollow"}
-          cancelText={cancelText || "Cancel"}
+          okText={okText || 'Unfollow'}
+          cancelText={cancelText || 'Cancel'}
         >
           <Button icon={icon || <UserDeleteOutlined />}>Unfollow</Button>
         </Popconfirm>
@@ -73,7 +73,7 @@ export const ProfileActionFollow = (props: IProfileActionFollowProps) => {
         }
         icon={icon || <UserAddOutlined />}
       >
-        {title || "Follow"}
+        {title || 'Follow'}
       </Button>
     </>
   );
@@ -101,7 +101,7 @@ export const ProfileActionCancelFollowRequest = (
         }
         icon={icon || undefined}
       >
-        {title || "Cancel Request"}
+        {title || 'Cancel Request'}
       </Button>
     </>
   );
@@ -125,7 +125,7 @@ export const ProfileActionMessage = (props: IProfileActionMessageProps) => {
         onClick={onConfirm}
         icon={icon || <MessageOutlined />}
       >
-        {title || "D.M 📧"}
+        {title || 'D.M 📧'}
       </Button>
     </>
   );
@@ -150,7 +150,7 @@ export const ProfileActionBlock = (props: IProfileActionBlockProps) => {
         color="red"
         icon={icon || <UserAddOutlined />}
       >
-        {title || "Block"}
+        {title || 'Block'}
       </Button>
     </>
   );
@@ -175,7 +175,7 @@ export const ProfileActionReport = (props: IProfileActionReportProps) => {
         color="red"
         icon={icon || <UserAddOutlined />}
       >
-        {title || "Report"}
+        {title || 'Report'}
       </Button>
     </>
   );
@@ -192,8 +192,12 @@ interface IProfileActionEditProps {
 export const ProfileActionEdit = (props: IProfileActionEditProps) => {
   const { icon, title, buttonStyle } = props;
   return (
-    <Button style={{ ...buttonStyle }} icon={icon || <EditOutlined />}>
-      {title || "Edit"}
+    <Button
+      type="link"
+      style={{ ...buttonStyle }}
+      icon={icon || <EditOutlined />}
+    >
+      {title || 'Edit'}
     </Button>
   );
 };
