@@ -90,7 +90,7 @@ const Post = (props: IPostProps) => {
             </div>
             <div className="full__page__post__divider avatar__comment__container">
               <div className="full__post__avatar__container">
-                <PostUser post={props.post} />
+                <PostUser currentUser={currentUser!} post={props.post} />
               </div>
               <div className="full__post__comments__container">
                 <PerfectScrollbar>
@@ -149,7 +149,7 @@ const Post = (props: IPostProps) => {
         </div>
       ) : (
         <article className="Post">
-          <PostUser post={props.post} />
+          <PostUser currentUser={currentUser!} post={props.post} />
           <PostImages post={props.post} />
 
           <div style={{ padding: '16px 16px' }}>

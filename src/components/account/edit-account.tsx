@@ -53,7 +53,7 @@ const EditAccount = (props: IEditAccountInterface) => {
               Notification Settings
             </TabPane>
             <TabPane tab="Privacy" key="4">
-              <EditPrivacy user={currentUserInfo!} />
+              <EditPrivacy currentUser={currentUser!} user={currentUserInfo!} />
             </TabPane>
           </Tabs>
         </Col>

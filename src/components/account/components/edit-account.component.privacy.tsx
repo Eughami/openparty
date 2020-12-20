@@ -3,9 +3,12 @@ import { Form, Button, Checkbox, message } from 'antd';
 import _ from 'lodash';
 import { RegistrationObject } from '../../interfaces/user.interface';
 import firebase from 'firebase';
+import Axios from 'axios';
+import { API_BASE_URL, EDIT_ACCOUNT_INFO_ENDPOINT } from '../../../service/api';
 
 interface IEditPrivacyInterface {
   user: RegistrationObject;
+  currentUser: firebase.User;
 }
 
 const layout = {
@@ -27,19 +30,51 @@ const tailFormItemLayout = {
 };
 
 export const EditPrivacy = (props: IEditPrivacyInterface) => {
-  const { user } = props;
+  const { user, currentUser } = props;
   const [form] = Form.useForm();
   const [updateWorking, setUpdateWorking] = useState<boolean>(false);
 
   const onFinish = async (values: any) => {
     setUpdateWorking(true);
-    await firebase
-      .database()
-      .ref('Users')
-      .child(user.uid)
-      .update({ privacy: values.privacy === true ? 'Private' : 'Public' });
-    message.success('Privacy updated 🥂');
-    setUpdateWorking(false);
+
+    const token = await currentUser.getIdToken(true);
+
+    return Axios.patch(
+      `${API_BASE_URL}${EDIT_ACCOUNT_INFO_ENDPOINT}/?type=privacy`,
+      {
+        privacy: values.privacy === true ? 'Private' : 'Public',
+        username: user.username,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    )
+      .then((res) => {
+        if (res.status === 203) {
+          message.success('Profile updated 🥂');
+          setUpdateWorking(false);
+        } else {
+          setUpdateWorking(false);
+          console.log(
+            '@AXIOS EDIT ACCOUNT INFO.PRIVACY UNEXPECTED RES CODE: ',
+            res.data,
+            res.status
+          );
+          return message.error(
+            'Something went wrong while updating your profile.'
+          );
+        }
+      })
+      .catch((error) => {
+        console.log('@AXIOS EDIT ACCOUNT.PRIVACY INFO ERROR: ', error);
+
+        setUpdateWorking(false);
+        return message.error(
+          'Something went wrong while updating your profile.'
+        );
+      });
   };
 
   console.log(user);

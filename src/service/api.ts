@@ -3,11 +3,16 @@ export const API_BASE_URL =
 export const API_BASE_URL_OPEN =
   'http://localhost:5000/openpaarty/us-central1/api1/v1/';
 
+//post ping
 export const PING_ENDPOINT = 'ping';
 
 export const SEARCH_USER_ENDPOINT = 'users';
 
+//post /users
 export const REGISTRATION_ENDPOINT = 'users';
+
+//patch /users/
+export const EDIT_ACCOUNT_INFO_ENDPOINT = 'users';
 
 export const ADD_POST_ENDPOINT = 'posts';
 

@@ -40,44 +40,67 @@ export const handlePostLike = async (
   currentUser: firebase.User
 ) => {
   if (userLikePost) {
-    await firebase
+    return firebase
       .database()
       .ref('Postsv2')
       .child(user_id)
       .child(post_id)
       .child('likes')
       .child(currentUser?.uid!)
-      .remove();
-
-    message.success('You dislike this post');
-
-    setUserLikePost(false);
-    return false;
+      .remove()
+      .then(() => {
+        message.success('You dislike this post');
+        setUserLikePost(false);
+      })
+      .catch(() => {
+        return message.warn(
+          "Sorry, this post doesn't seem to existing any longer..."
+        );
+      });
   } else {
     return firebase
       .database()
       .ref('Postsv2')
       .child(user_id)
       .child(post_id)
-      .once('value', async (ssh) => {
-        if (!ssh.exists()) {
-          message.error(
+      .once(
+        'value',
+        async (ssh) => {
+          if (!ssh.exists()) {
+            return message.error(
+              "Sorry, this post doesn't seem to existing any longer..."
+            );
+          }
+
+          if (ssh.val().privacy === 'hard-closed') {
+            return message.error(
+              "Sorry, this post doesn't seem to existing any longer..."
+            );
+          }
+          return ssh
+            .child('likes')
+            .child(currentUser?.uid!)
+            .ref.set(currentUser?.uid!)
+            .then(() => {
+              message.success('You 💖 this post');
+              setUserLikePost(true);
+            })
+            .catch(() => {
+              return message.warn(
+                "Sorry, this post doesn't seem to existing any longer..."
+              );
+            });
+        },
+        () => {
+          return message.warn(
             "Sorry, this post doesn't seem to existing any longer..."
           );
         }
-        await ssh
-          .child('likes')
-          .child(currentUser?.uid!)
-          .ref.set(currentUser?.uid!);
-
-        message.success('You 💖 this post');
-
-        setUserLikePost(true);
-      });
+      );
   }
 };
 
-export const getPostTagColor = (tag: PostTags): string => {
+export const getPostTagColor = (__tag: PostTags): string => {
   return POST_TAG_COLORS[Math.floor(Math.random() * POST_TAG_COLORS.length)];
   // switch (tag) {
   //   case PostTags.BEACH_PARTY:
@@ -106,33 +129,40 @@ export const onPostComment = async (
 
   setPostCommentLoading(true);
 
-  const result = await axios.post(
-    // 'http://localhost:5000/openpaarty/us-central1/api/v1/posts/add-comment',
-    `${API_BASE_URL}${ADD_COMMENT_ENDPOINT}`,
-    {
-      postId: post_id,
-      user: {
-        username: currentUserInfo?.username,
-        image_url: currentUserInfo?.image_url,
+  await axios
+    .post(
+      // 'http://localhost:5000/openpaarty/us-central1/api/v1/posts/add-comment',
+      `${API_BASE_URL}${ADD_COMMENT_ENDPOINT}`,
+      {
+        postId: post_id,
+        user: {
+          username: currentUserInfo?.username,
+          image_url: currentUserInfo?.image_url,
+        },
+        targetUsername: username,
+        comment: comment.comment,
       },
-      targetUsername: username,
-      comment: comment.comment,
-    },
-    {
-      headers: {
-        authorization: `Bearer ${currentUserToken}`,
-      },
-    }
-  );
+      {
+        headers: {
+          authorization: `Bearer ${currentUserToken}`,
+        },
+      }
+    )
+    .then((result) => {
+      console.log('@ADD COMMENT RESULT: ', result);
 
-  console.log('@ADD COMMENT RESULT: ', result);
-
-  setPostCommentLoading(false);
-  // resetCommentForm();
-  if (result.status !== 201) {
-    message.error('Your comment could not be added at this time.');
-    return true;
-  }
+      setPostCommentLoading(false);
+      // resetCommentForm();
+      if (result.status !== 201) {
+        message.error('Your comment could not be added at this time.');
+        return true;
+      }
+    })
+    .catch((e) => {
+      console.log('@ADD COMMENT ERROR: ', e);
+      setPostCommentLoading(false);
+      message.error('Your comment could not be added at this time.');
+    });
 };
 
 /**

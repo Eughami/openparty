@@ -20,6 +20,7 @@ import firebase from 'firebase';
 import {
   API_BASE_URL,
   API_BASE_URL_OPEN,
+  EDIT_ACCOUNT_INFO_ENDPOINT,
   PING_ENDPOINT,
   USERNAME_AVAILABLE_ENDPOINT,
 } from '../../../service/api';
@@ -81,17 +82,9 @@ export const EditProfile = (props: IEditProfileInterface) => {
     if (selectedImage.file) {
       newImageUrl = await uploadFile(selectedImage.file);
     }
-    // else {
-    //   message.info('There was a problem updating your profile picture', 5);
-    // }
 
-    let usernameChanged = false,
-      usernameAvailable = false;
-
+    const token = await currentUser.getIdToken(true);
     if (values.username !== user.username) {
-      usernameChanged = true;
-      const token = await currentUser.getIdToken(true);
-
       try {
         const res = await Axios.post(
           `${API_BASE_URL}${USERNAME_AVAILABLE_ENDPOINT}`,
@@ -105,13 +98,14 @@ export const EditProfile = (props: IEditProfileInterface) => {
           }
         );
         if (res.status === 200) {
-          usernameAvailable = res.data.available;
           if (!res.data.available) {
             setUpdateWorking(false);
+            setSelectedImage({ url: '', file: undefined });
             return message.warn('Sorry, this username is already taken.');
           }
         } else {
           setUpdateWorking(false);
+          setSelectedImage({ url: '', file: undefined });
           return message.error(
             'Something went wrong while updating your profile.'
           );
@@ -120,52 +114,107 @@ export const EditProfile = (props: IEditProfileInterface) => {
         console.log('@AXIOS CHECK USERNAME AVAILABLE ERROR: ', error);
 
         setUpdateWorking(false);
+        setSelectedImage({ url: '', file: undefined });
         return message.error(
           'Something went wrong while updating your profile.'
         );
       }
     }
 
-    if (!usernameChanged) {
-      if (newImageUrl) {
-        await firebase
-          .database()
-          .ref('Users')
-          .child(user.uid)
-          .update({ ...values, image_url: newImageUrl });
-      } else {
-        await firebase
-          .database()
-          .ref('Users')
-          .child(user.uid)
-          .update({ ...values });
-      }
+    if (newImageUrl) {
+      await firebase
+        .database()
+        .ref('Users')
+        .child(user.uid)
+        .update({ image_url: newImageUrl });
 
-      setSelectedImage({ url: '', file: undefined });
-
-      message.success('Profile updated 🥂');
-      setUpdateWorking(false);
-    } else {
-      if (usernameAvailable) {
-        if (newImageUrl) {
-          await firebase
-            .database()
-            .ref('Users')
-            .child(user.uid)
-            .update({ ...values, image_url: newImageUrl });
-        } else {
-          await firebase
-            .database()
-            .ref('Users')
-            .child(user.uid)
-            .update({ ...values });
+      return Axios.patch(
+        `${API_BASE_URL}${EDIT_ACCOUNT_INFO_ENDPOINT}`,
+        values,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         }
+      )
+        .then((res) => {
+          //username already taken
+          if (res.status === 200) {
+            setUpdateWorking(false);
+            setSelectedImage({ url: '', file: undefined });
+            return message.warn('Sorry, this username is already taken.');
+          }
+          //
+          if (res.status === 201 || res.status === 202) {
+            setSelectedImage({ url: '', file: undefined });
+            message.success('Profile updated 🥂');
+            setUpdateWorking(false);
+          } else {
+            setUpdateWorking(false);
+            setSelectedImage({ url: '', file: undefined });
+            console.log(
+              '@AXIOS EDIT ACCOUNT INFO UNEXPECTED RES CODE: ',
+              res.data,
+              res.status
+            );
+            return message.error(
+              'Something went wrong while updating your profile.'
+            );
+          }
+        })
+        .catch((error) => {
+          console.log('@AXIOS EDIT ACCOUNT INFO ERROR: ', error);
 
-        setSelectedImage({ url: '', file: undefined });
+          setUpdateWorking(false);
+          setSelectedImage({ url: '', file: undefined });
+          return message.error(
+            'Something went wrong while updating your profile.'
+          );
+        });
+    } else {
+      return Axios.patch(
+        `${API_BASE_URL}${EDIT_ACCOUNT_INFO_ENDPOINT}`,
+        values,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      )
+        .then((res) => {
+          //username already taken
+          if (res.status === 200) {
+            setUpdateWorking(false);
+            setSelectedImage({ url: '', file: undefined });
+            return message.warn('Sorry, this username is already taken.');
+          }
+          //
+          if (res.status === 201 || res.status === 202) {
+            setSelectedImage({ url: '', file: undefined });
+            message.success('Profile updated 🥂');
+            setUpdateWorking(false);
+          } else {
+            setUpdateWorking(false);
+            setSelectedImage({ url: '', file: undefined });
+            console.log(
+              '@AXIOS EDIT ACCOUNT INFO UNEXPECTED RES CODE: ',
+              res.data,
+              res.status
+            );
+            return message.error(
+              'Something went wrong while updating your profile.'
+            );
+          }
+        })
+        .catch((error) => {
+          console.log('@AXIOS EDIT ACCOUNT INFO ERROR: ', error);
 
-        message.success('Profile updated 🥂');
-        setUpdateWorking(false);
-      }
+          setUpdateWorking(false);
+          setSelectedImage({ url: '', file: undefined });
+          return message.error(
+            'Something went wrong while updating your profile.'
+          );
+        });
     }
   };
 
@@ -428,9 +477,21 @@ export const EditProfile = (props: IEditProfileInterface) => {
         </Form.Item>
         <Form.Item name="gender" label="Gender">
           <Select>
-            <Option value="male">Male 🎩</Option>
-            <Option value="female">Female 👒</Option>
-            <Option value="other">Other 🤔</Option>
+            <Option value="male">
+              <span role="img" aria-label="male-hat">
+                Male 🎩
+              </span>
+            </Option>
+            <Option value="female">
+              <span role="img" aria-label="female-hat">
+                Female 👒
+              </span>
+            </Option>
+            <Option value="other">
+              <span role="img" aria-label="thinking">
+                Other 🤔
+              </span>
+            </Option>
           </Select>
         </Form.Item>
         <Form.Item wrapperCol={{ ...layout.wrapperCol, offset: 8 }}>

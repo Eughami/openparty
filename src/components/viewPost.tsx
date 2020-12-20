@@ -240,7 +240,7 @@ const ViewPost = (props: ViewPostProps) => {
                 className="full__post__avatar__container"
                 style={{ borderRight: '#f1e6e6 solid 1px' }}
               >
-                <PostUser post={post!} />
+                <PostUser currentUser={currentUser!} post={post!} />
               </div>
             </Col>
             <div>
@@ -283,7 +283,7 @@ const ViewPost = (props: ViewPostProps) => {
             {/* hide on small size screen */}
             <Col lg={24} md={aspectRation > 1 ? 0 : 24} sm={0} xs={0}>
               <div className="full__post__avatar__container">
-                <PostUser post={post!} />
+                <PostUser currentUser={currentUser!} post={post!} />
               </div>
               <div
                 className="full__post__comments__container"

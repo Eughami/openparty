@@ -7,11 +7,12 @@ import { PostTime } from './post.component.post-time';
 
 interface IPostUserProps {
   post: Post;
+  currentUser: firebase.User;
   style?: React.CSSProperties;
 }
 
 export const PostUser = (props: IPostUserProps) => {
-  const { post, style } = props;
+  const { post, currentUser, style } = props;
 
   return (
     <header style={{ ...style, height: '100%' }}>
@@ -36,20 +37,21 @@ export const PostUser = (props: IPostUserProps) => {
           </span>
         </Col>
         <Col span={4}>
-          {(post.privacy as any) === 'hard-closed' && (
-            <Tooltip title="Only you can see this post 🙈 ">
-              <span
-                style={{
-                  fontSize: '25px',
-                  marginLeft: '35%',
-                  display: 'flex',
-                  justifyContent: 'right',
-                }}
-              >
-                <LockTwoTone twoToneColor="#eb2f96" />
-              </span>
-            </Tooltip>
-          )}
+          {post.uid === currentUser.uid &&
+            (post.privacy as any) === 'hard-closed' && (
+              <Tooltip title="Only you can see this post 🙈 ">
+                <span
+                  style={{
+                    fontSize: '25px',
+                    marginLeft: '35%',
+                    display: 'flex',
+                    justifyContent: 'right',
+                  }}
+                >
+                  <LockTwoTone twoToneColor="#eb2f96" />
+                </span>
+              </Tooltip>
+            )}
         </Col>
       </Row>
       {/* <div className="Post-user"> */}
