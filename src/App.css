@@ -148,6 +148,12 @@ hr.light {
 .smallPost {
   height: 400px;
 }
+.smallPost:hover {
+  cursor: pointer;
+}
+.bigPost:hover {
+  cursor: pointer;
+}
 .smallPost img {
   width: 100%;
   height: 100%;
