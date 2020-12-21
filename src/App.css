@@ -142,27 +142,20 @@ hr.light {
   padding: 10px;
   margin: 10px;
 }
-.bBorder {
-  border: black solid 1px;
-  height: 300px;
+.twoSmall__oneBig__container {
+  height: 800px;
 }
-
-.rBorder {
-  border: red solid;
+.smallPost {
+  height: 400px;
+}
+.smallPost img {
+  width: 100%;
   height: 100%;
 }
-
-.yBorder {
-  /* border: yellow solid; */
-  /* height: 100%; */
-}
-
-.gBorder {
-  border: black solid 1px;
+.bigPost {
   height: 100%;
 }
-
-.xBorder {
-  border: black solid 1px;
+.bigPost img {
+  width: 100%;
   height: 100%;
 }
