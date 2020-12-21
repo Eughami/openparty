@@ -27,7 +27,7 @@ import {
   UsergroupAddOutlined,
   VideoCameraAddOutlined,
   FireOutlined,
-  NotificationTwoTone,
+  NotificationOutlined,
 } from '@ant-design/icons';
 
 import OpenPartyLogo from '../images/openpaarty.logo.png';
@@ -428,6 +428,7 @@ const Header = (props: IHeaderProps) => {
       >
         <List
           itemLayout="horizontal"
+          size="small"
           dataSource={followRequests}
           renderItem={(item: any) => (
             <List.Item
@@ -627,9 +628,8 @@ const Header = (props: IHeaderProps) => {
                     setShowNotification(true);
                   }}
                 >
-                  <NotificationTwoTone
-                    twoToneColor="black"
-                    style={{ fontSize: '22px' }}
+                  <NotificationOutlined
+                    style={{ fontSize: '22px', color: 'black' }}
                   />
                 </Link>
                 <Link
