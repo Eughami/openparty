@@ -27,6 +27,7 @@ import ViewPost from './components/viewPost';
 import 'react-perfect-scrollbar/dist/css/styles.css';
 import 'react-popupbox/dist/react-popupbox.css';
 import { LOADER_OBJECTS } from './components/images';
+import Explore from './components/explore';
 
 // const currentUser = true
 
@@ -132,6 +133,7 @@ const App = (props: IAppProps) => {
           </div>
           <Switch>
             <Route exact path="/" component={Homepage} />
+            <Route exact path="/explore" component={Explore} />
             <Route exact path="/:username" component={UserProfile} />
             <Route exact path="/t/:tag" component={Tags} />
             <Route exact path="/post/:postId" component={ViewPost} />

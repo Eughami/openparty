@@ -51,7 +51,7 @@
   width: 100%;
   height: 60px;
   background-color: white;
-  /* border: black solid; */
+  /* border: black solid 1px; */
   z-index: 100;
 }
 .body__container {
@@ -66,7 +66,7 @@
   height: 100%;
 }
 .top__navbar__elements {
-  /* border: black solid; */
+  /* border: black solid 1px; */
   width: 100%;
   height: 40px;
 }
@@ -75,7 +75,7 @@
 }
 
 .post__container {
-  /* border: black solid; */
+  /* border: black solid 1px; */
   background-color: white;
   border-radius: 10px;
   width: 100%;
@@ -85,7 +85,7 @@
   min-height: 350px;
 }
 .post__header {
-  /* border: black solid; */
+  /* border: black solid 1px; */
   height: 10%;
   display: flex;
   align-items: center;
@@ -97,7 +97,7 @@
   padding-left: 10px;
 }
 .post__image {
-  /* border: black solid; */
+  /* border: black solid 1px; */
   height: 60%;
 }
 .post__image img {
@@ -106,7 +106,7 @@
   margin: auto;
 }
 .post__clikes__and__comments {
-  /* border: black solid; */
+  /* border: black solid 1px; */
   height: 10%;
 }
 .post__clikes__and__comments > * {
@@ -116,11 +116,11 @@
   cursor: pointer;
 }
 .post__captions {
-  /* border: black solid; */
+  /* border: black solid 1px; */
   height: 10%;
 }
 .post__add__comment {
-  /* border: black solid; */
+  /* border: black solid 1px; */
   /* height: 10%; */
   height: 50px;
 }
@@ -130,4 +130,39 @@ hr.light {
   width: 100%;
   margin-top: 0.8rem;
   margin-bottom: 1rem;
+}
+
+/* Explore styling */
+.explore__container {
+  width: 100%;
+
+  /* border: red solid; */
+}
+.explore__container > * {
+  padding: 10px;
+  margin: 10px;
+}
+.bBorder {
+  border: black solid 1px;
+  height: 300px;
+}
+
+.rBorder {
+  border: red solid;
+  height: 100%;
+}
+
+.yBorder {
+  /* border: yellow solid; */
+  /* height: 100%; */
+}
+
+.gBorder {
+  border: black solid 1px;
+  height: 100%;
+}
+
+.xBorder {
+  border: black solid 1px;
+  height: 100%;
 }

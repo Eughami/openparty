@@ -26,7 +26,7 @@ import {
   HomeOutlined,
   UsergroupAddOutlined,
   VideoCameraAddOutlined,
-  SmileOutlined,
+  FireOutlined,
   NotificationTwoTone,
 } from '@ant-design/icons';
 
@@ -603,7 +603,7 @@ const Header = (props: IHeaderProps) => {
                     pathname: `/`,
                   }}
                 >
-                  <HomeOutlined style={{ fontSize: '22px' }} />
+                  <HomeOutlined style={{ fontSize: '22px', color: 'black' }} />
                 </Link>
 
                 <Link
@@ -615,7 +615,9 @@ const Header = (props: IHeaderProps) => {
                     size="small"
                     count={followRequests && followRequests.length}
                   >
-                    <UsergroupAddOutlined style={{ fontSize: '22px' }} />
+                    <UsergroupAddOutlined
+                      style={{ fontSize: '22px', color: 'black' }}
+                    />
                   </Badge>
                 </Link>
 
@@ -625,7 +627,17 @@ const Header = (props: IHeaderProps) => {
                     setShowNotification(true);
                   }}
                 >
-                  <NotificationTwoTone style={{ fontSize: '22px' }} />
+                  <NotificationTwoTone
+                    twoToneColor="black"
+                    style={{ fontSize: '22px' }}
+                  />
+                </Link>
+                <Link
+                  to={{
+                    pathname: '/explore',
+                  }}
+                >
+                  <FireOutlined style={{ fontSize: '22px', color: 'black' }} />
                 </Link>
 
                 <Link to={{}}>
