@@ -1,6 +1,32 @@
 import { Row, Col } from 'antd';
 import React from 'react';
+import { CommentOutlined, HeartFilled } from '@ant-design/icons';
 
+const PostOverlay = ({ imgUrl }: any) => (
+  <div className="container">
+    <img src={imgUrl} alt="Avatar" className="image" />
+    <div className="middle">
+      <div className="text">
+        <Row justify="center" align="middle">
+          <Col>
+            <HeartFilled />
+            <span style={{ marginLeft: 5 }}>4.1k</span>
+          </Col>
+          <Col style={{ marginLeft: 20 }}>
+            <CommentOutlined />
+            <span style={{ marginLeft: 5 }}>123</span>
+          </Col>
+        </Row>
+      </div>
+    </div>
+  </div>
+);
+{
+  /* </div>
+  <div className="post__overlay">
+   
+  </div> */
+}
 interface IExploreLayoutProps {
   arrayOfPosts: any[]; //should be 9 elements
 }
@@ -17,37 +43,37 @@ const ExploreLayout = (props: IExploreLayoutProps) => {
         <Col span={7}>
           <Row gutter={[0, 24]}>
             <Col span={24} className="smallPost">
-              <img src={arrayOfPosts[0]} />
+              <PostOverlay imgUrl={arrayOfPosts[0]} />
             </Col>
             <Col span={24} className="smallPost">
-              <img src={arrayOfPosts[1]} />
+              <PostOverlay imgUrl={arrayOfPosts[1]} />
             </Col>
           </Row>
         </Col>
         <Col span={15} offset={1} className="bigPost">
-          <img src={arrayOfPosts[2]} />
+          <PostOverlay imgUrl={arrayOfPosts[2]} />
         </Col>
       </Row>
       <Row gutter={[0, 24]}>
         <Col span={7} className="smallPost">
-          <img src={arrayOfPosts[3]} />
+          <PostOverlay imgUrl={arrayOfPosts[3]} />
         </Col>
         <Col span={7} offset={1} className="smallPost">
-          <img src={arrayOfPosts[4]} />
+          <PostOverlay imgUrl={arrayOfPosts[4]} />
         </Col>
         <Col span={7} offset={1} className="smallPost">
-          <img src={arrayOfPosts[5]} />
+          <PostOverlay imgUrl={arrayOfPosts[5]} />
         </Col>
       </Row>
       <Row gutter={[0, 24]}>
         <Col span={7} className="smallPost">
-          <img src={arrayOfPosts[6]} />
+          <PostOverlay imgUrl={arrayOfPosts[6]} />
         </Col>
         <Col span={7} offset={1} className="smallPost">
-          <img src={arrayOfPosts[7]} />
+          <PostOverlay imgUrl={arrayOfPosts[7]} />
         </Col>
         <Col span={7} offset={1} className="smallPost">
-          <img src={arrayOfPosts[8]} />
+          <PostOverlay imgUrl={arrayOfPosts[8]} />
         </Col>
       </Row>
     </>
