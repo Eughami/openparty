@@ -8,6 +8,7 @@ import {
   GET_USER_ELIGIBLE_POST_ENDPOINT,
   REGISTRATION_ENDPOINT,
 } from '../../service/api';
+// import _ from 'lodash';
 
 export const googleSignInStart = () => (dispatch: any) =>
   new Promise(async (resolve, reject) => {
@@ -62,7 +63,7 @@ export const emailSignInStart = (
             payload: user.user,
           });
           resolve(user);
-          history.push('/');
+          history.replace('/');
         })
         .catch((error) => {
           dispatch({ type: UserActionTypes.SIGN_IN_FAILURE, payload: error });
@@ -116,9 +117,10 @@ export const setCurrentUserToken = (currentUser: firebase.User) => (
   });
 
 export const setCurrentUserRootDatabaseListener = (uid: string) => (
-  dispatch: (arg0: { type: string; payload: any }) => void
-) =>
-  new Promise((resolve, reject) => {
+  dispatch: (arg0: { type: string; payload: any }) => void,
+  getState: any
+) => {
+  return new Promise((resolve, reject) => {
     try {
       firebase
         .database()
@@ -126,6 +128,21 @@ export const setCurrentUserRootDatabaseListener = (uid: string) => (
         .child(uid)
         .on('value', (userSnap) => {
           console.log('NOW LISTENING ON NODE: ', userSnap.val());
+          console.log('PREV USER INFO: ', getState());
+          if (getState().user.userInfo) {
+            console.log('USER INFO PREV STATE ACTIVE');
+
+            const prevUserInfo = getState().user.userInfo as RegistrationObject;
+            const newUserInfo = userSnap.val() as RegistrationObject;
+            // if (newUserInfo.followers_count !== prevUserInfo.followers_count) {
+            //   console.log('NOT DISPATCHING FOR FOLLOW COUNT');
+            //   return;
+            // }
+            if (newUserInfo.following_count < prevUserInfo.following_count) {
+              console.log('NOT DISPATCHING FOR FOLLOWING LESS COUNT');
+              return;
+            }
+          }
 
           dispatch({
             type: UserActionTypes.DATABASE_LISTENER_START,
@@ -137,6 +154,7 @@ export const setCurrentUserRootDatabaseListener = (uid: string) => (
       reject(error);
     }
   });
+};
 
 export const setCurrentUserEligiblePosts = (currentUser: firebase.User) => (
   dispatch: (arg0: { type: string; payload: any }) => void
@@ -160,7 +178,7 @@ export const setCurrentUserEligiblePosts = (currentUser: firebase.User) => (
         type: UserActionTypes.SET_CURRENT_USER_ELIGIBLE_POSTS,
         payload: result.data.uFP,
       });
-      resolve(result);
+      resolve(result.data.uFP);
     } catch (error) {
       reject(error);
     }
@@ -184,6 +202,37 @@ export const setCurrentUserUsernameDatabaseListener = (uid: string) => (
             payload: userSnap.val(),
           });
           resolve(userSnap.val());
+        });
+    } catch (error) {
+      reject(error);
+    }
+  });
+
+export const setCurrentUserFollowingChangedListener = (
+  uid: string,
+  uFP: Array<{ postRef: string; uidRef: string; username: string }>
+) => (dispatch: (arg0: { type: string; payload: any }) => void) =>
+  new Promise((resolve, reject) => {
+    try {
+      firebase
+        .database()
+        .ref('Following')
+        .child(uid)
+        .on('child_removed', (userFollowingSnap) => {
+          console.log(
+            'NOW LISTENING ON FOLLOWING NODE: ',
+            userFollowingSnap.val()
+          );
+
+          //whenever user stops following someone, dispatch action to get eligible posts again.
+          // setCurrentUserEligiblePosts(firebase.auth().currentUser!);
+          dispatch({
+            type: UserActionTypes.SET_CURRENT_USER_ELIGIBLE_POSTS,
+            payload: uFP.filter(
+              (ref) => ref.uidRef !== userFollowingSnap.val().uid
+            ),
+          });
+          resolve(userFollowingSnap.val());
         });
     } catch (error) {
       reject(error);

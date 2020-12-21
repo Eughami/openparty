@@ -72,7 +72,10 @@ export const handlePostLike = async (
             );
           }
 
-          if (ssh.val().privacy === 'hard-closed') {
+          if (
+            ssh.val().privacy === 'hard-closed' &&
+            ssh.val().uid !== currentUser.uid
+          ) {
             return message.error(
               "Sorry, this post doesn't seem to existing any longer..."
             );

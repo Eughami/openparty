@@ -262,7 +262,7 @@ const ViewPost = (props: ViewPostProps) => {
                         maxHeight: 600,
                         width: '100%',
                       }}
-                      onClick={() => history.push(`/post/${post.id}`)}
+                      // onClick={() => history.push(`/post/${post.id}`)}
                       alt={post.caption}
                       src={url}
                     />

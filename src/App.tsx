@@ -4,6 +4,7 @@ import { connect } from 'react-redux';
 import {
   setCurrentUserListener,
   setCurrentUserRootDatabaseListener,
+  setCurrentUserFollowingChangedListener,
   setCurrentUserEligiblePosts,
   setCurrentUserToken,
 } from './redux/user/user.actions';
@@ -32,6 +33,10 @@ import { LOADER_OBJECTS } from './components/images';
 interface IAppProps {
   setCurrentUserListener?: () => Promise<any>;
   setCurrentUserRootDatabaseListener?: (uid: string) => Promise<any>;
+  setCurrentUserFollowingChangedListener?: (
+    uid: string,
+    uFP: Array<{ postRef: string; uidRef: string; username: string }>
+  ) => Promise<any>;
   setCurrentUserEligiblePosts?: (currentUser: firebase.User) => Promise<any>;
   setCurrentUserToken?: (currentUser: firebase.User) => Promise<string | null>;
   currentUser?: firebase.User;
@@ -45,6 +50,7 @@ const App = (props: IAppProps) => {
     currentUserInfo,
     setCurrentUserListener,
     setCurrentUserRootDatabaseListener,
+    setCurrentUserFollowingChangedListener,
     setCurrentUserEligiblePosts,
     setCurrentUserToken,
   } = props;
@@ -55,7 +61,8 @@ const App = (props: IAppProps) => {
         .then(async (currentUser: any) => {
           if (currentUser) {
             await setCurrentUserToken!(currentUser);
-            await setCurrentUserRootDatabaseListener!(currentUser.uid);
+            // setCurrentUserRootDatabaseListener!(currentUser.uid);
+
             setLoadingCredentials(false);
           } else {
             setLoadingCredentials(false);
@@ -72,19 +79,24 @@ const App = (props: IAppProps) => {
     currentUser,
     setCurrentUserListener,
     setCurrentUserToken,
-    setCurrentUserRootDatabaseListener,
+    // setCurrentUserRootDatabaseListener,
   ]);
 
   useEffect(() => {
     if (!currentUserInfo && currentUser) {
       setCurrentUserRootDatabaseListener!(currentUser.uid);
-      setCurrentUserEligiblePosts!(currentUser);
+      setCurrentUserEligiblePosts!(currentUser).then(
+        (uFP: Array<{ postRef: string; uidRef: string; username: string }>) => {
+          setCurrentUserFollowingChangedListener!(currentUser.uid, uFP);
+        }
+      );
     }
   }, [
     currentUserInfo,
     setCurrentUserRootDatabaseListener,
     currentUser,
     setCurrentUserEligiblePosts,
+    setCurrentUserFollowingChangedListener,
   ]);
 
   console.log('APP.TSX PROPS:  ', props.currentUserToken);
@@ -154,6 +166,10 @@ const mapDispatchToProps = (dispatch: any) => {
       dispatch(setCurrentUserToken(currentUser)),
     setCurrentUserRootDatabaseListener: (uid: string) =>
       dispatch(setCurrentUserRootDatabaseListener(uid)),
+    setCurrentUserFollowingChangedListener: (
+      uid: string,
+      uFP: Array<{ postRef: string; uidRef: string; username: string }>
+    ) => dispatch(setCurrentUserFollowingChangedListener(uid, uFP)),
     setCurrentUserEligiblePosts: (currentUser: firebase.User) =>
       dispatch(setCurrentUserEligiblePosts(currentUser)),
   };

@@ -212,12 +212,28 @@ const UserProfile = (props: IUserProps) => {
           setLoading(false);
           setSelfUser(true);
         } else {
-          setPrivacyStatus(result.data.privacy);
+          // setPrivacyStatus(result.data.privacy);
+
+          // firebase
+          //   .database()
+          //   .ref('Followers')
+          //   .child(
+          //     (result.data.targetUser && result.data.targetUser.uid) ||
+          //       result.data.targetUid
+          //   )
+          //   .child(currentUser.uid)
+          //   .on('value', (ssh) => {
+          //     if (ssh.exists()) {
+          //       setPrivacyStatus(PrivacyStatus.FOLLOWERS);
+          //     }
+          //     // setRequestedFollow(ssh.exists());
+          //   });
 
           //If following user, then target user's posts is in the global eligible posts state. Simply
           // filter by username and add listeners to database [to make it real time]
           if (result.data.privacy === 'following') {
             setFollowActionLoading(false);
+            setRequestedFollow(false);
 
             if (currentUserEligiblePosts === null) {
               //serious issues here?
@@ -234,15 +250,19 @@ const UserProfile = (props: IUserProps) => {
                   console.log(ssh.val());
 
                   setOtherUserPrivacy(false);
-                  setLoading(false);
                   setOtherUserInfo(ssh.val());
+                  setPrivacyStatus(PrivacyStatus.FOLLOWERS);
+                  setLoading(false);
                 }, //HERE IS WHERE DB SNAPS FROM PRIVACY CHANGE
                 (error: any) => {
+                  console.log('HMMM @', error);
+
                   if (error.code) {
                     if (error.code === 'PERMISSION_DENIED') {
-                      setLoading(false);
                       setOtherUserInfo(result.data.targetUser);
                       setOtherUserPrivacy(true);
+                      setPrivacyStatus(PrivacyStatus.PRIVATE);
+                      setLoading(false);
                     }
                   }
                 }
@@ -260,7 +280,7 @@ const UserProfile = (props: IUserProps) => {
               currentUserEligiblePosts === null
             ) {
               console.log(
-                "USER'S POST IS 0",
+                "SELF USER'S ELIGIBLE POST IS 0",
                 filteredEligiblePosts,
                 currentUserEligiblePosts
               );
@@ -353,6 +373,7 @@ const UserProfile = (props: IUserProps) => {
                 }
               )
               .then(() => {
+                // setLoading(false);
                 console.log('DONE MAPPING');
               });
           } else {
@@ -363,8 +384,24 @@ const UserProfile = (props: IUserProps) => {
               .child(result.data.targetUser.uid)
               .child(currentUser.uid)
               .on('value', (ssh) => {
-                setFollowActionLoading(false);
+                // setFollowActionLoading(false);
                 setRequestedFollow(ssh.exists());
+                // if (ssh.exists()) {
+                //   setRequestedFollow(true);
+                // } else {
+                //   firebase
+                //     .database()
+                //     .ref('Following')
+                //     .child(result.data.targetUser.uid)
+                //     .child(currentUser.uid)
+                //     .once('value', (ssh) => {
+                //       if (ssh.exists()) {
+                //         setPrivacyStatus(PrivacyStatus.FOLLOWERS);
+                //       } else {
+                //         setRequestedFollow(false);
+                //       }
+                //     });
+                // }
               });
 
             //If target user's profile is private, don't show them any posts. Just show them simple info
@@ -480,6 +517,7 @@ const UserProfile = (props: IUserProps) => {
     currentUser,
     currentUserToken,
     props.setCurrentUserToken,
+    privacyStatus,
   ]);
 
   if (!realUser) {
@@ -574,13 +612,17 @@ const UserProfile = (props: IUserProps) => {
                     ) : privacyStatus === PrivacyStatus.FOLLOWERS ? (
                       <ProfileActionUnfollow
                         otherUserInfo={otherUserInfo}
-                        onConfirm={() =>
-                          confirmUnfollow(
-                            otherUserInfo,
-                            currentUserToken!
-                          ).finally(() =>
-                            setCurrentUserEligiblePosts!(currentUser!)
-                          )
+                        onConfirm={
+                          () => {
+                            setFollowActionLoading(true);
+                            confirmUnfollow(
+                              otherUserInfo,
+                              currentUserToken!
+                            ).finally(() => setFollowActionLoading(false));
+                          }
+                          // .finally(() =>
+                          //   setCurrentUserEligiblePosts!(currentUser!)
+                          // )
                         }
                       />
                     ) : requestedFollow ? (
@@ -590,6 +632,7 @@ const UserProfile = (props: IUserProps) => {
                       />
                     ) : (
                       <ProfileActionFollow
+                        onConfirm={() => setFollowActionLoading(true)}
                         selfUserInfo={currentUserInfo!}
                         otherUserInfo={otherUserInfo}
                         currentUserToken={currentUserToken!}
@@ -654,7 +697,7 @@ const UserProfile = (props: IUserProps) => {
           </div>
         ) : (
           <div style={{ textAlign: 'center', marginTop: '15%' }}>
-            <Spin size="small" />
+            <Spin size="large" />
           </div>
         )}
       </Col>

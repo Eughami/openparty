@@ -14,7 +14,7 @@ import {
 
 interface IProfileActionUnfollowProps {
   selfUserInfo?: RegistrationObject;
-  otherUserInfo: RegistrationObject;
+  otherUserInfo?: RegistrationObject;
   buttonStyle?: React.CSSProperties;
   icon?: React.ReactNode;
   showPopup?: boolean;

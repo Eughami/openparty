@@ -20,6 +20,7 @@ import {
   List,
   Carousel,
   Input,
+  Popconfirm,
 } from 'antd';
 import { PostCaption } from '../../post/components/post.component.caption';
 import { PostLikesNumber } from '../../post/components/post.component.likes';
@@ -37,6 +38,7 @@ import {
   ExclamationCircleOutlined,
   RightCircleTwoTone,
   LeftCircleTwoTone,
+  QuestionCircleOutlined,
 } from '@ant-design/icons';
 import { useHistory } from 'react-router-dom';
 import Moment from 'moment';
@@ -48,6 +50,8 @@ import {
 } from '../../../service/api';
 import firebase from 'firebase';
 import { PopupboxContainer, PopupboxManager } from 'react-popupbox';
+import { ProfileActionUnfollow } from './profile.component.actions';
+import { confirmUnfollow } from '../profile.actions';
 
 export const SPRITE_IMAGE_URL =
   'https://firebasestorage.googleapis.com/v0/b/openpaarty.appspot.com/o/defaults%2Ficons%2F65c15d7731ea.png?alt=media&token=0870e69e-ae19-42f6-aeb8-5bd40f1e040c';
@@ -247,6 +251,11 @@ const RenderPostCard = (props: IRenderPostCardProps) => {
     });
   };
 
+  const doUnfollow = async (uid: string) => {
+    const token = await currentUser.getIdToken(true);
+    confirmUnfollow({ uid }, token);
+  };
+
   const showModalPostOptions = (post: Post) => {
     const content = (
       <List
@@ -257,6 +266,7 @@ const RenderPostCard = (props: IRenderPostCardProps) => {
           <Button style={{ fontWeight: 'bold' }} block type="link" danger>
             Report Post
           </Button>,
+          <ProfileActionUnfollow onConfirm={() => doUnfollow(post.uid)} />,
           <Button style={{ fontWeight: 'bold' }} block type="link" danger>
             Unfollow
           </Button>,
