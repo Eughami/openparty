@@ -20,7 +20,7 @@ const Homepage = ({ currentUserInfo }: any) => {
         <Col
           xs={{ span: 22, offset: 1 }}
           lg={{ span: 16, offset: 2 }}
-          xl={{ span: 10, offset: 4 }}
+          xl={{ span: 12, offset: 2 }}
           span={12}
         >
           <Posts />
