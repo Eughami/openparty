@@ -20,3 +20,11 @@
     1.1
   ); /* (150% zoom - Note: if the zoom is too large, it will go outside of the viewport) */
 }
+
+.zoom__mini {
+  transition: transform 0.2s;
+}
+
+.zoom__mini:hover {
+  transform: scale(1.5);
+}

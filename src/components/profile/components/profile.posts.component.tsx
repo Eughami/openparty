@@ -20,6 +20,7 @@ import {
   List,
   Carousel,
   Input,
+  Tooltip,
 } from 'antd';
 import { PostCaption } from '../../post/components/post.component.caption';
 import { PostLikesNumber } from '../../post/components/post.component.likes';
@@ -465,50 +466,61 @@ const RenderPostCard = (props: IRenderPostCardProps) => {
                 </div>
               }
               actions={[
-                <Row justify="center" align="middle">
-                  <PostActionLike currentUser={currentUser!} post={post} />
-                  <p style={{ marginLeft: 10 }}></p>
+                <Tooltip title="Like">
+                  <Row justify="center" align="middle" className="zoom__mini">
+                    <PostActionLike currentUser={currentUser!} post={post} />
+                    <p style={{ marginLeft: 10 }}></p>
 
-                  <PostLikesNumber post={post} />
-                </Row>,
-                <Row
-                  onClick={() => history.push(`/post/${post.id}`)}
-                  justify="center"
-                  align="middle"
-                >
-                  <PostActionComment currentUser={currentUser!} post={post} />
-                  <p style={{ marginLeft: 10 }}></p>
+                    <PostLikesNumber post={post} />
+                  </Row>
+                </Tooltip>,
+                <Tooltip title="Comment">
+                  <Row
+                    onClick={() => history.push(`/post/${post.id}`)}
+                    justify="center"
+                    align="middle"
+                    className="zoom__mini"
+                  >
+                    <PostActionComment currentUser={currentUser!} post={post} />
+                    <p style={{ marginLeft: 10 }}></p>
 
-                  <PostCommentsNumber post={post} />
-                </Row>,
-                <span style={{ fontSize: '25px' }}>
-                  <EllipsisOutlined
-                    onClick={() => {
-                      setSelectedPost(post);
-                      if (type === 'self-user') {
-                        setSelectedPostTags(
-                          post.tags
-                            ? post.tags
-                                .map((str) => '#' + str)
-                                .join(', ')
-                                .toString()
-                            : ''
-                        );
-                        return setEditPostVisible(true);
-                      }
-                      return showModalPostOptions(post);
-                    }}
-                  />
-                </span>,
+                    <PostCommentsNumber post={post} />
+                  </Row>
+                </Tooltip>,
+                <Tooltip title={type === 'self-user' ? 'Edit' : 'Actions'}>
+                  <span style={{ fontSize: '25px' }}>
+                    <EllipsisOutlined
+                      className="zoom__mini"
+                      onClick={() => {
+                        setSelectedPost(post);
+                        if (type === 'self-user') {
+                          setSelectedPostTags(
+                            post.tags
+                              ? post.tags
+                                  .map((str) => '#' + str)
+                                  .join(', ')
+                                  .toString()
+                              : ''
+                          );
+                          return setEditPostVisible(true);
+                        }
+                        return showModalPostOptions(post);
+                      }}
+                    />
+                  </span>
+                </Tooltip>,
 
-                <span style={{ color: 'red', fontSize: '25px' }}>
-                  <DeleteOutlined
-                    onClick={() => {
-                      // setSelectedPost(post);
-                      showModalDeletePostMessage(post);
-                    }}
-                  />
-                </span>,
+                <Tooltip title="Delete">
+                  <span style={{ color: 'red', fontSize: '25px' }}>
+                    <DeleteOutlined
+                      className="zoom__mini"
+                      onClick={() => {
+                        // setSelectedPost(post);
+                        showModalDeletePostMessage(post);
+                      }}
+                    />
+                  </span>
+                </Tooltip>,
               ].slice(0, type === 'self-user' ? 4 : 3)}
             >
               <Meta
