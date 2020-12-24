@@ -44,7 +44,12 @@ export const PostComments = (props: IPostCommentsProps) => {
                             pathname: `/${comment.user.username}`,
                           }}
                         >
-                          <span style={{ fontWeight: 'bold' }}>
+                          <span
+                            style={{
+                              fontWeight: 600,
+                              color: 'rgba(var(--i1d,38,38,38),1)',
+                            }}
+                          >
                             {comment.user.username}{' '}
                           </span>
                         </Link>
@@ -68,7 +73,12 @@ export const PostComments = (props: IPostCommentsProps) => {
                             pathname: `/${comment.user.username}`,
                           }}
                         >
-                          <span style={{ fontWeight: 'bold' }}>
+                          <span
+                            style={{
+                              fontWeight: 600,
+                              color: 'rgba(var(--i1d,38,38,38),1)',
+                            }}
+                          >
                             {comment.user.username}{' '}
                           </span>
                         </Link>
@@ -77,7 +87,7 @@ export const PostComments = (props: IPostCommentsProps) => {
                     </Row>
                   ))}
               <Link to={`/post/${post.id}`}>
-                <span>
+                <span style={{ color: 'rgba(var(--f52,142,142,142),1)' }}>
                   View all {Object.keys(post.comments).length} comments
                 </span>
               </Link>

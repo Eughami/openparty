@@ -256,7 +256,71 @@ const RenderPostCard = (props: IRenderPostCardProps) => {
     confirmUnfollow({ uid }, token);
   };
 
-  const showModalPostOptions = (post: Post) => {
+  const showModalPostOptions = (
+    post: Post,
+    user: 'self-user' | 'other-user'
+  ) => {
+    if (user === 'self-user') {
+      const content = (
+        <List
+          size="small"
+          header={null}
+          footer={null}
+          dataSource={[
+            <Button
+              onClick={() => {
+                setEditPostVisible(true);
+                PopupboxManager.close();
+              }}
+              style={{ fontWeight: 'bold' }}
+              block
+              type="link"
+            >
+              Edit Post
+            </Button>,
+            <Button
+              onClick={() => {
+                showModalDeletePostMessage(post);
+                PopupboxManager.close();
+              }}
+              style={{ fontWeight: 'bold' }}
+              block
+              type="link"
+              danger
+            >
+              Delete Post
+            </Button>,
+            <Button style={{ fontWeight: 'bold' }} block type="link">
+              Share
+            </Button>,
+            <Button
+              onClick={() =>
+                fallbackCopyTextToClipboard(
+                  `http://localhost:3000/post/${post.id}`
+                )
+              }
+              style={{ fontWeight: 'bold' }}
+              block
+              type="link"
+            >
+              Copy Link
+            </Button>,
+            <Button
+              onClick={() => PopupboxManager.close()}
+              style={{ fontWeight: 'bold' }}
+              block
+              type="link"
+            >
+              Cancel
+            </Button>,
+          ]}
+          renderItem={(item) => <List.Item>{item}</List.Item>}
+        />
+      );
+      PopupboxManager.open({ content });
+
+      return;
+    }
     const content = (
       <List
         size="small"
@@ -266,10 +330,14 @@ const RenderPostCard = (props: IRenderPostCardProps) => {
           <Button style={{ fontWeight: 'bold' }} block type="link" danger>
             Report Post
           </Button>,
-          <ProfileActionUnfollow onConfirm={() => doUnfollow(post.uid)} />,
-          <Button style={{ fontWeight: 'bold' }} block type="link" danger>
-            Unfollow
-          </Button>,
+
+          //<div style={{ textAlign: 'center' }}>
+          <ProfileActionUnfollow
+            style={{ fontWeight: 'bold', width: '100%' }}
+            buttonProps={{ type: 'link', block: true, danger: true }}
+            onConfirm={() => doUnfollow(post.uid)}
+          />,
+          //</div>
           <Button style={{ fontWeight: 'bold' }} block type="link">
             Share
           </Button>,
@@ -474,52 +542,56 @@ const RenderPostCard = (props: IRenderPostCardProps) => {
                   )}
                 </div>
               }
-              actions={[
-                <Row justify="center" align="middle">
-                  <PostActionLike currentUser={currentUser!} post={post} />
-                  <p style={{ marginLeft: 10 }}></p>
+              actions={
+                [
+                  <Row justify="center" align="middle">
+                    <PostActionLike currentUser={currentUser!} post={post} />
+                    <p style={{ marginLeft: 10 }}></p>
 
-                  <PostLikesNumber post={post} />
-                </Row>,
-                <Row
-                  onClick={() => history.push(`/post/${post.id}`)}
-                  justify="center"
-                  align="middle"
-                >
-                  <PostActionComment currentUser={currentUser!} post={post} />
-                  <p style={{ marginLeft: 10 }}></p>
+                    <PostLikesNumber post={post} />
+                  </Row>,
+                  <Row
+                    onClick={() => history.push(`/post/${post.id}`)}
+                    justify="center"
+                    align="middle"
+                  >
+                    <PostActionComment currentUser={currentUser!} post={post} />
+                    <p style={{ marginLeft: 10 }}></p>
 
-                  <PostCommentsNumber post={post} />
-                </Row>,
-                <span style={{ fontSize: '25px' }}>
-                  <EllipsisOutlined
-                    onClick={() => {
-                      setSelectedPost(post);
-                      if (type === 'self-user') {
-                        setSelectedPostTags(
-                          post.tags
-                            ? post.tags
-                                .map((str) => '#' + str)
-                                .join(', ')
-                                .toString()
-                            : ''
-                        );
-                        return setEditPostVisible(true);
-                      }
-                      return showModalPostOptions(post);
-                    }}
-                  />
-                </span>,
+                    <PostCommentsNumber post={post} />
+                  </Row>,
+                  <span style={{ fontSize: '25px' }}>
+                    <EllipsisOutlined
+                      onClick={() => {
+                        setSelectedPost(post);
+                        if (type === 'self-user') {
+                          setSelectedPostTags(
+                            post.tags
+                              ? post.tags
+                                  .map((str) => '#' + str)
+                                  .join(', ')
+                                  .toString()
+                              : ''
+                          );
+                          showModalPostOptions(post, 'self-user');
+                          return;
+                          // return setEditPostVisible(true);
+                        }
+                        return showModalPostOptions(post, 'other-user');
+                      }}
+                    />
+                  </span>,
 
-                <span style={{ color: 'red', fontSize: '25px' }}>
-                  <DeleteOutlined
-                    onClick={() => {
-                      // setSelectedPost(post);
-                      showModalDeletePostMessage(post);
-                    }}
-                  />
-                </span>,
-              ].slice(0, type === 'self-user' ? 4 : 3)}
+                  // <span style={{ color: 'red', fontSize: '25px' }}>
+                  //   <DeleteOutlined
+                  //     onClick={() => {
+                  //       // setSelectedPost(post);
+                  //       showModalDeletePostMessage(post);
+                  //     }}
+                  //   />
+                  // </span>,
+                ] /*.slice(0, type === 'self-user' ? 4 : 3)*/
+              }
             >
               <Meta
                 description={

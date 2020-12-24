@@ -23,6 +23,10 @@ const EditAccount = (props: IEditAccountInterface) => {
     document.title = `Open Party • Edit Profile`;
   }, []);
 
+  if (!currentUser || !currentUserInfo) {
+    return null;
+  }
+
   return (
     <>
       <Row

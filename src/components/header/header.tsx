@@ -146,6 +146,7 @@ const Header = (props: IHeaderProps) => {
       .database()
       .ref('Notifications')
       .child(props.currentUser?.uid!)
+      .limitToLast(50)
       .on(
         'value',
         (ssh) => {
@@ -645,7 +646,7 @@ const Header = (props: IHeaderProps) => {
                     overlay={menu(props)}
                     placement="bottomCenter"
                     arrow
-                    // trigger={['click']}
+                    trigger={['click']}
                   >
                     <Avatar
                       style={{ fontSize: '22px' }}

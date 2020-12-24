@@ -148,11 +148,16 @@ const ViewPost = (props: ViewPostProps) => {
 
               setInitImageDim(res.data);
               setPost(ssh.val());
+              setPostExists(true);
               setLoadingPost(false);
             });
           }
         },
-        (e: any) => console.log(e)
+        (e: any) => {
+          console.log('@POST LISTENER DB ERROR: ', e);
+          setLoadingPost(false);
+          setPostExists(true);
+        }
       );
   };
 
@@ -184,9 +189,11 @@ const ViewPost = (props: ViewPostProps) => {
             setLoadingPost(false);
             return;
           }
-          fetchPost(id, res.data, props.currentUserToken!);
-          setLoadingPost(false);
-          setPostExists(true);
+          fetchPost(id, res.data, props.currentUserToken!).catch((e) => {
+            console.log('@FETCH POST ERROR: ', e);
+            setPostExists(false);
+            setLoadingPost(false);
+          });
         })
         .catch((e) => {
           console.log('@GET POST ERROR: ', e);
