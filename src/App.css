@@ -54,10 +54,6 @@
   /* border: black solid 1px; */
   z-index: 100;
 }
-.body__container {
-  position: relative;
-  /* top: 60px; */
-}
 .top__logo {
   text-align: center;
 }
@@ -71,7 +67,7 @@
   height: 40px;
 }
 .posts__container > * {
-  margin: 30px 0;
+  margin: 10px 0;
 }
 
 .post__container {
@@ -107,7 +103,6 @@
 }
 .post__clikes__and__comments {
   /* border: black solid 1px; */
-  height: 10%;
 }
 .post__clikes__and__comments > * {
   padding-right: 18px;

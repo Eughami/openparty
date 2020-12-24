@@ -262,24 +262,9 @@ const Posts = (props: IPostsProps) => {
     <div className="posts__container">
       <BackTop />
       {posts.length > 0 &&
-        posts.map((val) => (
-          <MyPost fullPage={false} key={val.key} post={val} />
-        ))}
+        posts.map((val) => <MyPost key={val.key} post={val} />)}
     </div>
   );
-
-  // return (
-  //     <div className='posts__container'>
-  //         {posts.length > 0 ? (
-  //             posts.map((post, index) =>
-  //                 <MyPost key={index} post={post} />
-  //             )
-  //         ) : (
-  //                 <Empty />
-  //             )
-  //         }
-  //     </div>
-  // );
 };
 
 const mapStateToProps = (state: any) => {
