@@ -595,65 +595,78 @@ const Header = (props: IHeaderProps) => {
           <Col
             lg={{ span: 7, offset: 1 }}
             md={{ span: 8, offset: 2 }}
-            xs={{ span: 6, offset: 4 }}
+            xs={{ span: 8, offset: 2 }}
           >
             <Row justify="start" align="stretch">
               <Space direction="horizontal" size="large">
-                <Link
-                  className="nav-link"
-                  to={{
-                    pathname: `/`,
-                  }}
-                >
-                  <HomeOutlined style={{ fontSize: '22px', color: 'black' }} />
-                </Link>
-
-                <Link
-                  onClick={() => setModalVisible(true)}
-                  className="nav-link"
-                  to={{}}
-                >
-                  <Badge
-                    size="small"
-                    count={followRequests && followRequests.length}
+                <Col sm={24} xs={0}>
+                  <Link
+                    className="nav-link"
+                    to={{
+                      pathname: `/`,
+                    }}
                   >
-                    <UsergroupAddOutlined
+                    <HomeOutlined
                       style={{ fontSize: '22px', color: 'black' }}
                     />
-                  </Badge>
-                </Link>
+                  </Link>
+                </Col>
 
-                <Link
-                  to={{}}
-                  onClick={() => {
-                    setShowNotification(true);
-                  }}
-                >
-                  <NotificationOutlined
-                    style={{ fontSize: '22px', color: 'black' }}
-                  />
-                </Link>
-                <Link
-                  to={{
-                    pathname: '/explore',
-                  }}
-                >
-                  <FireOutlined style={{ fontSize: '22px', color: 'black' }} />
-                </Link>
-
-                <Link to={{}}>
-                  <Dropdown
-                    overlay={menu(props)}
-                    placement="bottomCenter"
-                    arrow
-                    trigger={['click']}
+                <Col>
+                  <Link
+                    onClick={() => setModalVisible(true)}
+                    className="nav-link"
+                    to={{}}
                   >
-                    <Avatar
+                    <Badge
+                      size="small"
+                      count={followRequests && followRequests.length}
+                    >
+                      <UsergroupAddOutlined
+                        style={{ fontSize: '22px', color: 'black' }}
+                      />
+                    </Badge>
+                  </Link>
+                </Col>
+                <Col>
+                  <Link
+                    to={{}}
+                    onClick={() => {
+                      setShowNotification(true);
+                    }}
+                  >
+                    <NotificationOutlined
+                      twoToneColor="black"
                       style={{ fontSize: '22px' }}
-                      src={props.currentUserInfo?.image_url}
                     />
-                  </Dropdown>
-                </Link>
+                  </Link>
+                </Col>
+                <Col>
+                  <Link
+                    to={{
+                      pathname: '/explore',
+                    }}
+                  >
+                    <FireOutlined
+                      style={{ fontSize: '22px', color: 'black' }}
+                    />
+                  </Link>
+                </Col>
+                <Col>
+                  <Link to={{}}>
+                    <Dropdown
+                      overlay={menu(props)}
+                      placement="bottomCenter"
+                      arrow
+                      // trigger={['click']}
+                    >
+                      <Avatar
+                        style={{ fontSize: '22px' }}
+                        src={props.currentUserInfo?.image_url}
+                      />
+                    </Dropdown>
+                  </Link>
+                </Col>
               </Space>
             </Row>
           </Col>

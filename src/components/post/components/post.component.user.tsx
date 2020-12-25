@@ -16,8 +16,13 @@ export const PostUser = (props: IPostUserProps) => {
 
   return (
     <header style={{ ...style, height: '100%' }}>
-      <Row align="middle" className="Post-user">
-        <Col span={8}>
+      <Row align="middle" justify="start" className="Post-user">
+        <Col
+          xl={{ span: 11, offset: 1 }}
+          lg={{ span: 9, offset: 1 }}
+          sm={{ span: 10, offset: 1 }}
+          xs={{ span: 10, offset: 1 }}
+        >
           <img
             className="Post-user-avatar"
             src={post.user.image_url}
@@ -32,21 +37,28 @@ export const PostUser = (props: IPostUserProps) => {
             <span className="Post-user-nickname"> {post.user.username} </span>
           </Link>
         </Col>
-        <Col span={8}>
-          <span style={{ marginLeft: '22%', fontWeight: 'bold' }}>
+        <Col
+          xl={{ span: 7, offset: 1 }}
+          lg={{ span: 9, offset: 1 }}
+          sm={{ span: 10, offset: 1 }}
+          xs={{ span: 10, offset: 1 }}
+        >
+          <span style={{ fontWeight: 'bold' }}>
             <PostTime post={post} />
           </span>
         </Col>
-        <Col span={4}>
+        <Col
+          xl={{ offset: 2, span: 2 }}
+          lg={{ span: 2, offset: 2 }}
+          sm={{ span: 1 }}
+          xs={{ span: 1 }}
+        >
           {post.uid === currentUser.uid &&
             (post.privacy as any) === 'hard-closed' && (
               <Tooltip title="Only you can see this post 🙈 ">
                 <span
                   style={{
                     fontSize: '25px',
-                    marginLeft: '35%',
-                    display: 'flex',
-                    justifyContent: 'right',
                   }}
                 >
                   <LockTwoTone twoToneColor="#eb2f96" />
@@ -55,9 +67,6 @@ export const PostUser = (props: IPostUserProps) => {
             )}
         </Col>
       </Row>
-      {/* <div className="Post-user"> */}
-      {/* <div className="Post-user-avatar"> */}
-      {/* </div> */}
     </header>
   );
 };

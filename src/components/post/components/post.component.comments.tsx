@@ -24,38 +24,35 @@ export const PostComments = (props: IPostCommentsProps) => {
                     padding: '10px',
                   }}
                 >
-                  <Row justify="start" align="top">
-                    <Col span={2}>
+                  <Row justify="start" align="middle">
+                    {/* <Col xl={2} lg={3} sm={2} xs={3}> */}
+                    <span style={{ width: '40px' }}>
                       <Avatar
                         alt="user avatar"
                         src={comment.user.image_url}
                         size={36}
                       />
-                    </Col>
-                    <Col
-                      span={21}
-                      offset={1}
-                      // to hide very long weird and probably non-existent one word
+                    </span>
+                    <div
+                      className="comment__container"
                       style={{ overflowX: 'hidden' }}
                     >
-                      <span>
-                        <Link
-                          to={{
-                            pathname: `/${comment.user.username}`,
+                      <Link
+                        to={{
+                          pathname: `/${comment.user.username}`,
+                        }}
+                      >
+                        <span
+                          style={{
+                            fontWeight: 600,
+                            color: 'rgba(var(--i1d,38,38,38),1)',
                           }}
                         >
-                          <span
-                            style={{
-                              fontWeight: 600,
-                              color: 'rgba(var(--i1d,38,38,38),1)',
-                            }}
-                          >
-                            {comment.user.username}{' '}
-                          </span>
-                        </Link>
-                        {replaceAtMentionsWithLinks2(comment.comment)}
-                      </span>
-                    </Col>
+                          {comment.user.username}{' '}
+                        </span>
+                      </Link>
+                      {replaceAtMentionsWithLinks2(comment.comment)}
+                    </div>
                   </Row>
                 </div>
               )

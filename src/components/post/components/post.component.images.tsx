@@ -18,8 +18,7 @@ export const PostImages = (props: IPostImagesProps) => {
   });
 
   return (
-    <div {...doubleTapBind} className="">
-      {/* <div className="Post-image-bg"> */}
+    <div>
       {/* How to handle posts w/out images?? */}
       <Carousel
         nextArrow={<RightCircleTwoTone twoToneColor="#ccc" />}
@@ -34,7 +33,7 @@ export const PostImages = (props: IPostImagesProps) => {
           <Row className="Post-image" justify="center" align="middle" key={idx}>
             <img
               style={{
-                maxHeight: imageHeight ? `${imageHeight}px` : 'auto',
+                height: imageHeight ? `${imageHeight}px` : 'auto',
               }}
               alt={props.post.caption}
               src={url}

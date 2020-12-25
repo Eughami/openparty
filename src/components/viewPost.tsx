@@ -260,13 +260,20 @@ const ViewPost = (props: ViewPostProps) => {
       {post && (
         <Row justify="center" align="middle" className="full__page__post">
           <Col
+            lg={24}
+            md={aspectRation > 1 ? 0 : 24}
+            sm={0}
+            xs={0}
+            style={{ height: '50px', width: '100%' }}
+          />
+          <Col
             className="full__post__left__container"
             xxl={aspectRation > 1 ? 9 : 5}
             xl={aspectRation > 1 ? 10 : 6}
             lg={aspectRation > 1 ? 11 : 8}
             md={aspectRation > 1 ? 18 : 9}
             sm={aspectRation > 1 ? 20 : 13}
-            xs={aspectRation > 1 ? 22 : 17}
+            xs={24}
           >
             <Col lg={0} md={aspectRation > 1 ? 24 : 0} sm={24}>
               <div
@@ -311,7 +318,7 @@ const ViewPost = (props: ViewPostProps) => {
             lg={aspectRation > 1 ? 9 : 8}
             md={aspectRation > 1 ? 18 : 9}
             sm={aspectRation > 1 ? 20 : 13}
-            xs={aspectRation > 1 ? 22 : 17}
+            xs={24}
           >
             {/* hide on small size screen */}
             <Col lg={24} md={aspectRation > 1 ? 0 : 24} sm={0} xs={0}>
@@ -335,10 +342,10 @@ const ViewPost = (props: ViewPostProps) => {
               </div>
               <div className="full__page__post__actions__container">
                 <Row justify="start" align="top">
-                  <Col span={12}>
+                  <Col span={14}>
                     <PostActions currentUser={currentUser!} post={post} />
                   </Col>
-                  <Col span={12}>
+                  <Col span={10}>
                     <PostEventTime post={post} />
                   </Col>
                 </Row>

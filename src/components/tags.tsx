@@ -1,18 +1,18 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState } from 'react';
 import {
   setCurrentUserListener,
   setCurrentUserToken,
   setCurrentUserRootDatabaseListener,
   setCurrentUserEligiblePosts,
-} from "../redux/user/user.actions";
-import { Post, RegistrationObject } from "./interfaces/user.interface";
-import MyPost from "./post/post";
-import { connect } from "react-redux";
-import axios from "axios";
-import bluebird from "bluebird";
-import firebase from "firebase";
-import { BackTop, Col, Skeleton } from "antd";
-import { API_BASE_URL, GET_POST_TAGS_ENDPOINT } from "../service/api";
+} from '../redux/user/user.actions';
+import { Post, RegistrationObject } from './interfaces/user.interface';
+import MyPost from './post/post';
+import { connect } from 'react-redux';
+import axios from 'axios';
+import bluebird from 'bluebird';
+import firebase from 'firebase';
+import { BackTop, Col, Skeleton } from 'antd';
+import { API_BASE_URL, GET_POST_TAGS_ENDPOINT } from '../service/api';
 
 interface ITagsProps {
   setCurrentUserListener?: () => Promise<any>;
@@ -27,14 +27,14 @@ interface ITagsProps {
 }
 
 const Tags = (props: ITagsProps) => {
-  console.log("Tag Props: ", props);
+  console.log('Tag Props: ', props);
   const { currentUser, currentUserToken } = props;
   const { tag } = props.match.params;
   const [loading, setLoading] = useState<boolean>(true);
   const [posts, setPosts] = useState<Array<Post> | null>([]);
 
   useEffect(() => {
-    document.title = `Open Party • Tags • ${tag} 👓`; 
+    document.title = `Open Party • Tags • ${tag} 👓`;
   }, [tag]);
 
   useEffect(() => {
@@ -75,18 +75,18 @@ const Tags = (props: ITagsProps) => {
             async (obj: { uidRef: string; postRef: string }, index: number) => {
               firebase
                 .database()
-                .ref("Postsv2")
+                .ref('Postsv2')
                 .child(obj.uidRef)
                 .child(obj.postRef)
                 .on(
-                  "value",
+                  'value',
                   async (ssh) => {
                     temp[`${obj.uidRef + obj.postRef}`] = ssh.val();
                     temp[`${obj.uidRef + obj.postRef}`].key = `${
                       obj.uidRef + obj.postRef
                     }`;
 
-                    if (localStorage.getItem("tagPostsSet")) {
+                    if (localStorage.getItem('tagPostsSet')) {
                       temp[`${obj.uidRef + obj.postRef}`] = ssh.val();
                       temp[`${obj.uidRef + obj.postRef}`].key = `${
                         obj.uidRef + obj.postRef
@@ -102,9 +102,9 @@ const Tags = (props: ITagsProps) => {
 
                     if (
                       index === result.data.uFP.length - 1 &&
-                      !localStorage.getItem("tagPostsSet")
+                      !localStorage.getItem('tagPostsSet')
                     ) {
-                      console.log("IN COND: ", Object.values(temp));
+                      console.log('IN COND: ', Object.values(temp));
 
                       setPosts(
                         Object.values(temp).sort(
@@ -113,15 +113,15 @@ const Tags = (props: ITagsProps) => {
                         ) as any[]
                       );
 
-                      console.log("@POSTS DEBUG: ", Object.values(temp));
+                      console.log('@POSTS DEBUG: ', Object.values(temp));
 
-                      localStorage.setItem("tagPostsSet", "true");
+                      localStorage.setItem('tagPostsSet', 'true');
                     }
                   },
                   (error: any) => {
-                    console.log("@SSH ERROR: ", error);
+                    console.log('@SSH ERROR: ', error);
                     if (error.code) {
-                      if (error.code === "PERMISSION_DENIED") {
+                      if (error.code === 'PERMISSION_DENIED') {
                         // delete temp[lastKey];
                         // setPosts(Object.values(temp));
                         //TODO: Maybe show 'post not available message'?
@@ -133,7 +133,7 @@ const Tags = (props: ITagsProps) => {
             { concurrency: result.data.uFP.length }
           )
           .then(() => {
-            console.log("DONE MAPPING");
+            console.log('DONE MAPPING');
           })
           .then(() => setLoading(false));
       }
@@ -162,13 +162,11 @@ const Tags = (props: ITagsProps) => {
       <div>
         <BackTop />
         {posts === null ? (
-          <p style={{ textAlign: "center" }}>
+          <p style={{ textAlign: 'center' }}>
             No Open Post with that tag found
           </p>
         ) : (
-          posts.map((val: any) => (
-            <MyPost fullPage={false} key={val.key} post={val} />
-          ))
+          posts.map((val: any) => <MyPost key={val.key} post={val} />)
         )}
       </div>
     </div>
