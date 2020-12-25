@@ -54,15 +54,16 @@ const App = (props: IAppProps) => {
     setCurrentUserFollowingChangedListener,
     setCurrentUserEligiblePosts,
     setCurrentUserToken,
+    currentUserToken,
   } = props;
 
   useEffect(() => {
     if (!currentUser) {
       setCurrentUserListener!()
         .then(async (currentUser: any) => {
-          if (currentUser) {
+          if (currentUser && !currentUserToken) {
             await setCurrentUserToken!(currentUser);
-            // console.log('@APP.TSX SETTING ROOT DB LISTENER ', currentUser.uid);
+            console.log('@APP.TSX SETTING TOKEN ', currentUserToken);
 
             // await setCurrentUserRootDatabaseListener!(currentUser.uid);
 
@@ -79,6 +80,7 @@ const App = (props: IAppProps) => {
         });
     }
   }, [
+    currentUserToken,
     currentUser,
     setCurrentUserListener,
     setCurrentUserToken,

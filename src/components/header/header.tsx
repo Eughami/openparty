@@ -637,7 +637,7 @@ const Header = (props: IHeaderProps) => {
                   >
                     <NotificationOutlined
                       twoToneColor="black"
-                      style={{ fontSize: '22px' }}
+                      style={{ fontSize: '22px', color: 'black' }}
                     />
                   </Link>
                 </Col>
