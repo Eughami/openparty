@@ -1,4 +1,13 @@
-import { Button, Col, Result, Row, Skeleton, Carousel, Grid } from 'antd';
+import {
+  Button,
+  Col,
+  Result,
+  Row,
+  Skeleton,
+  Carousel,
+  Grid,
+  Divider,
+} from 'antd';
 import { RightCircleTwoTone, LeftCircleTwoTone } from '@ant-design/icons';
 import Axios from 'axios';
 import firebase from 'firebase';
@@ -9,6 +18,7 @@ import {
   API_BASE_URL,
   GET_ONE_POST,
   PROBE_IMAGE_ENDPOINT,
+  GET_MORE_POSTS_FROM_USER,
 } from '../service/api';
 import { Comment, Post as PostInterface } from './interfaces/user.interface';
 import PerfectScrollbar from 'react-perfect-scrollbar';
@@ -64,6 +74,7 @@ const { useBreakpoint } = Grid;
 const ViewPost = (props: ViewPostProps) => {
   const { postId: id }: postIdInterface = useParams();
   const [post, setPost] = useState<Post>();
+  const [morePosts, setMorePost] = useState<Post[]>([]);
   const [postExists, setPostExists] = useState<boolean>(true);
   const [aspectRation, setAspectRatio] = useState<number>(0);
   const [loadingPost, setLoadingPost] = useState<boolean>(true);
@@ -150,6 +161,21 @@ const ViewPost = (props: ViewPostProps) => {
               setPost(ssh.val());
               setPostExists(true);
               setLoadingPost(false);
+              Axios.post(
+                `${API_BASE_URL}${GET_MORE_POSTS_FROM_USER}`,
+                {
+                  postId: id,
+                },
+                {
+                  headers: {
+                    Authorization: `Bearer ${props.currentUserToken}`,
+                  },
+                }
+              ).then((res) => {
+                const morePosts = res.data as Post[];
+                setMorePost(morePosts);
+                console.log('@AXIOS MORE POSTS RES: ', morePosts);
+              });
             });
           }
         },
@@ -433,9 +459,47 @@ const ViewPost = (props: ViewPostProps) => {
                 </PerfectScrollbar>
               </div>
             </Col>
-
             <Col lg={24} md={aspectRation > 1 ? 0 : 24} sm={0} xs={0}></Col>
           </Col>
+          {/* HIDE THIS IN MOBILE */}
+          {/* <Col
+            xxl={aspectRation > 1 ? 7 : 5}
+            xl={aspectRation > 1 ? 8 : 6}
+            lg={aspectRation > 1 ? 9 : 8}
+            md={aspectRation > 1 ? 18 : 9}
+            sm={aspectRation > 1 ? 20 : 13}
+            xs={aspectRation > 1 ? 22 : 17}
+          > */}
+          {morePosts.length > 0 && (
+            <>
+              <Divider orientation="left">
+                More Posts from {post.user.username}
+              </Divider>
+              <Row>
+                {morePosts.map((morePost, index) => (
+                  <Col
+                    style={{ padding: 5 }}
+                    key={index}
+                    className="gutter-row"
+                    xl={8}
+                    md={12}
+                    xs={24}
+                  >
+                    <img
+                      style={{
+                        objectFit: 'cover',
+                        width: '100%',
+                        height: '50vh',
+                      }}
+                      src={morePost.image_url![0]}
+                      alt={morePost.caption}
+                    />
+                  </Col>
+                ))}
+              </Row>
+            </>
+          )}
+          {/* </Col> */}
         </Row>
       )}
     </>

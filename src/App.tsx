@@ -62,7 +62,9 @@ const App = (props: IAppProps) => {
         .then(async (currentUser: any) => {
           if (currentUser) {
             await setCurrentUserToken!(currentUser);
-            setCurrentUserRootDatabaseListener!(currentUser.uid);
+            // console.log('@APP.TSX SETTING ROOT DB LISTENER ', currentUser.uid);
+
+            // await setCurrentUserRootDatabaseListener!(currentUser.uid);
 
             setLoadingCredentials(false);
           } else {
@@ -80,12 +82,12 @@ const App = (props: IAppProps) => {
     currentUser,
     setCurrentUserListener,
     setCurrentUserToken,
-    setCurrentUserRootDatabaseListener,
+    // setCurrentUserRootDatabaseListener,
   ]);
 
   useEffect(() => {
     if (!currentUserInfo && currentUser) {
-      // setCurrentUserRootDatabaseListener!(currentUser.uid);
+      setCurrentUserRootDatabaseListener!(currentUser.uid);
       setCurrentUserEligiblePosts!(currentUser).then(
         (uFP: Array<{ postRef: string; uidRef: string; username: string }>) => {
           setCurrentUserFollowingChangedListener!(currentUser.uid, uFP);
@@ -94,7 +96,7 @@ const App = (props: IAppProps) => {
     }
   }, [
     currentUserInfo,
-    // setCurrentUserRootDatabaseListener,
+    setCurrentUserRootDatabaseListener,
     currentUser,
     setCurrentUserEligiblePosts,
     setCurrentUserFollowingChangedListener,
@@ -138,7 +140,8 @@ const App = (props: IAppProps) => {
             <Route exact path="/t/:tag" component={Tags} />
             <Route exact path="/post/:postId" component={ViewPost} />
             <Route exact path="/account/edit" component={EditAccount} />
-            <Route exact path="/post/:postId/comments" component={ViewPost} />
+            {/* <Route exact path="/post/:postId/comments" component={ViewPostComments} />
+            <Route exact path="/post/:postId/likes" component={ViewPostLikes} /> */}
             <Route exact path="/test/p" component={ProfileUI} />
 
             {/* <Route component={Homepage} /> */}

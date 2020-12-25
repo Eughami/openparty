@@ -27,23 +27,17 @@ export const replaceAtMentionsWithLinks2 = (
   text: string,
   _replace?: string | string[] | null
 ) => {
-  console.log(text);
-
   return (
     <span>
-      {reactStringReplace(text, /@([a-z\d_-]+)/gi, (match, i) => {
-        console.log(match);
-
-        return (
-          <Link
-            style={{ color: 'rgba(var(--fe0,0,55,107),1)' }}
-            key={i}
-            to={`/${match}`}
-          >
-            @{match}
-          </Link>
-        );
-      })}
+      {reactStringReplace(text, /@([a-z\d_-]+)/gi, (match, i) => (
+        <Link
+          style={{ color: 'rgba(var(--fe0,0,55,107),1)' }}
+          key={i}
+          to={`/${match}`}
+        >
+          @{match}
+        </Link>
+      ))}
     </span>
   );
 };

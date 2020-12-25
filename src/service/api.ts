@@ -65,4 +65,6 @@ export const UNFOLOW_REQUEST_ENDPOINT = 'users/unfollow-user';
 export const CANCEL_FOLLOW_REQUEST_ENDPOINT = 'users/cancel-follow-request';
 
 export const GET_ONE_POST = 'posts/post';
+
+export const GET_MORE_POSTS_FROM_USER = 'posts/more-posts';
 // export const _ENDPOINT = ""
