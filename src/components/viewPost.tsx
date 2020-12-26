@@ -479,8 +479,17 @@ const ViewPost = (props: ViewPostProps) => {
               md={24}
               sm={0}
               xs={0}
-              style={{ height: 400, marginTop: 100, marginBottom: 50 }}
+              style={{ height: 400, marginTop: 50, marginBottom: 50 }}
             >
+              <Divider orientation="left">
+                More From user{' '}
+                <a
+                  href={`/${currentUserInfo?.username}`}
+                  style={{ textDecoration: 'none', color: 'inherit' }}
+                >
+                  <strong>{currentUserInfo?.username}</strong>
+                </a>
+              </Divider>
               <RelatedPosts />
             </Col>
           </Row>
