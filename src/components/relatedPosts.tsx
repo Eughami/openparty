@@ -14,6 +14,7 @@ const RelatedPosts = (props: RelatedPostsProps) => {
     <Row>
       {posts.map((post) => (
         <Col
+          key={post.id}
           span={7}
           offset={1}
           lg={{ span: 7, offset: 1 }}

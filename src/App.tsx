@@ -19,6 +19,7 @@ import Tags from './components/tags';
 import { RegistrationObject } from './components/interfaces/user.interface';
 import { Grid, message } from 'antd';
 import Header from './components/header/header';
+import MobileHeader from './components/header/mobile/mobile-header';
 import ProfileUI from './components/test';
 import EditAccount from './components/account/edit-account';
 
@@ -32,6 +33,7 @@ import Explore from './components/explore';
 // const currentUser = true
 
 const { useBreakpoint } = Grid;
+
 interface IAppProps {
   setCurrentUserListener?: () => Promise<any>;
   setCurrentUserRootDatabaseListener?: (uid: string) => Promise<any>;
@@ -106,7 +108,7 @@ const App = (props: IAppProps) => {
     setCurrentUserFollowingChangedListener,
   ]);
 
-  console.log('APP.TSX PROPS:  ', props.currentUserToken);
+  console.log('APP.TSX PROPS:  ', props);
 
   const [loadingCredentials, setLoadingCredentials] = useState<boolean>(true);
   const [loadingCredentialsError, setLoadingCredentialsError] = useState<{
@@ -134,7 +136,11 @@ const App = (props: IAppProps) => {
         message.warning('An error ocurred...', 10)}
       {currentUser ? (
         <div>
-          {xs ? null : (
+          {xs ? (
+            <div style={{ paddingBottom: '60px' }}>
+              <MobileHeader />
+            </div>
+          ) : (
             <div style={{ paddingBottom: '60px' }}>
               <Header />
             </div>

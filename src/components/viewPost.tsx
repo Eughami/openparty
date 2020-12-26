@@ -41,6 +41,7 @@ import { onPostComment } from './post/post.actions';
 import {
   setCurrentUserListener,
   setCurrentUserRootDatabaseListener,
+  setCurrentUserPostViewing,
 } from '../redux/user/user.actions';
 import RelatedPosts from './relatedPosts';
 
@@ -50,6 +51,7 @@ interface postIdInterface {
 interface ViewPostProps extends RouteComponentProps<any> {
   setCurrentUserListener?: () => Promise<any>;
   setCurrentUserRootDatabaseListener?: (uid: string) => Promise<any>;
+  setCurrentUserPostViewing?: (uid: Post | null) => void;
   currentUser?: firebase.User;
   currentUserInfo?: RegistrationObject;
   currentUserToken?: string;
@@ -99,7 +101,13 @@ const ViewPost = (props: ViewPostProps) => {
     user: { image_url: '', user_id: '', username: '' },
   });
 
-  const { currentUser, currentUserInfo, currentUserToken, fullPage } = props;
+  const {
+    currentUser,
+    currentUserInfo,
+    currentUserToken,
+    fullPage,
+    setCurrentUserPostViewing,
+  } = props;
 
   const resetCommentForm = () =>
     setComment({
@@ -191,9 +199,12 @@ const ViewPost = (props: ViewPostProps) => {
   useEffect(() => {
     if (post) {
       document.title = `@${post.user.username} • "${post.caption}"`;
-      return;
+      setCurrentUserPostViewing!(post);
+      // return;
     }
-  }, [post]);
+    //clean up
+    return () => setCurrentUserPostViewing!(null);
+  }, [post, setCurrentUserPostViewing]);
 
   useEffect(() => {
     const getPost = async () => {
@@ -512,6 +523,8 @@ const mapDispatchToProps = (dispatch: any) => {
     setCurrentUserListener: () => dispatch(setCurrentUserListener()),
     setCurrentUserRootDatabaseListener: (uid: string) =>
       dispatch(setCurrentUserRootDatabaseListener(uid)),
+    setCurrentUserPostViewing: (post: Post | null) =>
+      dispatch(setCurrentUserPostViewing(post)),
   };
 };
 

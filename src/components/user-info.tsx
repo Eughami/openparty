@@ -13,6 +13,7 @@ import {
   setCurrentUserRootDatabaseListener,
   setCurrentUserEligiblePosts,
   setCurrentUserToken,
+  setCurrentUserViewing,
 } from '../redux/user/user.actions';
 import axios from 'axios';
 import bluebird from 'bluebird';
@@ -39,6 +40,7 @@ interface IUserProps {
   setCurrentUserRootDatabaseListener?: (uid: string) => Promise<any>;
   setCurrentUserEligiblePosts?: (currentUser: firebase.User) => Promise<any>;
   setCurrentUserToken?: (currentUser: firebase.User) => Promise<string | null>;
+  setCurrentUserViewing?: (user: RegistrationObject | null) => void;
   currentUser?: firebase.User;
   currentUserInfo?: RegistrationObject;
   currentUserToken?: string;
@@ -52,7 +54,7 @@ const UserProfile = (props: IUserProps) => {
     currentUser,
     currentUserInfo,
     currentUserEligiblePosts,
-    setCurrentUserEligiblePosts,
+    setCurrentUserViewing,
     currentUserToken,
   } = props;
   const { username } = props.match.params;
@@ -128,11 +130,14 @@ const UserProfile = (props: IUserProps) => {
 
   useEffect(() => {
     if (realUser) {
+      setCurrentUserViewing!(otherUserInfo);
       document.title = `Open Party • @${username}`;
     } else {
       document.title = `Open Party • Content Not Available`;
     }
-  }, [username, realUser]);
+    //clean up
+    return () => setCurrentUserViewing!(null);
+  }, [username, realUser, otherUserInfo, setCurrentUserViewing]);
 
   useEffect(() => {
     const doStuff = async () => {
@@ -804,6 +809,9 @@ const mapDispatchToProps = (dispatch: any) => {
       dispatch(setCurrentUserRootDatabaseListener(uid)),
     setCurrentUserEligiblePosts: (currentUser: firebase.User) =>
       dispatch(setCurrentUserEligiblePosts(currentUser)),
+
+    setCurrentUserViewing: (user: RegistrationObject | null) =>
+      dispatch(setCurrentUserViewing(user)),
   };
 };
 

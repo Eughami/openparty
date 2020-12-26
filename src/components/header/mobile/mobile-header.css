@@ -1,0 +1,54 @@
+Nav {
+  background-color: white;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.0975);
+  position: fixed;
+  top: 0;
+  width: 100%;
+  z-index: 2;
+  -webkit-transition: height 0.2s ease-in-out;
+  transition: height 0.2s ease-in-out;
+  height: 55px;
+}
+.Nav-menus {
+  /* display: flex; */
+  /* flex-direction: row; */
+  height: 100%;
+  /* width: 70%; */
+  /* border: black solid; */
+  /* margin: 0 auto;
+  padding: 26px 40px; */
+}
+
+.profile__dropdown__loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  /* border: red solid 1px; */
+  width: 100%;
+  height: 100%;
+  /* position: absolute; */
+  /* background-color: white; */
+  /* top: 55px; */
+}
+.profile__dropdown {
+  width: 100%;
+  height: 400px;
+  position: absolute;
+  background-color: white;
+  top: 55px;
+  border-radius: 10px;
+  padding: 10px 0 10px 10px;
+  /* overflow-y: scroll; */
+  -webkit-box-shadow: 10px 10px 19px 0px rgba(204, 204, 204, 1);
+  -moz-box-shadow: 10px 10px 19px 0px rgba(204, 204, 204, 1);
+  box-shadow: 10px 10px 19px 0px rgba(204, 204, 204, 1);
+  /* visibility: hidden; */
+}
+
+.notification__cover {
+  position: absolute;
+  top: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 10;
+}

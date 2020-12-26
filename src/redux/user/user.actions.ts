@@ -1,4 +1,7 @@
-import { RegistrationObject } from '../../components/interfaces/user.interface';
+import {
+  Post,
+  RegistrationObject,
+} from '../../components/interfaces/user.interface';
 import UserActionTypes from './user.types';
 import firebase from 'firebase';
 import axios from 'axios';
@@ -178,8 +181,8 @@ export const setCurrentUserRootDatabaseListener = (uid: string) => (
           if (getState().user.userInfo) {
             console.log('USER INFO PREV STATE ACTIVE');
 
-            const prevUserInfo = getState().user.userInfo as RegistrationObject;
-            const newUserInfo = userSnap.val() as RegistrationObject;
+            // const prevUserInfo = getState().user.userInfo as RegistrationObject;
+            // const newUserInfo = userSnap.val() as RegistrationObject;
             // if (newUserInfo.followers_count !== prevUserInfo.followers_count) {
             //   console.log('NOT DISPATCHING FOR FOLLOW COUNT');
             //   return;
@@ -382,3 +385,19 @@ export const signUpFailure = (error: any) => ({
   type: UserActionTypes.SIGN_UP_FAILURE,
   payload: error,
 });
+
+export const setCurrentUserViewing = (user: RegistrationObject | null) => (
+  dispatch: (arg0: { type: string; payload: any }) => void
+) =>
+  dispatch({
+    type: UserActionTypes.SET_CURRENT_USER_VIEWING,
+    payload: user,
+  });
+
+export const setCurrentUserPostViewing = (post: Post | null) => (
+  dispatch: (arg0: { type: string; payload: any }) => void
+) =>
+  dispatch({
+    type: UserActionTypes.SET_CURRENT_USER_POST_VIEWING,
+    payload: post,
+  });
