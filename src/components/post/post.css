@@ -122,3 +122,14 @@
   color: black;
   font-size: 1.2rem;
 }
+
+.related__posts__container {
+  width: 100%;
+  height: 100%;
+}
+
+.related__posts__container img {
+  width: 100%;
+  height: 400px;
+  object-fit: cover;
+}

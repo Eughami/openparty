@@ -36,7 +36,7 @@ const Explore = () => {
   ];
   return (
     <Row justify="center" className="explore__container">
-      <Col span={18}>
+      <Col xl={16} lg={20} md={22} sm={24} xs={24}>
         <ExploreLayout arrayOfPosts={postsArray} />
         <ExploreLayout arrayOfPosts={postsArray} />
         <ExploreLayout arrayOfPosts={postsArray} />

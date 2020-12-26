@@ -1,35 +1,14 @@
 import { Row, Col } from 'antd';
 import React from 'react';
-import { CommentOutlined, HeartFilled } from '@ant-design/icons';
+import { PostOverlay } from './postOverlay';
 
-const PostOverlay = ({ imgUrl }: any) => (
-  <div className="container">
-    <img src={imgUrl} alt="Avatar" className="image" />
-    <div className="middle">
-      <div className="text">
-        <Row justify="center" align="middle">
-          <Col>
-            <HeartFilled />
-            <span style={{ marginLeft: 5 }}>4.1k</span>
-          </Col>
-          <Col style={{ marginLeft: 20 }}>
-            <CommentOutlined />
-            <span style={{ marginLeft: 5 }}>123</span>
-          </Col>
-        </Row>
-      </div>
-    </div>
-  </div>
-);
-{
-  /* </div>
-  <div className="post__overlay">
-   
-  </div> */
-}
 interface IExploreLayoutProps {
   arrayOfPosts: any[]; //should be 9 elements
 }
+
+const smallDivider = () => (
+  <Col md={24} sm={0} xs={0} style={{ height: 30 }}></Col>
+);
 
 const ExploreLayout = (props: IExploreLayoutProps) => {
   const { arrayOfPosts } = props;
@@ -37,45 +16,110 @@ const ExploreLayout = (props: IExploreLayoutProps) => {
    * Gotta get post in set of 9
    * i.e First 9 post
    */
+
+  // Should probably do some manipulations to make sure we get the post by pack of 9
+
+  /**
+   * Setting the weight when the window is rezised
+   */
+
+  function setHeight(el: any, val: number) {
+    console.log('called with ', el, val);
+
+    var box = document.querySelectorAll(el);
+    var i;
+    for (i = 0; i < box.length; i++) {
+      var width = box[i].offsetWidth;
+      var height = width * val;
+      /**
+       * Should probably find a way to keep the initial height when window is rezised
+       */
+      const newHeight =
+        window.innerWidth < 768
+          ? height
+          : box[i].className.includes('smallPostDouble')
+          ? '285'
+          : box[i].className.includes('bigPost')
+          ? '600'
+          : '300';
+      box[i].style.height = newHeight + 'px';
+    }
+  }
+  window.onresize = () => {
+    console.log('RESIZED', window.innerWidth);
+    // if (window.innerWidth < 768) {
+    setHeight('.dynamicHeight', 1);
+    // }
+  };
+
   return (
     <>
-      <Row className="twoSmall__oneBig__container" gutter={[0, 24]}>
-        <Col span={7}>
-          <Row gutter={[0, 24]}>
-            <Col span={24} className="smallPost">
+      <Row>
+        <Col md={7} sm={8} xs={8}>
+          <Row>
+            <Col span={24} className="smallPostDouble dynamicHeight">
               <PostOverlay imgUrl={arrayOfPosts[0]} />
             </Col>
-            <Col span={24} className="smallPost">
+            {smallDivider()}
+            <Col span={24} className="smallPostDouble dynamicHeight">
               <PostOverlay imgUrl={arrayOfPosts[1]} />
             </Col>
           </Row>
         </Col>
-        <Col span={15} offset={1} className="bigPost">
+        <Col
+          md={{ span: 15, offset: 1 }}
+          sm={{ span: 16, offset: 0 }}
+          xs={{ span: 16, offset: 0 }}
+          className="bigPost dynamicHeight"
+        >
           <PostOverlay imgUrl={arrayOfPosts[2]} />
         </Col>
       </Row>
-      <Row gutter={[0, 24]}>
-        <Col span={7} className="smallPost">
+      {smallDivider()}
+      <Row>
+        <Col md={7} sm={8} xs={8} className="smallPost dynamicHeight">
           <PostOverlay imgUrl={arrayOfPosts[3]} />
         </Col>
-        <Col span={7} offset={1} className="smallPost">
+        <Col
+          md={{ span: 7, offset: 1 }}
+          sm={{ span: 8, offset: 0 }}
+          xs={{ span: 8, offset: 0 }}
+          className="smallPost dynamicHeight"
+        >
           <PostOverlay imgUrl={arrayOfPosts[4]} />
         </Col>
-        <Col span={7} offset={1} className="smallPost">
+        <Col
+          md={{ span: 7, offset: 1 }}
+          sm={{ span: 8, offset: 0 }}
+          xs={{ span: 8, offset: 0 }}
+          className="smallPost dynamicHeight"
+        >
           <PostOverlay imgUrl={arrayOfPosts[5]} />
         </Col>
       </Row>
-      <Row gutter={[0, 24]}>
-        <Col span={7} className="smallPost">
+      {smallDivider()}
+      <Row>
+        <Col md={7} sm={8} xs={8} className="smallPost dynamicHeight">
           <PostOverlay imgUrl={arrayOfPosts[6]} />
         </Col>
-        <Col span={7} offset={1} className="smallPost">
+        <Col
+          md={{ span: 7, offset: 1 }}
+          sm={{ span: 8, offset: 0 }}
+          xs={{ span: 8, offset: 0 }}
+          className="smallPost dynamicHeight"
+        >
           <PostOverlay imgUrl={arrayOfPosts[7]} />
         </Col>
-        <Col span={7} offset={1} className="smallPost">
+        <Col
+          md={{ span: 7, offset: 1 }}
+          sm={{ span: 8, offset: 0 }}
+          xs={{ span: 8, offset: 0 }}
+          className="smallPost dynamicHeight"
+        >
           <PostOverlay imgUrl={arrayOfPosts[8]} />
         </Col>
       </Row>
+      {smallDivider()}
     </>
   );
 };
