@@ -145,7 +145,8 @@ export const setCurrentUserToken = (_currentUser: firebase.User) => (
         console.log('ID TOKEN STATE CHANGED! ', user);
 
         if (user) {
-          const token = await user.getIdToken(true);
+          const token = await user.getIdToken();
+
           dispatch({
             type: UserActionTypes.SET_CURRENT_USER_TOKEN,
             payload: token,

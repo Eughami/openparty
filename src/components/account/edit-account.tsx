@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Tabs, Row, Col } from 'antd';
+import { Tabs, Row, Col, Grid } from 'antd';
 import { connect } from 'react-redux';
 import { EditProfile } from './components/edit-account.component.profile';
 import { ChangePassword } from './components/edit-account.component.password';
@@ -14,10 +14,13 @@ interface IEditAccountInterface {
 
 const { TabPane } = Tabs;
 
+const { useBreakpoint } = Grid;
+
 const EditAccount = (props: IEditAccountInterface) => {
   const { currentUserInfo, currentUser } = props;
   const location = useLocation();
-  console.log('EDIT ACCOUNT: ', props);
+  const { xs } = useBreakpoint();
+  // console.log('EDIT ACCOUNT: ', props);
 
   useEffect(() => {
     document.title = `Open Party • Edit Profile`;
@@ -42,7 +45,7 @@ const EditAccount = (props: IEditAccountInterface) => {
         >
           {/* TODO: Change position to 'top' when in mobile view */}
           <Tabs
-            tabPosition="left"
+            tabPosition={xs ? 'top' : 'left'}
             defaultActiveKey={
               location.hash.length > 0 ? location.hash.replace(/#/g, '') : '1'
             }
@@ -50,7 +53,11 @@ const EditAccount = (props: IEditAccountInterface) => {
             <TabPane tab="Edit Profile" key="1">
               <EditProfile currentUser={currentUser!} user={currentUserInfo!} />
             </TabPane>
-            <TabPane tab="Change Password" key="2">
+            <TabPane
+              disabled={currentUserInfo.alien_password}
+              tab="Change Password"
+              key="2"
+            >
               <ChangePassword user={currentUser!} />
             </TabPane>
             <TabPane tab="Notification Settings" key="3">

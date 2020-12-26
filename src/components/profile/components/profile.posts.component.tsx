@@ -560,26 +560,27 @@ const RenderPostCard = (props: IRenderPostCardProps) => {
 
                     <PostCommentsNumber post={post} />
                   </Row>,
-                  <span style={{ fontSize: '25px' }}>
-                    <EllipsisOutlined
-                      onClick={() => {
-                        setSelectedPost(post);
-                        if (type === 'self-user') {
-                          setSelectedPostTags(
-                            post.tags
-                              ? post.tags
-                                  .map((str) => '#' + str)
-                                  .join(', ')
-                                  .toString()
-                              : ''
-                          );
-                          showModalPostOptions(post, 'self-user');
-                          return;
-                          // return setEditPostVisible(true);
-                        }
-                        return showModalPostOptions(post, 'other-user');
-                      }}
-                    />
+                  <span
+                    onClick={() => {
+                      setSelectedPost(post);
+                      if (type === 'self-user') {
+                        setSelectedPostTags(
+                          post.tags
+                            ? post.tags
+                                .map((str) => '#' + str)
+                                .join(', ')
+                                .toString()
+                            : ''
+                        );
+                        showModalPostOptions(post, 'self-user');
+                        return;
+                        // return setEditPostVisible(true);
+                      }
+                      return showModalPostOptions(post, 'other-user');
+                    }}
+                    style={{ fontSize: '25px' }}
+                  >
+                    <EllipsisOutlined />
                   </span>,
 
                   // <span style={{ color: 'red', fontSize: '25px' }}>

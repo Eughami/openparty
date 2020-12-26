@@ -29,6 +29,7 @@ export const PostUser = (props: IPostUserProps) => {
             alt={post.user.username}
           />
           <Link
+            onMouseOver={(e) => console.log(e)}
             style={{ color: 'rgba(var(--i1d,38,38,38),1)' }}
             to={{
               pathname: `/${post.user.username}`,

@@ -63,7 +63,6 @@ const App = (props: IAppProps) => {
         .then(async (currentUser: any) => {
           if (currentUser && !currentUserToken) {
             await setCurrentUserToken!(currentUser);
-            console.log('@APP.TSX SETTING TOKEN ', currentUserToken);
 
             // await setCurrentUserRootDatabaseListener!(currentUser.uid);
 

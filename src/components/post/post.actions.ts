@@ -83,7 +83,11 @@ export const handlePostLike = async (
           return ssh
             .child('likes')
             .child(currentUser?.uid!)
-            .ref.set(currentUser?.uid!)
+            .ref.set({
+              uid: currentUser?.uid!,
+              username: currentUser?.displayName!,
+              image_url: currentUser?.photoURL!,
+            })
             .then(() => {
               message.success('You 💖 this post');
               setUserLikePost(true);
