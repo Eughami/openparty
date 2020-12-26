@@ -29,6 +29,7 @@ import 'react-perfect-scrollbar/dist/css/styles.css';
 import 'react-popupbox/dist/react-popupbox.css';
 import { LOADER_OBJECTS } from './components/images';
 import Explore from './components/explore';
+import MobileNarbar from './components/mobileNarbar';
 
 // const currentUser = true
 
@@ -159,6 +160,8 @@ const App = (props: IAppProps) => {
 
             {/* <Route component={Homepage} /> */}
           </Switch>
+          {/* here the mobile navbar */}
+          <MobileNarbar />
         </div>
       ) : (
         <Switch>
