@@ -53,8 +53,13 @@ const menu = (history: any) => (
 );
 
 const MobileHeaderHome = () => (
-  <Row align="middle" className="test-border">
-    <Col offset={1}>
+  <Row
+    style={{ padding: 1 }}
+    align="middle"
+    justify="space-between"
+    className="test-border"
+  >
+    <Col>
       <Link
         to={{
           pathname: '/',
@@ -63,7 +68,7 @@ const MobileHeaderHome = () => (
         <img height="50px" width="150px" src={OpenPartyLogo} alt="open-party" />
       </Link>
     </Col>
-    <Col offset={12}>
+    <Col>
       <Link
         className="nav-link"
         to={{
