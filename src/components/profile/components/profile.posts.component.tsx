@@ -52,6 +52,7 @@ import firebase from 'firebase';
 import { PopupboxContainer, PopupboxManager } from 'react-popupbox';
 import { ProfileActionUnfollow } from './profile.component.actions';
 import { confirmUnfollow } from '../profile.actions';
+import { PostImages } from '../../post/components/post.component.images';
 
 export const SPRITE_IMAGE_URL =
   'https://firebasestorage.googleapis.com/v0/b/openpaarty.appspot.com/o/defaults%2Ficons%2F65c15d7731ea.png?alt=media&token=0870e69e-ae19-42f6-aeb8-5bd40f1e040c';
@@ -434,7 +435,8 @@ const RenderPostCard = (props: IRenderPostCardProps) => {
                 {/* {selectedPost.tags && (
                   // <PostTagsComponent showTooltip={false} post={selectedPost} />
                 )} */}
-                <Carousel
+                <PostImages post={selectedPost} />
+                {/* <Carousel
                   nextArrow={<RightCircleTwoTone twoToneColor="#ccc" />}
                   prevArrow={<LeftCircleTwoTone twoToneColor="#ccc" />}
                   autoplay
@@ -456,7 +458,7 @@ const RenderPostCard = (props: IRenderPostCardProps) => {
                       />
                     </div>
                   ))}
-                </Carousel>
+                </Carousel> */}
               </>
             }
           >

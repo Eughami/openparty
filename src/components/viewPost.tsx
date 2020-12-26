@@ -482,15 +482,15 @@ const ViewPost = (props: ViewPostProps) => {
               style={{ height: 400, marginTop: 50, marginBottom: 50 }}
             >
               <Divider orientation="left">
-                More From user{' '}
+                More from{' '}
                 <a
-                  href={`/${currentUserInfo?.username}`}
+                  href={`/${post.user.username}`}
                   style={{ textDecoration: 'none', color: 'inherit' }}
                 >
-                  <strong>{currentUserInfo?.username}</strong>
+                  <strong>{post.user.username}</strong>
                 </a>
               </Divider>
-              <RelatedPosts />
+              {morePosts.length > 0 && <RelatedPosts posts={morePosts} />}
             </Col>
           </Row>
         </>

@@ -17,7 +17,7 @@ import RegistrationForm from './components/register';
 import UserProfile from './components/user-info';
 import Tags from './components/tags';
 import { RegistrationObject } from './components/interfaces/user.interface';
-import { Spin, message } from 'antd';
+import { Grid, message } from 'antd';
 import Header from './components/header/header';
 import ProfileUI from './components/test';
 import EditAccount from './components/account/edit-account';
@@ -31,6 +31,7 @@ import Explore from './components/explore';
 
 // const currentUser = true
 
+const { useBreakpoint } = Grid;
 interface IAppProps {
   setCurrentUserListener?: () => Promise<any>;
   setCurrentUserRootDatabaseListener?: (uid: string) => Promise<any>;
@@ -56,6 +57,8 @@ const App = (props: IAppProps) => {
     setCurrentUserToken,
     currentUserToken,
   } = props;
+
+  const { xs } = useBreakpoint();
 
   useEffect(() => {
     if (!currentUser) {
@@ -131,9 +134,12 @@ const App = (props: IAppProps) => {
         message.warning('An error ocurred...', 10)}
       {currentUser ? (
         <div>
-          <div style={{ paddingBottom: '60px' }}>
-            <Header />
-          </div>
+          {xs ? null : (
+            <div style={{ paddingBottom: '60px' }}>
+              <Header />
+            </div>
+          )}
+
           <Switch>
             <Route exact path="/" component={Homepage} />
             <Route exact path="/explore" component={Explore} />

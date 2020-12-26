@@ -3,7 +3,13 @@ import { Row, Col } from 'antd';
 
 import { CommentOutlined, HeartFilled } from '@ant-design/icons';
 
-export const PostOverlay = ({ imgUrl }: any) => (
+interface IPostOverlay {
+  likes?: number;
+  comments?: number;
+  imgUrl: string;
+}
+
+export const PostOverlay = ({ comments, likes, imgUrl }: IPostOverlay) => (
   <div className="container hover">
     <img src={imgUrl} alt="Avatar" className="image" />
     <div className="middle">
@@ -11,11 +17,11 @@ export const PostOverlay = ({ imgUrl }: any) => (
         <Row justify="center" align="middle">
           <Col>
             <HeartFilled />
-            <span style={{ marginLeft: 5 }}>4.1k</span>
+            <span style={{ marginLeft: 5 }}> {likes ? likes : '4.1k'} </span>
           </Col>
           <Col style={{ marginLeft: 20 }}>
             <CommentOutlined />
-            <span style={{ marginLeft: 5 }}>123</span>
+            <span style={{ marginLeft: 5 }}>{comments ? comments : '123'}</span>
           </Col>
         </Row>
       </div>
