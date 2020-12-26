@@ -20,7 +20,7 @@ import {
   List,
   Carousel,
   Input,
-  Tooltip,
+  Popconfirm,
 } from 'antd';
 import { PostCaption } from '../../post/components/post.component.caption';
 import { PostLikesNumber } from '../../post/components/post.component.likes';
@@ -38,6 +38,7 @@ import {
   ExclamationCircleOutlined,
   RightCircleTwoTone,
   LeftCircleTwoTone,
+  QuestionCircleOutlined,
 } from '@ant-design/icons';
 import { useHistory } from 'react-router-dom';
 import Moment from 'moment';
@@ -49,6 +50,8 @@ import {
 } from '../../../service/api';
 import firebase from 'firebase';
 import { PopupboxContainer, PopupboxManager } from 'react-popupbox';
+import { ProfileActionUnfollow } from './profile.component.actions';
+import { confirmUnfollow } from '../profile.actions';
 
 export const SPRITE_IMAGE_URL =
   'https://firebasestorage.googleapis.com/v0/b/openpaarty.appspot.com/o/defaults%2Ficons%2F65c15d7731ea.png?alt=media&token=0870e69e-ae19-42f6-aeb8-5bd40f1e040c';
@@ -248,7 +251,76 @@ const RenderPostCard = (props: IRenderPostCardProps) => {
     });
   };
 
-  const showModalPostOptions = (post: Post) => {
+  const doUnfollow = async (uid: string) => {
+    const token = await currentUser.getIdToken(true);
+    confirmUnfollow({ uid }, token);
+  };
+
+  const showModalPostOptions = (
+    post: Post,
+    user: 'self-user' | 'other-user'
+  ) => {
+    if (user === 'self-user') {
+      const content = (
+        <List
+          size="small"
+          header={null}
+          footer={null}
+          dataSource={[
+            <Button
+              onClick={() => {
+                setEditPostVisible(true);
+                PopupboxManager.close();
+              }}
+              style={{ fontWeight: 'bold' }}
+              block
+              type="link"
+            >
+              Edit Post
+            </Button>,
+            <Button
+              onClick={() => {
+                showModalDeletePostMessage(post);
+                PopupboxManager.close();
+              }}
+              style={{ fontWeight: 'bold' }}
+              block
+              type="link"
+              danger
+            >
+              Delete Post
+            </Button>,
+            <Button style={{ fontWeight: 'bold' }} block type="link">
+              Share
+            </Button>,
+            <Button
+              onClick={() =>
+                fallbackCopyTextToClipboard(
+                  `http://localhost:3000/post/${post.id}`
+                )
+              }
+              style={{ fontWeight: 'bold' }}
+              block
+              type="link"
+            >
+              Copy Link
+            </Button>,
+            <Button
+              onClick={() => PopupboxManager.close()}
+              style={{ fontWeight: 'bold' }}
+              block
+              type="link"
+            >
+              Cancel
+            </Button>,
+          ]}
+          renderItem={(item) => <List.Item>{item}</List.Item>}
+        />
+      );
+      PopupboxManager.open({ content });
+
+      return;
+    }
     const content = (
       <List
         size="small"
@@ -258,9 +330,14 @@ const RenderPostCard = (props: IRenderPostCardProps) => {
           <Button style={{ fontWeight: 'bold' }} block type="link" danger>
             Report Post
           </Button>,
-          <Button style={{ fontWeight: 'bold' }} block type="link" danger>
-            Unfollow
-          </Button>,
+
+          //<div style={{ textAlign: 'center' }}>
+          <ProfileActionUnfollow
+            style={{ fontWeight: 'bold', width: '100%' }}
+            buttonProps={{ type: 'link', block: true, danger: true }}
+            onConfirm={() => doUnfollow(post.uid)}
+          />,
+          //</div>
           <Button style={{ fontWeight: 'bold' }} block type="link">
             Share
           </Button>,
@@ -465,63 +542,57 @@ const RenderPostCard = (props: IRenderPostCardProps) => {
                   )}
                 </div>
               }
-              actions={[
-                <Tooltip title="Like">
-                  <Row justify="center" align="middle" className="zoom__mini">
+              actions={
+                [
+                  <Row justify="center" align="middle">
                     <PostActionLike currentUser={currentUser!} post={post} />
                     <p style={{ marginLeft: 10 }}></p>
 
                     <PostLikesNumber post={post} />
-                  </Row>
-                </Tooltip>,
-                <Tooltip title="Comment">
+                  </Row>,
                   <Row
                     onClick={() => history.push(`/post/${post.id}`)}
                     justify="center"
                     align="middle"
-                    className="zoom__mini"
                   >
                     <PostActionComment currentUser={currentUser!} post={post} />
                     <p style={{ marginLeft: 10 }}></p>
 
                     <PostCommentsNumber post={post} />
-                  </Row>
-                </Tooltip>,
-                <Tooltip title={type === 'self-user' ? 'Edit' : 'Actions'}>
-                  <span style={{ fontSize: '25px' }}>
-                    <EllipsisOutlined
-                      className="zoom__mini"
-                      onClick={() => {
-                        setSelectedPost(post);
-                        if (type === 'self-user') {
-                          setSelectedPostTags(
-                            post.tags
-                              ? post.tags
-                                  .map((str) => '#' + str)
-                                  .join(', ')
-                                  .toString()
-                              : ''
-                          );
-                          return setEditPostVisible(true);
-                        }
-                        return showModalPostOptions(post);
-                      }}
-                    />
-                  </span>
-                </Tooltip>,
+                  </Row>,
+                  <span
+                    onClick={() => {
+                      setSelectedPost(post);
+                      if (type === 'self-user') {
+                        setSelectedPostTags(
+                          post.tags
+                            ? post.tags
+                                .map((str) => '#' + str)
+                                .join(', ')
+                                .toString()
+                            : ''
+                        );
+                        showModalPostOptions(post, 'self-user');
+                        return;
+                        // return setEditPostVisible(true);
+                      }
+                      return showModalPostOptions(post, 'other-user');
+                    }}
+                    style={{ fontSize: '25px' }}
+                  >
+                    <EllipsisOutlined />
+                  </span>,
 
-                <Tooltip title="Delete">
-                  <span style={{ color: 'red', fontSize: '25px' }}>
-                    <DeleteOutlined
-                      className="zoom__mini"
-                      onClick={() => {
-                        // setSelectedPost(post);
-                        showModalDeletePostMessage(post);
-                      }}
-                    />
-                  </span>
-                </Tooltip>,
-              ].slice(0, type === 'self-user' ? 4 : 3)}
+                  // <span style={{ color: 'red', fontSize: '25px' }}>
+                  //   <DeleteOutlined
+                  //     onClick={() => {
+                  //       // setSelectedPost(post);
+                  //       showModalDeletePostMessage(post);
+                  //     }}
+                  //   />
+                  // </span>,
+                ] /*.slice(0, type === 'self-user' ? 4 : 3)*/
+              }
             >
               <Meta
                 description={

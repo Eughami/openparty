@@ -154,12 +154,17 @@ const Posts = (props: IPostsProps) => {
                 'value',
                 async (ssh) => {
                   //No need to check post privacy again because all posts we have access to are here?
+                  if (!ssh.exists()) {
+                    return;
+                  }
                   temp[`${obj.uidRef + obj.postRef}`] = ssh.val();
                   temp[`${obj.uidRef + obj.postRef}`].key = `${
                     obj.uidRef + obj.postRef
                   }`;
 
                   if (localStorage.getItem('postsSet')) {
+                    console.log('@LOC STORR');
+
                     temp[`${obj.uidRef + obj.postRef}`] = ssh.val();
                     temp[`${obj.uidRef + obj.postRef}`].key = `${
                       obj.uidRef + obj.postRef
@@ -183,12 +188,12 @@ const Posts = (props: IPostsProps) => {
                       )
                     );
 
-                    console.log(
-                      '@POSTS DEBUG: ',
-                      Object.values(temp).sort(
-                        (s1: any, s2: any) => s2.date_of_post - s1.date_of_post
-                      )
-                    );
+                    // console.log(
+                    //   '@POSTS DEBUG: ',
+                    //   Object.values(temp).sort(
+                    //     (s1: any, s2: any) => s2.date_of_post - s1.date_of_post
+                    //   )
+                    // );
 
                     // Object.values(temp).map((temp: any) => {
                     //     return console.log("THIS@TEMP: ", temp.date_of_post);
@@ -230,8 +235,7 @@ const Posts = (props: IPostsProps) => {
     };
 
     getEligible();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentUserEligiblePosts]);
+  }, [currentUserEligiblePosts, currentUser]);
 
   if (loading) {
     return (
@@ -246,10 +250,7 @@ const Posts = (props: IPostsProps) => {
   if (currentUserEligiblePosts === null) {
     return (
       <div style={{ textAlign: 'center' }}>
-        <img
-          alt="empty"
-          src="https://humornama.com/wp-content/uploads/2020/05/lonely-vs-alone-meme.png"
-        />
+        <img alt="empty" src={require('../images/lonely.png')} />
         <br />
         You are not following anyone. Follow people to see their posts here.{' '}
         <br />

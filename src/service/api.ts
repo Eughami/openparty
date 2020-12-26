@@ -2,6 +2,10 @@ export const API_BASE_URL =
   'http://localhost:5000/openpaarty/us-central1/api/v1/';
 export const API_BASE_URL_OPEN =
   'http://localhost:5000/openpaarty/us-central1/api1/v1/';
+// export const API_BASE_URL =
+//   'https://us-central1-openpaarty.cloudfunctions.net/api/v1/';
+// export const API_BASE_URL_OPEN =
+//   'https://us-central1-openpaarty.cloudfunctions.net/api1/v1/';
 
 //post ping
 export const PING_ENDPOINT = 'ping';
@@ -10,6 +14,8 @@ export const SEARCH_USER_ENDPOINT = 'users';
 
 //post /users
 export const REGISTRATION_ENDPOINT = 'users';
+//post alien-auth
+export const ALIEN_AUTH_ENDPOINT = 'users/alien-auth';
 
 //patch /users/
 export const EDIT_ACCOUNT_INFO_ENDPOINT = 'users';
@@ -59,4 +65,9 @@ export const UNFOLOW_REQUEST_ENDPOINT = 'users/unfollow-user';
 export const CANCEL_FOLLOW_REQUEST_ENDPOINT = 'users/cancel-follow-request';
 
 export const GET_ONE_POST = 'posts/post';
+
+export const GET_MORE_POSTS_FROM_USER = 'posts/more-posts';
+
+export const GET_USER_PROFILE_SNIPPET = 'users/:/username/snippet';
+
 // export const _ENDPOINT = ""

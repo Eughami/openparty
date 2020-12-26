@@ -1,4 +1,13 @@
-import { Button, Col, Result, Row, Skeleton, Carousel, Grid } from 'antd';
+import {
+  Button,
+  Col,
+  Result,
+  Row,
+  Skeleton,
+  Carousel,
+  Grid,
+  Divider,
+} from 'antd';
 import { RightCircleTwoTone, LeftCircleTwoTone } from '@ant-design/icons';
 import Axios from 'axios';
 import firebase from 'firebase';
@@ -9,6 +18,7 @@ import {
   API_BASE_URL,
   GET_ONE_POST,
   PROBE_IMAGE_ENDPOINT,
+  GET_MORE_POSTS_FROM_USER,
 } from '../service/api';
 import { Comment, Post as PostInterface } from './interfaces/user.interface';
 import PerfectScrollbar from 'react-perfect-scrollbar';
@@ -65,6 +75,7 @@ const { useBreakpoint } = Grid;
 const ViewPost = (props: ViewPostProps) => {
   const { postId: id }: postIdInterface = useParams();
   const [post, setPost] = useState<Post>();
+  const [morePosts, setMorePost] = useState<Post[]>([]);
   const [postExists, setPostExists] = useState<boolean>(true);
   const [aspectRation, setAspectRatio] = useState<number>(0);
   const [loadingPost, setLoadingPost] = useState<boolean>(true);
@@ -149,11 +160,31 @@ const ViewPost = (props: ViewPostProps) => {
 
               setInitImageDim(res.data);
               setPost(ssh.val());
+              setPostExists(true);
               setLoadingPost(false);
+              Axios.post(
+                `${API_BASE_URL}${GET_MORE_POSTS_FROM_USER}`,
+                {
+                  postId: id,
+                },
+                {
+                  headers: {
+                    Authorization: `Bearer ${props.currentUserToken}`,
+                  },
+                }
+              ).then((res) => {
+                const morePosts = res.data as Post[];
+                setMorePost(morePosts);
+                console.log('@AXIOS MORE POSTS RES: ', morePosts);
+              });
             });
           }
         },
-        (e: any) => console.log(e)
+        (e: any) => {
+          console.log('@POST LISTENER DB ERROR: ', e);
+          setLoadingPost(false);
+          setPostExists(true);
+        }
       );
   };
 
@@ -185,9 +216,11 @@ const ViewPost = (props: ViewPostProps) => {
             setLoadingPost(false);
             return;
           }
-          fetchPost(id, res.data, props.currentUserToken!);
-          setLoadingPost(false);
-          setPostExists(true);
+          fetchPost(id, res.data, props.currentUserToken!).catch((e) => {
+            console.log('@FETCH POST ERROR: ', e);
+            setPostExists(false);
+            setLoadingPost(false);
+          });
         })
         .catch((e) => {
           console.log('@GET POST ERROR: ', e);

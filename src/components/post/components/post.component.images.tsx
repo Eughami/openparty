@@ -2,6 +2,7 @@ import React from 'react';
 import { Carousel, Row } from 'antd';
 import { RightCircleTwoTone, LeftCircleTwoTone } from '@ant-design/icons';
 import { Post } from '../../interfaces/user.interface';
+import { useDoubleTap } from 'use-double-tap';
 
 interface IPostImagesProps {
   post: Post;
@@ -10,6 +11,12 @@ interface IPostImagesProps {
 
 export const PostImages = (props: IPostImagesProps) => {
   const { imageHeight } = props;
+
+  const doubleTapBind = useDoubleTap((event) => {
+    // Your action here
+    console.log('Double tapped');
+  });
+
   return (
     <div>
       {/* How to handle posts w/out images?? */}

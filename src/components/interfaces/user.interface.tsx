@@ -92,4 +92,5 @@ export interface RegistrationObject {
   website?: string;
   gender?: string;
   name?: string;
+  alien_password?: boolean;
 }

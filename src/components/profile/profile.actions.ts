@@ -1,15 +1,15 @@
-import axios from "axios";
-import { message } from "antd";
-import { RegistrationObject } from "../interfaces/user.interface";
+import axios from 'axios';
+import { message } from 'antd';
+import { RegistrationObject } from '../interfaces/user.interface';
 import {
   API_BASE_URL,
   CANCEL_FOLLOW_REQUEST_ENDPOINT,
   SEND_FOLLOW_REQUEST_ENDPOINT,
   UNFOLOW_REQUEST_ENDPOINT,
-} from "../../service/api";
+} from '../../service/api';
 
 export const confirmUnfollow = async (
-  otherUserInfo: RegistrationObject,
+  otherUserInfo: RegistrationObject | { uid: string },
   currentUserToken: string
 ) => {
   const result = await axios.post(
@@ -26,7 +26,7 @@ export const confirmUnfollow = async (
 
   console.log(result.data);
 
-  message.success("Unfollow successful");
+  message.success('Unfollow successful');
 };
 
 export const handleFollowRequest = async (
@@ -49,7 +49,7 @@ export const handleFollowRequest = async (
     }
   );
 
-  message.success("Follow request sent");
+  message.success('Follow request sent');
 };
 
 export const handleCancelFollowRequest = async (
@@ -69,5 +69,5 @@ export const handleCancelFollowRequest = async (
     }
   );
 
-  message.success("Follow request canceled");
+  message.success('Follow request canceled');
 };

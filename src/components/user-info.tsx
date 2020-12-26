@@ -69,10 +69,14 @@ const UserProfile = (props: IUserProps) => {
   );
 
   const [loading, setLoading] = useState<boolean>(true);
+  const [isHardError, setIsHardError] = useState<boolean>(false);
   const [postsDoneLoading, setPostsDoneLoading] = useState<boolean>(false);
   const [realUser, setRealUser] = useState<boolean>(true);
 
-  const [privacyStatus, setPrivacyStatus] = useState<string>('Public');
+  // const [privacyStatus, setPrivacyStatus] = useState<string>('Public');
+  const [privacyStatus, setPrivacyStatus] = useState<PrivacyStatus>(
+    PrivacyStatus.PRIVATE
+  );
 
   const [posts, setPosts] = useState<Array<Post> | boolean>([]);
 
@@ -131,353 +135,436 @@ const UserProfile = (props: IUserProps) => {
   }, [username, realUser]);
 
   useEffect(() => {
-    if (currentUserInfo?.username === username) {
-      setPosts([]);
-      setPostsDoneLoading(false);
-      setLoading(false);
-      setSelfUser(true);
-      setRealUser(true);
-      firebase
-        .database()
-        .ref('Postsv2')
-        .child(currentUser?.uid!)
-        .on(
-          'value',
-          async (ssh) => {
-            // console.log(ssh.val());
+    const doStuff = async () => {
+      if (currentUserInfo?.username === username) {
+        setPosts([]);
+        setPostsDoneLoading(false);
+        setLoading(false);
+        setSelfUser(true);
+        setRealUser(true);
+        firebase
+          .database()
+          .ref('Postsv2')
+          .child(currentUser?.uid!)
+          .on(
+            'value',
+            async (ssh) => {
+              // console.log(ssh.val());
 
-            if (ssh.exists()) {
-              let ttt: Array<firebase.database.DataSnapshot> = [];
+              if (ssh.exists()) {
+                let ttt: Array<firebase.database.DataSnapshot> = [];
 
-              ssh.forEach((post) => {
-                ttt.push(post);
-              });
+                ssh.forEach((post) => {
+                  ttt.push(post);
+                });
 
-              console.log('====== POST IDS: ', ttt);
+                console.log('====== POST IDS: ', ttt);
 
-              setPosts(await awaitFillPosts(ttt, currentUserInfo!));
+                setPosts(await awaitFillPosts(ttt, currentUserInfo!));
 
-              setPostsDoneLoading(true);
-            } else {
-              setPostsDoneLoading(true);
-              setPosts([]);
+                setPostsDoneLoading(true);
+              } else {
+                setPostsDoneLoading(true);
+                setPosts([]);
+              }
+            },
+            (error: any) => {
+              console.log(error);
             }
-          },
-          (error: any) => {
-            console.log(error);
-          }
-        );
-    } else {
-      setPosts([]);
-      // setOtherUserInfo(null)
-      setSelfUser(false);
-      setLoading(true);
-    }
-  }, [currentUserInfo, currentUser, username]);
+          );
+      } else {
+        setSelfUser(false);
 
-  /**
-   * We may not have to worry about the bloated useEffect because,
-   * all we're doing is just sending a request to our server to see if
-   * current user can view other user's profile.
-   *
-   * And then whatever our server returns, we filter and add listeners to
-   * our database
-   */
-  useEffect(() => {
-    if (!currentUser) return;
+        if (!currentUser) return;
 
-    if (!currentUserToken) {
-      props.setCurrentUserToken!(currentUser);
-      return;
-    }
-
-    const decodeProfile = async () => {
-      // const result = await axios.post("http://localhost:5000/openpaarty/us-central1/api/v1/users/can-view-user-profile", {
-      const result = await axios.post(
-        `${API_BASE_URL}${CAN_USER_VIEW_PROFILE_ENDPOINT}`,
-        {
-          targetUsername: username,
-        },
-        {
-          headers: {
-            authorization: `Bearer ${currentUserToken}`,
-          },
+        if (!currentUserToken) {
+          props.setCurrentUserToken!(currentUser);
+          return;
         }
-      );
 
-      console.log('@5555=========', result.data);
-
-      if (result.data.success) {
-        if (result.data.selfUser) {
-          setLoading(false);
-          setSelfUser(true);
-        } else {
-          setPrivacyStatus(result.data.privacy);
-
-          //If following user, then target user's posts is in the global eligible posts state. Simply
-          // filter by username and add listeners to database [to make it real time]
-          if (result.data.privacy === 'following') {
-            setFollowActionLoading(false);
-
-            if (currentUserEligiblePosts === null) {
-              //serious issues here?
+        await axios
+          .post(
+            `${API_BASE_URL}${CAN_USER_VIEW_PROFILE_ENDPOINT}`,
+            {
+              targetUsername: username,
+            },
+            {
+              headers: {
+                authorization: `Bearer ${currentUserToken}`,
+              },
             }
+          )
+          .then(async (result) => {
+            if (result.data.success) {
+              setIsHardError(false);
+              if (result.data.selfUser) {
+                setLoading(false);
+                setSelfUser(true);
+              } else {
+                // setPrivacyStatus(result.data.privacy);
 
-            //Get data from user root profile
-            firebase
-              .database()
-              .ref('Users')
-              .child(result.data.targetUid)
-              .on(
-                'value',
-                async (ssh) => {
-                  console.log(ssh.val());
+                //If following user, then target user's posts is in the global eligible posts state. Simply
+                // filter by username and add listeners to database [to make it real time]
+                if (result.data.privacy === 'following') {
+                  setFollowActionLoading(false);
+                  setRequestedFollow(false);
+                  setPostsDoneLoading(false);
 
-                  setOtherUserPrivacy(false);
-                  setLoading(false);
-                  setOtherUserInfo(ssh.val());
-                }, //HERE IS WHERE DB SNAPS FROM PRIVACY CHANGE
-                (error: any) => {
-                  if (error.code) {
-                    if (error.code === 'PERMISSION_DENIED') {
-                      setLoading(false);
-                      setOtherUserInfo(result.data.targetUser);
-                      setOtherUserPrivacy(true);
-                    }
-                  }
-                }
-              );
-
-            //Get data from user's posts
-            let temp: any = {};
-
-            const filteredEligiblePosts = currentUserEligiblePosts!.filter(
-              (post) => post.uidRef === result.data.targetUid
-            );
-
-            if (
-              filteredEligiblePosts.length === 0 ||
-              currentUserEligiblePosts === null
-            ) {
-              console.log(
-                "USER'S POST IS 0",
-                filteredEligiblePosts,
-                currentUserEligiblePosts
-              );
-
-              setPosts([]);
-
-              setPostsDoneLoading(true);
-              return;
-            }
-
-            await bluebird
-              .map(
-                filteredEligiblePosts,
-                async (
-                  obj: { uidRef: string; postRef: string },
-                  index: number
-                ) => {
+                  //Get data from user root profile
                   firebase
                     .database()
-                    .ref('Postsv2')
-                    .child(obj.uidRef)
-                    .child(obj.postRef)
+                    .ref('Users')
+                    .child(result.data.targetUid)
                     .on(
                       'value',
                       async (ssh) => {
-                        if (!ssh.exists()) {
-                          setPosts([]);
+                        console.log(ssh.val());
 
-                          setPostsDoneLoading(true);
-                          return;
-                        }
-                        //No need to check post privacy again because all posts we have access to are here?
-                        temp[`${obj.uidRef + obj.postRef}`] = ssh.val();
-                        temp[`${obj.uidRef + obj.postRef}`].key = `${
-                          obj.uidRef + obj.postRef
-                        }`;
-
-                        if (localStorage.getItem('otherUserPostsSet')) {
-                          temp[`${obj.uidRef + obj.postRef}`] = ssh.val();
-                          temp[`${obj.uidRef + obj.postRef}`].key = `${
-                            obj.uidRef + obj.postRef
-                          }`;
-
-                          setPosts(
-                            Object.values(temp).sort(
-                              (s1: any, s2: any) =>
-                                s2.date_of_post - s1.date_of_post
-                            ) as any[]
-                          );
-
-                          setPostsDoneLoading(true);
-                        }
-
-                        if (
-                          index === filteredEligiblePosts.length - 1 &&
-                          !localStorage.getItem('otherUserPostsSet')
-                        ) {
-                          console.log('IN COND: ', Object.values(temp));
-
-                          setPosts(
-                            Object.values(temp).sort(
-                              (s1: any, s2: any) =>
-                                s2.date_of_post - s1.date_of_post
-                            ) as any[]
-                          );
-
-                          setPostsDoneLoading(true);
-                          // setTimeout(() => {
-                          // }, 1000);
-
-                          console.log('@POSTS DEBUG: ', Object.values(temp));
-
-                          localStorage.setItem('otherUserPostsSet', 'true');
-                        }
+                        setOtherUserPrivacy(false);
+                        setOtherUserInfo(ssh.val());
+                        setPrivacyStatus(PrivacyStatus.FOLLOWERS);
+                        setLoading(false);
                       },
+                      //HERE IS WHERE DB SNAPS FROM PRIVACY CHANGE
                       (error: any) => {
-                        console.log('@SSH ERROR: ', error);
+                        console.log(
+                          'HMM @SUDDEN CHANGE IN USER PERMISSION- WAS FOLLOWED USER ',
+                          error
+                        );
+
                         if (error.code) {
                           if (error.code === 'PERMISSION_DENIED') {
-                            // delete temp[lastKey];
-                            // setPosts(Object.values(temp));
-                            //TODO: Maybe show 'post not available message'?
+                            console.log(
+                              '@DB SNAPPED FROM PRIVACY. REVERTING TO FALLBACK USER INFO'
+                            );
+
+                            setOtherUserInfo(result.data.privateUserInfo);
+                            setOtherUserPrivacy(true);
+                            setPrivacyStatus(PrivacyStatus.PRIVATE);
+                            setLoading(false);
+                          } else {
+                            setLoading(false);
+                            setIsHardError(true);
                           }
+                        } else {
+                          setLoading(false);
+                          setIsHardError(true);
                         }
                       }
                     );
-                },
-                {
-                  concurrency: filteredEligiblePosts.length,
-                }
-              )
-              .then(() => {
-                console.log('DONE MAPPING');
-              });
-          } else {
-            //Else add listeners for any change in follow requests
-            firebase
-              .database()
-              .ref('FollowRequests')
-              .child(result.data.targetUser.uid)
-              .child(currentUser.uid)
-              .on('value', (ssh) => {
-                setFollowActionLoading(false);
-                setRequestedFollow(ssh.exists());
-              });
 
-            //If target user's profile is private, don't show them any posts. Just show them simple info
-            if (result.data.privacy === 'closed') {
-              setLoading(false);
-              setOtherUserInfo(result.data.targetUser);
-              setOtherUserPrivacy(true);
-            }
-            //If user's profile is open, then only show the target user's public posts and info
-            if (result.data.privacy === 'open') {
-              setLoading(false);
-              setOtherUserInfo(result.data.targetUser);
-              setOtherUserPrivacy(false);
+                  //Get data from user's posts
+                  let temp: any = {};
 
-              //Get data from user's posts
-              let temp: any = {};
+                  if (currentUserEligiblePosts === null) {
+                    setPosts([]);
 
-              // console.log("@SETTLED COMDS: ", currentUserEligiblePosts!.filter(eligible => eligible.uidRef === username));
-              await bluebird
-                .map(
-                  result.data.targetUser.posts,
-                  async (
-                    obj: { uidRef: string; postRef: string },
-                    index: number
-                  ) => {
+                    setPostsDoneLoading(true);
+                    return;
+                  }
+
+                  const filteredEligiblePosts = currentUserEligiblePosts!.filter(
+                    (post) => post.uidRef === result.data.targetUid
+                  );
+
+                  if (
+                    filteredEligiblePosts.length === 0 ||
+                    currentUserEligiblePosts === null ||
+                    (currentUserEligiblePosts &&
+                      currentUserEligiblePosts.length === 0)
+                  ) {
+                    console.log(
+                      "SELF USER'S ELIGIBLE POST IS 0",
+                      filteredEligiblePosts,
+                      currentUserEligiblePosts
+                    );
+
+                    setPosts([]);
+
+                    setPostsDoneLoading(true);
+                    return;
+                  }
+
+                  //if filtered post len is 0 but res.data.user post is not 0... directly boycott filter
+                  // if() {
+
+                  // }
+
+                  await bluebird
+                    .map(
+                      filteredEligiblePosts,
+                      async (
+                        obj: { uidRef: string; postRef: string },
+                        index: number
+                      ) => {
+                        firebase
+                          .database()
+                          .ref('Postsv2')
+                          .child(obj.uidRef)
+                          .child(obj.postRef)
+                          .on(
+                            'value',
+                            async (ssh) => {
+                              if (!ssh.exists()) {
+                                // setPosts([]);
+
+                                // setPostsDoneLoading(true);
+                                return;
+                              }
+                              //No need to check post privacy again because all posts we have access to are here?
+                              temp[`${obj.uidRef + obj.postRef}`] = ssh.val();
+                              temp[`${obj.uidRef + obj.postRef}`].key = `${
+                                obj.uidRef + obj.postRef
+                              }`;
+
+                              if (localStorage.getItem('otherUserPostsSet')) {
+                                temp[`${obj.uidRef + obj.postRef}`] = ssh.val();
+                                temp[`${obj.uidRef + obj.postRef}`].key = `${
+                                  obj.uidRef + obj.postRef
+                                }`;
+
+                                setPosts(
+                                  Object.values(temp).sort(
+                                    (s1: any, s2: any) =>
+                                      s2.date_of_post - s1.date_of_post
+                                  ) as any[]
+                                );
+
+                                setPostsDoneLoading(true);
+                              }
+
+                              if (
+                                index === filteredEligiblePosts.length - 1 &&
+                                !localStorage.getItem('otherUserPostsSet')
+                              ) {
+                                setPosts(
+                                  Object.values(temp).sort(
+                                    (s1: any, s2: any) =>
+                                      s2.date_of_post - s1.date_of_post
+                                  ) as any[]
+                                );
+
+                                setPostsDoneLoading(true);
+                                localStorage.setItem(
+                                  'otherUserPostsSet',
+                                  'true'
+                                );
+                              }
+                            },
+                            (error: any) => {
+                              console.log('@SSH ERROR: ', error);
+                              if (error.code) {
+                                if (error.code === 'PERMISSION_DENIED') {
+                                  // delete temp[lastKey];
+                                  // setPosts(Object.values(temp));
+                                  //TODO: Maybe show 'post not available message'?
+                                }
+                              }
+                            }
+                          );
+                      },
+                      {
+                        concurrency: filteredEligiblePosts.length,
+                      }
+                    )
+                    .then(() => {
+                      // setLoading(false);
+                      console.log('DONE MAPPING');
+                    });
+                } else {
+                  //Else add listeners for any change in follow requests
+                  firebase
+                    .database()
+                    .ref('FollowRequests')
+                    .child(result.data.targetUser.uid)
+                    .child(currentUser.uid)
+                    .on('value', (ssh) => {
+                      setFollowActionLoading(false);
+                      setRequestedFollow(ssh.exists());
+                    });
+
+                  //If target user's profile is private, don't show them any posts. Just show them simple info
+                  if (result.data.privacy === 'closed') {
+                    setLoading(false);
+                    // setPosts([]);
+                    setPostsDoneLoading(true);
+                    setOtherUserInfo(result.data.targetUser);
+                    setOtherUserPrivacy(true);
+                    setPrivacyStatus(PrivacyStatus.PRIVATE);
+                  }
+                  //If user's profile is open, then only show the target user's public posts and info
+                  if (result.data.privacy === 'open') {
                     firebase
                       .database()
-                      .ref('Postsv2')
-                      .child(obj.uidRef)
-                      .child(obj.postRef)
+                      .ref('Users')
+                      .child(result.data.privateUserInfo.uid)
                       .on(
                         'value',
-                        async (ssh) => {
-                          //No need to check post privacy again because all posts we have access to are here?
-                          temp[`${obj.uidRef + obj.postRef}`] = ssh.val();
-                          temp[`${obj.uidRef + obj.postRef}`].key = `${
-                            obj.uidRef + obj.postRef
-                          }`;
-
-                          if (localStorage.getItem('publicUserPostsSet')) {
-                            temp[`${obj.uidRef + obj.postRef}`] = ssh.val();
-                            temp[`${obj.uidRef + obj.postRef}`].key = `${
-                              obj.uidRef + obj.postRef
-                            }`;
-
-                            setPosts(
-                              Object.values(temp).sort(
-                                (s1: any, s2: any) =>
-                                  s2.date_of_post - s1.date_of_post
-                              ) as any[]
-                            );
-
-                            setPostsDoneLoading(true);
-                          }
-
-                          if (
-                            index === result.data.targetUser.posts.length - 1 &&
-                            !localStorage.getItem('publicUserPostsSet')
-                          ) {
-                            console.log('IN COND: ', Object.values(temp));
-
-                            setPosts(
-                              Object.values(temp).sort(
-                                (s1: any, s2: any) =>
-                                  s2.date_of_post - s1.date_of_post
-                              ) as any[]
-                            );
-
-                            setPostsDoneLoading(true);
-
-                            console.log('@POSTS DEBUG: ', Object.values(temp));
-
-                            localStorage.setItem('publicUserPostsSet', 'true');
-                          }
+                        (openSsh) => {
+                          setOtherUserInfo(openSsh.val());
+                          setOtherUserPrivacy(false);
+                          setPrivacyStatus(PrivacyStatus.PUBLIC);
+                          setLoading(false);
                         },
                         (error: any) => {
-                          console.log('@SSH ERROR: ', error);
+                          console.log(
+                            'HMM @SUDDEN CHANGE IN USER PERMISSION- OPEN USER PROFILE ',
+                            error
+                          );
+
                           if (error.code) {
                             if (error.code === 'PERMISSION_DENIED') {
-                              // delete temp[lastKey];
-                              // setPosts(Object.values(temp));
-                              //TODO: Maybe show 'post not available message'?
+                              console.log(
+                                '@DB SNAPPED FROM PRIVACY. REVERTING TO FALLBACK USER INFO'
+                              );
+
+                              setOtherUserInfo(result.data.privateUserInfo);
+                              setOtherUserPrivacy(true);
+                              setPrivacyStatus(PrivacyStatus.PRIVATE);
+                              setLoading(false);
+                            } else {
+                              setLoading(false);
+                              setIsHardError(true);
                             }
+                          } else {
+                            setLoading(false);
+                            setIsHardError(true);
                           }
                         }
                       );
-                  },
-                  {
-                    concurrency: result.data.targetUser.posts.length,
+
+                    if (result.data.targetUser.posts.length === 0) {
+                      setPosts([]);
+
+                      setPostsDoneLoading(true);
+
+                      return;
+                    }
+
+                    //Get data from user's posts
+                    let temp: any = {};
+
+                    // console.log("@SETTLED COMDS: ", currentUserEligiblePosts!.filter(eligible => eligible.uidRef === username));
+                    await bluebird
+                      .map(
+                        result.data.targetUser.posts,
+                        async (
+                          obj: { uidRef: string; postRef: string },
+                          index: number
+                        ) => {
+                          firebase
+                            .database()
+                            .ref('Postsv2')
+                            .child(obj.uidRef)
+                            .child(obj.postRef)
+                            .on(
+                              'value',
+                              async (ssh) => {
+                                if (!ssh.exists()) {
+                                  // setPosts([]);
+
+                                  // setPostsDoneLoading(true);
+                                  return;
+                                }
+                                //No need to check post privacy again because all posts we have access to are here?
+                                temp[`${obj.uidRef + obj.postRef}`] = ssh.val();
+                                temp[`${obj.uidRef + obj.postRef}`].key = `${
+                                  obj.uidRef + obj.postRef
+                                }`;
+
+                                if (
+                                  localStorage.getItem('publicUserPostsSet')
+                                ) {
+                                  temp[
+                                    `${obj.uidRef + obj.postRef}`
+                                  ] = ssh.val();
+                                  temp[`${obj.uidRef + obj.postRef}`].key = `${
+                                    obj.uidRef + obj.postRef
+                                  }`;
+
+                                  setPosts(
+                                    Object.values(temp).sort(
+                                      (s1: any, s2: any) =>
+                                        s2.date_of_post - s1.date_of_post
+                                    ) as any[]
+                                  );
+
+                                  setPostsDoneLoading(true);
+                                }
+
+                                if (
+                                  index ===
+                                    result.data.targetUser.posts.length - 1 &&
+                                  !localStorage.getItem('publicUserPostsSet')
+                                ) {
+                                  console.log('IN COND: ', Object.values(temp));
+
+                                  setPosts(
+                                    Object.values(temp).sort(
+                                      (s1: any, s2: any) =>
+                                        s2.date_of_post - s1.date_of_post
+                                    ) as any[]
+                                  );
+
+                                  setPostsDoneLoading(true);
+
+                                  console.log(
+                                    '@POSTS DEBUG: ',
+                                    Object.values(temp)
+                                  );
+
+                                  localStorage.setItem(
+                                    'publicUserPostsSet',
+                                    'true'
+                                  );
+                                }
+                              },
+                              (error: any) => {
+                                console.log('@SSH ERROR: ', error);
+                                if (error.code) {
+                                  if (error.code === 'PERMISSION_DENIED') {
+                                    // delete temp[lastKey];
+                                    // setPosts(Object.values(temp));
+                                    //TODO: Maybe show 'post not available message'?
+                                  }
+                                }
+                              }
+                            );
+                        },
+                        {
+                          concurrency: result.data.targetUser.posts.length,
+                        }
+                      )
+                      .then(() => {
+                        console.log('DONE MAPPING');
+                      });
+                  } else if (result.data.code === 404) {
+                    setLoading(false);
+                    setRealUser(false);
                   }
-                )
-                .then(() => {
-                  console.log('DONE MAPPING');
-                });
-            } else if (result.data.code === 404) {
+                }
+              }
+            } else {
               setLoading(false);
               setRealUser(false);
+              setIsHardError(true);
             }
-          }
-        }
-      } else {
-        setLoading(false);
-        setRealUser(false);
+          })
+          .catch((error) => {
+            console.log('@AXIOS CAN VIEW USER PROFILE ERROR: ', error);
+
+            setLoading(false);
+            setIsHardError(true);
+            setRealUser(false);
+          });
       }
     };
-
-    decodeProfile();
-
-    // return () => localStorage.removeItem("otherUserProfileLoaded")
+    doStuff();
   }, [
-    currentUserEligiblePosts,
-    username,
+    currentUserInfo,
     currentUser,
+    username,
+    currentUserEligiblePosts,
     currentUserToken,
     props.setCurrentUserToken,
   ]);
@@ -490,6 +577,20 @@ const UserProfile = (props: IUserProps) => {
             status="404"
             title="That's weird :\"
             subTitle="The page you visited does not exist."
+          />
+        </div>
+      </div>
+    );
+  }
+
+  if (isHardError) {
+    return (
+      <div>
+        <div style={{ textAlign: 'center' }}>
+          <Result
+            status="500"
+            title="An unexpected error has occurred 🤕"
+            // subTitle="The page you visited does not exist."
           />
         </div>
       </div>
@@ -573,23 +674,31 @@ const UserProfile = (props: IUserProps) => {
                       <Spin size="small" />
                     ) : privacyStatus === PrivacyStatus.FOLLOWERS ? (
                       <ProfileActionUnfollow
+                        style={{ marginRight: 10 }}
                         otherUserInfo={otherUserInfo}
-                        onConfirm={() =>
-                          confirmUnfollow(
-                            otherUserInfo,
-                            currentUserToken!
-                          ).finally(() =>
-                            setCurrentUserEligiblePosts!(currentUser!)
-                          )
+                        onConfirm={
+                          () => {
+                            setFollowActionLoading(true);
+                            confirmUnfollow(
+                              otherUserInfo,
+                              currentUserToken!
+                            ).finally(() => setFollowActionLoading(false));
+                          }
+                          // .finally(() =>
+                          //   setCurrentUserEligiblePosts!(currentUser!)
+                          // )
                         }
                       />
                     ) : requestedFollow ? (
                       <ProfileActionCancelFollowRequest
+                        style={{ marginRight: 10 }}
                         otherUserInfo={otherUserInfo}
                         currentUserToken={currentUserToken!}
                       />
                     ) : (
                       <ProfileActionFollow
+                        style={{ marginRight: 10 }}
+                        onConfirm={() => setFollowActionLoading(true)}
                         selfUserInfo={currentUserInfo!}
                         otherUserInfo={otherUserInfo}
                         currentUserToken={currentUserToken!}
@@ -623,14 +732,29 @@ const UserProfile = (props: IUserProps) => {
 
             <Divider />
             <div className="posts__container">
-              {!otherUserPrivacy ? (
+              {!postsDoneLoading ? (
+                <div style={{ textAlign: 'center' }}>
+                  <Spin size="small" />
+                </div>
+              ) : !otherUserPrivacy ? (
+                (posts as Post[]).length > 0 ? (
+                  <ProfileRootPosts
+                    currentUser={currentUser!}
+                    post={posts as Post[]}
+                    type="other-user"
+                  />
+                ) : (
+                  <h1 style={{ textAlign: 'center' }}>
+                    <Empty />
+                  </h1>
+                )
+              ) : (
+                <p style={{ textAlign: 'center' }}>
+                  This user's profile is private. Follow them to see more
+                </p>
+              )}
+              {/* {!otherUserPrivacy ? (
                 !postsDoneLoading ? (
-                  // <img
-                  //   width="50px"
-                  //   height="50px"
-                  //   src={LOADER_OBJECTS.LOADING_PROGRESS_01}
-                  //   alt="loader"
-                  // />
                   <div style={{ textAlign: 'center' }}>
                     <Spin size="small" />
                   </div>
@@ -642,19 +766,19 @@ const UserProfile = (props: IUserProps) => {
                   />
                 ) : (
                   <h1 style={{ textAlign: 'center' }}>
-                    {!postsDoneLoading ? <Empty /> : <Spin size="small" />}
+                    {postsDoneLoading ? <Empty /> : <Spin size="large" />}
                   </h1>
                 )
               ) : (
                 <p style={{ textAlign: 'center' }}>
                   This user's profile is private. Follow them to see more
                 </p>
-              )}
+              )} */}
             </div>
           </div>
         ) : (
           <div style={{ textAlign: 'center', marginTop: '15%' }}>
-            <Spin size="small" />
+            <Spin size="large" />
           </div>
         )}
       </Col>

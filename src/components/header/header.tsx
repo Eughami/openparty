@@ -27,7 +27,7 @@ import {
   UsergroupAddOutlined,
   VideoCameraAddOutlined,
   FireOutlined,
-  NotificationTwoTone,
+  NotificationOutlined,
 } from '@ant-design/icons';
 
 import OpenPartyLogo from '../images/openpaarty.logo.png';
@@ -55,6 +55,7 @@ import {
   PING_ENDPOINT,
 } from '../../service/api';
 import TempHeaderNotification from './temp-header';
+import TimeAgo from 'react-timeago';
 
 interface IHeaderProps {
   setCurrentUserListener?: () => Promise<any>;
@@ -105,7 +106,9 @@ const Header = (props: IHeaderProps) => {
   const [postModalVisible, setPostModalVisible] = useState<boolean>(false);
   const [postWorking, setPostWorking] = useState<boolean>(false);
   const [showNotification, setShowNotification] = useState<boolean>(false);
-  const [loading, setloading] = useState<boolean>(false);
+  const [notificationsLoading, setNotificationsLoading] = useState<boolean>(
+    true
+  );
   const [followRequests, setFollowRequests] = useState([]);
   const [userNotifications, setUserNotifications] = useState([]);
   const [form] = Form.useForm();
@@ -120,9 +123,11 @@ const Header = (props: IHeaderProps) => {
         'value',
         (ssh) => {
           if (ssh.exists()) {
-            setFollowRequests(Object.values(ssh.val()));
-
-            console.log('@R-REQ ', Object.values(ssh.val()));
+            setFollowRequests(
+              Object.values(ssh.val()).sort(
+                (s1: any, s2: any) => s2.time - s1.time
+              ) as any
+            );
           } else {
             setFollowRequests([]);
           }
@@ -146,6 +151,7 @@ const Header = (props: IHeaderProps) => {
       .database()
       .ref('Notifications')
       .child(props.currentUser?.uid!)
+      .limitToLast(50)
       .on(
         'value',
         (ssh) => {
@@ -157,19 +163,28 @@ const Header = (props: IHeaderProps) => {
                 temp[`${post.key}`] = Object.values(post.val().likes);
                 temp[`${post.key}`].ref = post.key;
               }
+
+              if (post.val().comments && post.key !== 'HOT UPDATE') {
+                temp[`${post.key}`] = Object.values(post.val().comments);
+                temp[`${post.key}`].ref = post.key;
+              }
+
+              if (post.val().mentions && post.key !== 'HOT UPDATE') {
+                temp[`${post.key}`] = Object.values(post.val().mentions);
+                temp[`${post.key}`].ref = post.key;
+              }
             });
-            console.log(
-              '@SSH DEBUG NOTIF: ',
-              [].concat(...(Object.values(temp) as any[]))
-            );
 
             setUserNotifications(
               []
                 .concat(...(Object.values(temp) as any[]))
                 .sort((n1: any, n2: any) => n2.time - n1.time) as any
             );
+
+            setNotificationsLoading(false);
           } else {
             setUserNotifications([]);
+            setNotificationsLoading(false);
           }
         },
         (error: any) => {
@@ -428,6 +443,7 @@ const Header = (props: IHeaderProps) => {
       >
         <List
           itemLayout="horizontal"
+          size="small"
           dataSource={followRequests}
           renderItem={(item: any) => (
             <List.Item
@@ -455,7 +471,9 @@ const Header = (props: IHeaderProps) => {
                     {item.username}
                   </Link>
                 }
-                description={item.username}
+                description={
+                  <TimeAgo date={new Date(`${item.time}`)}></TimeAgo>
+                }
               />
             </List.Item>
           )}
@@ -633,9 +651,9 @@ const Header = (props: IHeaderProps) => {
                       setShowNotification(true);
                     }}
                   >
-                    <NotificationTwoTone
+                    <NotificationOutlined
                       twoToneColor="black"
-                      style={{ fontSize: '22px' }}
+                      style={{ fontSize: '22px', color: 'black' }}
                     />
                   </Link>
                 </Col>
@@ -687,7 +705,7 @@ const Header = (props: IHeaderProps) => {
               sm={{ span: 12, offset: 10 }}
               xs={{ span: 15, offset: 8 }}
             >
-              {loading ? (
+              {notificationsLoading ? (
                 <div className="profile__dropdown__loading">
                   <Spin size="large" />
                 </div>
@@ -696,11 +714,13 @@ const Header = (props: IHeaderProps) => {
                   {userNotifications.length > 0 &&
                     userNotifications.map((not: any, index) => (
                       <TempHeaderNotification
+                        time={not.time}
                         key={index}
                         imageUrl={not.image_url}
                         text={not.desc}
                         username={not.username}
                         link={not.ref}
+                        thumbnail={not.thumbnail}
                       />
                     ))}
                 </PerfectScrollbar>
@@ -725,7 +745,7 @@ const Header = (props: IHeaderProps) => {
               sm={{ span: 12, offset: 10 }}
               xs={{ span: 15, offset: 8 }}
             >
-              {loading ? (
+              {notificationsLoading ? (
                 <div className="profile__dropdown__loading">
                   <Spin size="large" />
                 </div>
@@ -739,14 +759,22 @@ const Header = (props: IHeaderProps) => {
                         actions={[
                           <p
                             onClick={() => onFollowApproved(item.uid)}
-                            style={{ color: 'green', cursor: 'pointer' }}
+                            style={{
+                              color: 'green',
+                              cursor: 'pointer',
+                              fontSize: 12,
+                            }}
                             key={JSON.stringify(item)}
                           >
                             Approve
                           </p>,
                           <p
                             onClick={() => onFollowIgnored(item.uid)}
-                            style={{ color: 'red', cursor: 'pointer' }}
+                            style={{
+                              color: 'red',
+                              cursor: 'pointer',
+                              fontSize: 12,
+                            }}
                             key={JSON.stringify(item)}
                           >
                             Ignore
@@ -760,7 +788,11 @@ const Header = (props: IHeaderProps) => {
                               {item.username}
                             </Link>
                           }
-                          description={item.username}
+                          description={
+                            <p style={{ fontSize: 12 }}>
+                              <TimeAgo date={new Date(item.time)}></TimeAgo>
+                            </p>
+                          }
                         />
                       </List.Item>
                     )}

@@ -3,11 +3,13 @@ import UserActionTypes from './user.types';
 import firebase from 'firebase';
 import axios from 'axios';
 import {
+  ALIEN_AUTH_ENDPOINT,
   API_BASE_URL,
   API_BASE_URL_OPEN,
   GET_USER_ELIGIBLE_POST_ENDPOINT,
   REGISTRATION_ENDPOINT,
 } from '../../service/api';
+// import _ from 'lodash';
 
 export const googleSignInStart = () => (dispatch: any) =>
   new Promise(async (resolve, reject) => {
@@ -16,11 +18,50 @@ export const googleSignInStart = () => (dispatch: any) =>
       firebase
         .auth()
         .signInWithPopup(new firebase.auth.GoogleAuthProvider())
-        .then((user) => {
-          console.log('googleSignIn', user);
+        .then(async (user) => {
+          console.log('googleSignIn', user.user);
 
-          dispatch({ type: UserActionTypes.SIGN_IN_SUCCESS });
-          resolve(user.user);
+          if (!user.user) {
+            dispatch({ type: UserActionTypes.SIGN_IN_FAILURE });
+            reject('Unknown error occurred');
+            return;
+          }
+
+          const token = await user.user.getIdToken();
+
+          const requestOptions: RequestInit = {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify(user.user),
+          };
+          const url = `${API_BASE_URL}${ALIEN_AUTH_ENDPOINT}`;
+          return fetch(url, requestOptions)
+            .then((response) => {
+              response
+                .json()
+                .then((jsonResponse) => {
+                  console.log('@SIGN IN SUCCESS: ', jsonResponse);
+
+                  dispatch({
+                    type: UserActionTypes.SIGN_IN_SUCCESS,
+                    payload: user.user,
+                  });
+                  resolve(user.user);
+                })
+                .catch((error) => {
+                  console.log('@ALIEN ENDPOINT.JSON RES ERROR: ', error);
+                  dispatch({ type: UserActionTypes.SIGN_IN_FAILURE });
+                  reject(error);
+                });
+            })
+            .catch((error) => {
+              console.log('@ALIEN ENDPOINT ERROR: ', error);
+              dispatch({ type: UserActionTypes.SIGN_IN_FAILURE });
+              reject(error);
+            });
         })
         .catch((error) => {
           dispatch({ type: UserActionTypes.SIGN_IN_FAILURE });
@@ -62,7 +103,7 @@ export const emailSignInStart = (
             payload: user.user,
           });
           resolve(user);
-          history.push('/');
+          history.replace('/');
         })
         .catch((error) => {
           dispatch({ type: UserActionTypes.SIGN_IN_FAILURE, payload: error });
@@ -95,30 +136,37 @@ export const setCurrentUserListener = () => (dispatch: any) =>
     }
   });
 
-export const setCurrentUserToken = (currentUser: firebase.User) => (
+export const setCurrentUserToken = (_currentUser: firebase.User) => (
   dispatch: any
 ) =>
   new Promise(async (resolve, reject) => {
     try {
-      if (!currentUser) {
-        resolve('');
-        return;
-      }
-      const token = await currentUser.getIdToken(true);
-      dispatch({
-        type: UserActionTypes.SET_CURRENT_USER_TOKEN,
-        payload: token,
+      firebase.auth().onIdTokenChanged(async (user) => {
+        console.log('ID TOKEN STATE CHANGED! ', user);
+
+        if (user) {
+          const token = await user.getIdToken();
+
+          dispatch({
+            type: UserActionTypes.SET_CURRENT_USER_TOKEN,
+            payload: token,
+          });
+          resolve(token);
+        } else {
+          resolve('');
+          return;
+        }
       });
-      resolve(token);
     } catch (error) {
       reject(error);
     }
   });
 
 export const setCurrentUserRootDatabaseListener = (uid: string) => (
-  dispatch: (arg0: { type: string; payload: any }) => void
-) =>
-  new Promise((resolve, reject) => {
+  dispatch: (arg0: { type: string; payload: any }) => void,
+  getState: any
+) => {
+  return new Promise((resolve, reject) => {
     try {
       firebase
         .database()
@@ -126,6 +174,21 @@ export const setCurrentUserRootDatabaseListener = (uid: string) => (
         .child(uid)
         .on('value', (userSnap) => {
           console.log('NOW LISTENING ON NODE: ', userSnap.val());
+          console.log('PREV USER INFO: ', getState());
+          if (getState().user.userInfo) {
+            console.log('USER INFO PREV STATE ACTIVE');
+
+            const prevUserInfo = getState().user.userInfo as RegistrationObject;
+            const newUserInfo = userSnap.val() as RegistrationObject;
+            // if (newUserInfo.followers_count !== prevUserInfo.followers_count) {
+            //   console.log('NOT DISPATCHING FOR FOLLOW COUNT');
+            //   return;
+            // }
+            // if (newUserInfo.following_count < prevUserInfo.following_count) {
+            //   console.log('NOT DISPATCHING FOR FOLLOWING LESS COUNT');
+            //   return;
+            // }
+          }
 
           dispatch({
             type: UserActionTypes.DATABASE_LISTENER_START,
@@ -137,6 +200,7 @@ export const setCurrentUserRootDatabaseListener = (uid: string) => (
       reject(error);
     }
   });
+};
 
 export const setCurrentUserEligiblePosts = (currentUser: firebase.User) => (
   dispatch: (arg0: { type: string; payload: any }) => void
@@ -160,7 +224,7 @@ export const setCurrentUserEligiblePosts = (currentUser: firebase.User) => (
         type: UserActionTypes.SET_CURRENT_USER_ELIGIBLE_POSTS,
         payload: result.data.uFP,
       });
-      resolve(result);
+      resolve(result.data.uFP);
     } catch (error) {
       reject(error);
     }
@@ -184,6 +248,37 @@ export const setCurrentUserUsernameDatabaseListener = (uid: string) => (
             payload: userSnap.val(),
           });
           resolve(userSnap.val());
+        });
+    } catch (error) {
+      reject(error);
+    }
+  });
+
+export const setCurrentUserFollowingChangedListener = (
+  uid: string,
+  uFP: Array<{ postRef: string; uidRef: string; username: string }>
+) => (dispatch: (arg0: { type: string; payload: any }) => void) =>
+  new Promise((resolve, reject) => {
+    try {
+      firebase
+        .database()
+        .ref('Following')
+        .child(uid)
+        .on('child_removed', (userFollowingSnap) => {
+          console.log(
+            'NOW LISTENING ON FOLLOWING NODE: ',
+            userFollowingSnap.val()
+          );
+
+          //whenever user stops following someone, dispatch action to get eligible posts again.
+          // setCurrentUserEligiblePosts(firebase.auth().currentUser!);
+          dispatch({
+            type: UserActionTypes.SET_CURRENT_USER_ELIGIBLE_POSTS,
+            payload: uFP.filter(
+              (ref) => ref.uidRef !== userFollowingSnap.val().uid
+            ),
+          });
+          resolve(userFollowingSnap.val());
         });
     } catch (error) {
       reject(error);

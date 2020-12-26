@@ -14,13 +14,14 @@ import {
 
 interface IProfileActionUnfollowProps {
   selfUserInfo?: RegistrationObject;
-  otherUserInfo: RegistrationObject;
-  buttonStyle?: React.CSSProperties;
+  otherUserInfo?: RegistrationObject;
+  style?: React.CSSProperties;
   icon?: React.ReactNode;
   showPopup?: boolean;
   title?: string;
   cancelText?: string;
   okText?: string;
+  buttonProps?: any;
   onConfirm: () => void;
 }
 
@@ -32,11 +33,18 @@ export const ProfileActionUnfollow = (props: IProfileActionUnfollowProps) => {
     title,
     cancelText,
     showPopup = true,
+    style,
+    buttonProps,
   } = props;
   return (
     <>
       {!showPopup ? (
-        <Button onClick={onConfirm} icon={icon || <UserDeleteOutlined />}>
+        <Button
+          {...buttonProps}
+          style={{ ...style }}
+          onClick={onConfirm}
+          icon={icon || <UserDeleteOutlined />}
+        >
           Unfollow
         </Button>
       ) : (
@@ -46,7 +54,13 @@ export const ProfileActionUnfollow = (props: IProfileActionUnfollowProps) => {
           okText={okText || 'Unfollow'}
           cancelText={cancelText || 'Cancel'}
         >
-          <Button icon={icon || <UserDeleteOutlined />}>Unfollow</Button>
+          <Button
+            {...buttonProps}
+            style={{ ...style }}
+            icon={icon || <UserDeleteOutlined />}
+          >
+            Unfollow
+          </Button>
         </Popconfirm>
       )}
     </>
@@ -57,17 +71,25 @@ interface IProfileActionFollowProps {
   selfUserInfo: RegistrationObject;
   otherUserInfo: RegistrationObject;
   currentUserToken: string;
-  buttonStyle?: React.CSSProperties;
+  style?: React.CSSProperties;
   icon?: React.ReactNode;
   title?: string;
   onConfirm?: () => void;
 }
 
 export const ProfileActionFollow = (props: IProfileActionFollowProps) => {
-  const { icon, title, otherUserInfo, currentUserToken, selfUserInfo } = props;
+  const {
+    icon,
+    title,
+    otherUserInfo,
+    currentUserToken,
+    selfUserInfo,
+    style,
+  } = props;
   return (
     <>
       <Button
+        style={{ ...style }}
         onClick={() =>
           handleFollowRequest(otherUserInfo, selfUserInfo, currentUserToken)
         }
@@ -83,7 +105,7 @@ interface IProfileActionCancelFollowRequestProps {
   selfUserInfo?: RegistrationObject;
   otherUserInfo: RegistrationObject;
   currentUserToken: string;
-  buttonStyle?: React.CSSProperties;
+  style?: React.CSSProperties;
   icon?: React.ReactNode;
   title?: string;
   onConfirm?: () => void;
@@ -92,10 +114,11 @@ interface IProfileActionCancelFollowRequestProps {
 export const ProfileActionCancelFollowRequest = (
   props: IProfileActionCancelFollowRequestProps
 ) => {
-  const { icon, title, otherUserInfo, currentUserToken } = props;
+  const { icon, title, otherUserInfo, currentUserToken, style } = props;
   return (
     <>
       <Button
+        style={{ ...style }}
         onClick={() =>
           handleCancelFollowRequest(otherUserInfo, currentUserToken!)
         }
