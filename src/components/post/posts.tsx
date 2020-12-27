@@ -126,7 +126,9 @@ const Posts = (props: IPostsProps) => {
 
   console.log('CARDS.TSX PROPS: ', props);
 
-  const [loading, setLoading] = useState<boolean>(true);
+  const [loading, setLoading] = useState<boolean>(
+    localStorage.getItem('postsSet') === null
+  );
   const [posts, setPosts] = useState<Array<any>>([]);
 
   useEffect(() => {
@@ -135,6 +137,7 @@ const Posts = (props: IPostsProps) => {
       setLoading(false);
       return;
     }
+    // if (localStorage.getItem('postsSet')) return;
     // if (currentUserEligiblePosts!.length === 0) {
     //     setLoading(false);
     //     return;
@@ -235,7 +238,7 @@ const Posts = (props: IPostsProps) => {
     };
 
     getEligible();
-  }, [currentUserEligiblePosts, currentUser]);
+  }, [currentUser, currentUserEligiblePosts]);
 
   if (loading) {
     return (
