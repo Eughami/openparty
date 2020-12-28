@@ -57,7 +57,7 @@ import {
 import TempHeaderNotification from './temp-header';
 import TimeAgo from 'react-timeago';
 
-interface IHeaderProps {
+export interface IHeaderProps {
   setCurrentUserListener?: () => Promise<any>;
   setCurrentUserRootDatabaseListener?: (uid: string) => Promise<any>;
   currentUser?: firebase.User;
@@ -66,7 +66,7 @@ interface IHeaderProps {
 }
 
 //We can also use gifs 👀
-const LIKED_POST_REACTION_ARRAY = [
+export const LIKED_POST_REACTION_ARRAY = [
   <span aria-label="not" role="img">
     👀
   </span>,
@@ -286,7 +286,6 @@ const Header = (props: IHeaderProps) => {
     <Menu onClick={handleMenuClick}>
       <Menu.Item key="1" icon={<UserOutlined />}>
         <Link
-          className="nav-link"
           to={{
             pathname: `/${props.currentUserInfo?.username}`,
           }}
@@ -586,7 +585,7 @@ const Header = (props: IHeaderProps) => {
         </Form>
       </Modal>
       <div className="Nav-menus">
-        <Row align="middle" className="test-border">
+        <Row align="middle">
           <Col
             lg={{ span: 6, offset: 4 }}
             md={{ span: 6, offset: 2 }}
@@ -617,7 +616,6 @@ const Header = (props: IHeaderProps) => {
               <Space direction="horizontal" size="large">
                 <Col sm={24} xs={0}>
                   <Link
-                    className="nav-link"
                     to={{
                       pathname: `/`,
                     }}
@@ -629,11 +627,7 @@ const Header = (props: IHeaderProps) => {
                 </Col>
 
                 <Col>
-                  <Link
-                    onClick={() => setModalVisible(true)}
-                    className="nav-link"
-                    to={{}}
-                  >
+                  <Link onClick={() => setModalVisible(true)} to={{}}>
                     <Badge
                       size="small"
                       count={followRequests && followRequests.length}

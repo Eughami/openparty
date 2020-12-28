@@ -53,29 +53,30 @@ const menu = (history: any) => (
 );
 
 const MobileHeaderHome = () => (
-  <Row
-    style={{ padding: 1 }}
-    align="middle"
-    justify="space-between"
-    className="test-border"
-  >
+  <Row align="middle" justify="space-between">
     <Col>
       <Link
         to={{
           pathname: '/',
         }}
       >
-        <img height="50px" width="150px" src={OpenPartyLogo} alt="open-party" />
+        <img
+          style={{ paddingLeft: 5 }}
+          height="50px"
+          width="150px"
+          src={OpenPartyLogo}
+          alt="open-party"
+        />
       </Link>
     </Col>
     <Col>
       <Link
-        className="nav-link"
         to={{
           pathname: `/`,
         }}
+        style={{ paddingRight: 15 }}
       >
-        <MessageOutlined style={{ fontSize: '22px', color: 'black' }} />
+        <MessageOutlined style={{ fontSize: '24px', color: 'black' }} />
       </Link>
     </Col>
   </Row>
@@ -85,12 +86,7 @@ const MobileHeaderViewPost = ({
   history,
   currentUserPostViewing,
 }: IHistory) => (
-  <Row
-    style={{ padding: 16 }}
-    align="middle"
-    justify="space-between"
-    className="test-border"
-  >
+  <Row style={{ padding: 16 }} align="middle" justify="space-between">
     <Col>
       <ArrowLeftOutlined onClick={() => history.goBack()} />
     </Col>
@@ -103,12 +99,7 @@ const MobileHeaderViewPost = ({
 );
 
 const MobileHeaderExplore = ({ history }: IHistory) => (
-  <Row
-    style={{ padding: 16 }}
-    align="middle"
-    justify="center"
-    className="test-border"
-  >
+  <Row style={{ padding: 16 }} align="middle" justify="center">
     <Col>
       <Search placeholder="Search" />
     </Col>
@@ -116,12 +107,7 @@ const MobileHeaderExplore = ({ history }: IHistory) => (
 );
 
 const MobileHeaderAccount = ({ history, currentUserInfo }: IHistory) => (
-  <Row
-    style={{ padding: 16 }}
-    align="middle"
-    justify="space-between"
-    className="test-border"
-  >
+  <Row style={{ padding: 16 }} align="middle" justify="space-between">
     <Col>
       <ArrowLeftOutlined onClick={() => history.goBack()} />
     </Col>
@@ -135,12 +121,7 @@ const MobileHeaderSelfUserProfile = ({
   history,
   currentUserInfo,
 }: IHistory) => (
-  <Row
-    style={{ padding: 16 }}
-    align="middle"
-    justify="space-between"
-    className="test-border"
-  >
+  <Row style={{ padding: 16 }} align="middle" justify="space-between">
     <Col>
       <Dropdown
         overlay={menu(history)}
@@ -161,12 +142,7 @@ const MobileHeaderOtherUserProfile = ({
   history,
   currentUserViewing,
 }: IHistory) => (
-  <Row
-    style={{ padding: 16 }}
-    align="middle"
-    justify="space-between"
-    className="test-border"
-  >
+  <Row style={{ padding: 16 }} align="middle" justify="space-between">
     <Col>
       <ArrowLeftOutlined onClick={() => history.goBack()} />
     </Col>
@@ -177,12 +153,7 @@ const MobileHeaderOtherUserProfile = ({
 );
 
 const MobileHeaderComments = ({ history }: IHistory) => (
-  <Row
-    style={{ padding: 16 }}
-    align="middle"
-    justify="space-between"
-    className="test-border"
-  >
+  <Row style={{ padding: 16 }} align="middle" justify="space-between">
     <Col>
       <ArrowLeftOutlined onClick={() => history.goBack()} />
     </Col>
@@ -193,12 +164,7 @@ const MobileHeaderComments = ({ history }: IHistory) => (
 );
 
 const MobileHeaderLikes = ({ history }: IHistory) => (
-  <Row
-    style={{ padding: 16 }}
-    align="middle"
-    justify="space-between"
-    className="test-border"
-  >
+  <Row style={{ padding: 16 }} align="middle" justify="space-between">
     <Col>
       <ArrowLeftOutlined onClick={() => history.goBack()} />
     </Col>
@@ -209,12 +175,7 @@ const MobileHeaderLikes = ({ history }: IHistory) => (
 );
 
 const MobileHeaderActivity = ({ history }: IHistory) => (
-  <Row
-    style={{ padding: 16 }}
-    align="middle"
-    justify="space-between"
-    className="test-border"
-  >
+  <Row style={{ padding: 16 }} align="middle" justify="space-between">
     <Col>
       <span style={{ fontWeight: 600 }}> Activity </span>
     </Col>

@@ -271,6 +271,7 @@ const ViewPost = (props: ViewPostProps) => {
     <>
       {post && (
         <>
+          {/* TODO: Find a way of dealing with square images. i.e ratio ~ 1 */}
           <Row justify="center" align="middle" className="full__page__post">
             <Col
               lg={24}

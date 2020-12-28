@@ -18,8 +18,8 @@ const TempHeaderNotification = (props: INotificationProps) => {
   const { imageUrl, text, imageSize, username, link, thumbnail, time } = props;
   return (
     <Row
-      style={{ borderBottom: '1px solid #e6e6e6', padding: '12px 6px 0px' }}
-      justify="start"
+      style={{ borderBottom: '1px solid #e6e6e6' }}
+      justify="center"
       align="middle"
       gutter={[0, 12]}
     >
@@ -30,7 +30,7 @@ const TempHeaderNotification = (props: INotificationProps) => {
       </Col>
       <Col
         span={16}
-        offset={2}
+        offset={1}
         // to hide very long weird and probably non-existent one word
         style={{ overflowX: 'hidden', fontSize: 12 }}
       >
