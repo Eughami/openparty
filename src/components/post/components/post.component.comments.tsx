@@ -61,12 +61,12 @@ export const PostComments = (props: IPostCommentsProps) => {
               )
             )
           ) : (
-            <>
+            <Row align="middle" justify="start" style={{ padding: 10 }}>
               {post.comments &&
                 Object.values(post.comments)
                   .slice(0, 3)
                   .map((comment: Comment, index: number) => (
-                    <Row justify="start" align="middle" key={index}>
+                    <Col span={24} key={index}>
                       <span>
                         <Link
                           onMouseOver={(e) => console.log(e)}
@@ -85,15 +85,21 @@ export const PostComments = (props: IPostCommentsProps) => {
                         </Link>
                         {replaceAtMentionsWithLinks2(comment.comment)}
                       </span>
-                    </Row>
+                    </Col>
                   ))}
               {/* TODO: When length is smaller than spliced (3) + plural */}
-              <Link to={`/post/${post.id}`}>
+              <Link
+                to={
+                  window.innerWidth < 576
+                    ? `/post/${post.id}/comments`
+                    : `/post/${post.id}`
+                }
+              >
                 <span style={{ color: 'rgba(var(--f52,142,142,142),1)' }}>
                   View all {Object.keys(post.comments).length} comments
                 </span>
               </Link>
-            </>
+            </Row>
           )}
         </>
       )}

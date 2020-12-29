@@ -364,10 +364,10 @@ const ViewPost = (props: ViewPostProps) => {
                     </Col>
                   </Row>
                   <Row>
-                    <Col span={4}>
+                    <Col span={8}>
                       <PostLikes post={post} />
                     </Col>
-                    <Col span={20}>
+                    <Col span={16}>
                       <PostTags post={post} />
                     </Col>
                     <Row>
@@ -421,10 +421,10 @@ const ViewPost = (props: ViewPostProps) => {
                     </Col>
                   </Row>
                   <Row>
-                    <Col span={4}>
+                    <Col span={8}>
                       <PostLikes post={post} />
                     </Col>
-                    <Col span={20}>
+                    <Col span={16}>
                       <PostTags post={post} />
                     </Col>
                     <Row>
@@ -476,7 +476,7 @@ const ViewPost = (props: ViewPostProps) => {
                   }}
                 >
                   <PerfectScrollbar>
-                    <PostComments full={true} post={post!} />
+                    <PostComments full={false} post={post!} />
                   </PerfectScrollbar>
                 </div>
               </Col>

@@ -290,7 +290,7 @@ const Header = (props: IHeaderProps) => {
             pathname: `/${props.currentUserInfo?.username}`,
           }}
         >
-          Profile{' '}
+          Profile
           <span role="img" aria-label="muah">
             👄
           </span>
@@ -302,7 +302,7 @@ const Header = (props: IHeaderProps) => {
         key="2"
         icon={<VideoCameraAddOutlined />}
       >
-        Add a new Post{' '}
+        Add a new Event
         <span role="img" aria-label="selfie">
           🤳
         </span>

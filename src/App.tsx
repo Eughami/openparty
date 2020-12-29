@@ -31,6 +31,7 @@ import { LOADER_OBJECTS } from './components/images';
 import Explore from './components/explore';
 import MobileNavbar from './components/mobileNarbar';
 import Activity from './components/header/mobile/pages/Activity';
+import MobileComment from './components/header/mobile/pages/MobileComment';
 
 // const currentUser = true
 
@@ -154,6 +155,11 @@ const App = (props: IAppProps) => {
             <Route exact path="/:username" component={UserProfile} />
             <Route exact path="/t/:tag" component={Tags} />
             <Route exact path="/post/:postId" component={ViewPost} />
+            {/* <Route
+              exact
+              path="/post/:postId/comments"
+              component={MobileComment}
+            /> */}
             <Route exact path="/account/edit" component={EditAccount} />
             <Route exact path="/account/activity" component={Activity} />
             {/* <Route exact path="/post/:postId/comments" component={ViewPostComments} />
