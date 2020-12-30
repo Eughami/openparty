@@ -19,6 +19,8 @@ import {
   Space,
   Spin,
   notification,
+  Tooltip,
+  Checkbox,
 } from 'antd';
 import {
   UserOutlined,
@@ -28,6 +30,7 @@ import {
   VideoCameraAddOutlined,
   FireOutlined,
   NotificationOutlined,
+  QuestionCircleOutlined,
 } from '@ant-design/icons';
 
 import OpenPartyLogo from '../images/openpaarty.logo.png';
@@ -105,6 +108,7 @@ const Header = (props: IHeaderProps) => {
   const [modalVisible, setModalVisible] = useState<boolean>(false);
   const [postModalVisible, setPostModalVisible] = useState<boolean>(false);
   const [postWorking, setPostWorking] = useState<boolean>(false);
+  const [postStatusEligible, setPostStatusEligible] = useState<boolean>(false);
   const [showNotification, setShowNotification] = useState<boolean>(false);
   const [notificationsLoading, setNotificationsLoading] = useState<boolean>(
     true
@@ -160,18 +164,22 @@ const Header = (props: IHeaderProps) => {
 
             ssh.forEach((post) => {
               if (post.val().likes && post.key !== 'HOT UPDATE') {
-                temp[`${post.key}`] = Object.values(post.val().likes);
-                temp[`${post.key}`].ref = post.key;
+                temp[`likes${post.key}`] = Object.values(post.val().likes);
+                temp[`likes${post.key}`].ref = post.key;
               }
 
               if (post.val().comments && post.key !== 'HOT UPDATE') {
-                temp[`${post.key}`] = Object.values(post.val().comments);
-                temp[`${post.key}`].ref = post.key;
+                temp[`comments${post.key}`] = Object.values(
+                  post.val().comments
+                );
+                temp[`comments${post.key}`].ref = post.key;
               }
 
               if (post.val().mentions && post.key !== 'HOT UPDATE') {
-                temp[`${post.key}`] = Object.values(post.val().mentions);
-                temp[`${post.key}`].ref = post.key;
+                temp[`mentions${post.key}`] = Object.values(
+                  post.val().mentions
+                );
+                temp[`mentions${post.key}`].ref = post.key;
               }
             });
 
@@ -346,6 +354,7 @@ const Header = (props: IHeaderProps) => {
         image_url: props.currentUserInfo?.image_url,
       },
       date_of_event: values['event-date'].unix(),
+      open: values['status'],
     };
 
     setPostWorking(true);
@@ -513,11 +522,34 @@ const Header = (props: IHeaderProps) => {
             hasFeedback
             rules={[{ required: true, message: 'Please select privacy' }]}
           >
-            <Select placeholder="Please select post privacy">
+            <Select
+              onChange={(val) =>
+                setPostStatusEligible(
+                  val.toString() !== 'hard-closed' && val.toString() !== ''
+                )
+              }
+              placeholder="Please select post privacy"
+            >
               <Option value="open">Public</Option>
               <Option value="hard-closed">Private</Option>
               <Option value="followers">Followers</Option>
             </Select>
+          </Form.Item>
+
+          <Form.Item
+            hidden={!postStatusEligible}
+            name="status"
+            valuePropName="checked"
+            label={
+              <span>
+                Status&nbsp;
+                <Tooltip title="Other users will be able to edit this post">
+                  <QuestionCircleOutlined />
+                </Tooltip>
+              </span>
+            }
+          >
+            <Checkbox>Allow others to edit this post</Checkbox>
           </Form.Item>
 
           <Form.Item

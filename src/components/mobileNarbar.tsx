@@ -1,6 +1,7 @@
 import {
   Avatar,
   Button,
+  Checkbox,
   Col,
   DatePicker,
   Form,
@@ -9,6 +10,7 @@ import {
   Modal,
   Row,
   Select,
+  Tooltip,
   Upload,
 } from 'antd';
 import React, { useState } from 'react';
@@ -17,6 +19,7 @@ import {
   SearchOutlined,
   PlusSquareOutlined,
   HeartOutlined,
+  QuestionCircleOutlined,
 } from '@ant-design/icons';
 import { RegistrationObject } from './interfaces/user.interface';
 import { connect } from 'react-redux';
@@ -45,6 +48,7 @@ const { Option } = Select;
 const MobileNavbar = (props: IMobileNavbarProps) => {
   const [postModalVisible, setPostModalVisible] = useState<boolean>(false);
   const [postWorking, setPostWorking] = useState<boolean>(false);
+  const [postStatusEligible, setPostStatusEligible] = useState<boolean>(false);
   const [form] = Form.useForm();
 
   const formItemLayout = {
@@ -74,6 +78,7 @@ const MobileNavbar = (props: IMobileNavbarProps) => {
         image_url: props.currentUserInfo?.image_url,
       },
       date_of_event: values['event-date'].unix(),
+      open: values['status'],
     };
 
     setPostWorking(true);
@@ -184,6 +189,21 @@ const MobileNavbar = (props: IMobileNavbarProps) => {
               <Option value="hard-closed">Private</Option>
               <Option value="followers">Followers</Option>
             </Select>
+          </Form.Item>
+
+          <Form.Item
+            hidden={!postStatusEligible}
+            name="status"
+            label={
+              <span>
+                Status&nbsp;
+                <Tooltip title="Other users will be able to edit this post">
+                  <QuestionCircleOutlined />
+                </Tooltip>
+              </span>
+            }
+          >
+            <Checkbox>Allow others to edit this post</Checkbox>
           </Form.Item>
 
           <Form.Item

@@ -7,7 +7,7 @@ import {
 } from '../../../../redux/user/user.actions';
 import { connect } from 'react-redux';
 import TempHeaderNotification from '../../temp-header';
-import { Avatar, List, notification } from 'antd';
+import { Avatar, List, notification, Spin } from 'antd';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
 import {
@@ -71,18 +71,22 @@ const Activity = (props: IHeaderProps) => {
 
             ssh.forEach((post) => {
               if (post.val().likes && post.key !== 'HOT UPDATE') {
-                temp[`${post.key}`] = Object.values(post.val().likes);
-                temp[`${post.key}`].ref = post.key;
+                temp[`likes${post.key}`] = Object.values(post.val().likes);
+                temp[`likes${post.key}`].ref = post.key;
               }
 
               if (post.val().comments && post.key !== 'HOT UPDATE') {
-                temp[`${post.key}`] = Object.values(post.val().comments);
-                temp[`${post.key}`].ref = post.key;
+                temp[`comments${post.key}`] = Object.values(
+                  post.val().comments
+                );
+                temp[`comments${post.key}`].ref = post.key;
               }
 
               if (post.val().mentions && post.key !== 'HOT UPDATE') {
-                temp[`${post.key}`] = Object.values(post.val().mentions);
-                temp[`${post.key}`].ref = post.key;
+                temp[`mentions${post.key}`] = Object.values(
+                  post.val().mentions
+                );
+                temp[`mentions${post.key}`].ref = post.key;
               }
             });
 
@@ -178,6 +182,14 @@ const Activity = (props: IHeaderProps) => {
       }
     );
   };
+
+  if (notificationsLoading) {
+    return (
+      <div style={{ textAlign: 'center', marginTop: 30 }}>
+        <Spin size="small" />
+      </div>
+    );
+  }
 
   return (
     <>

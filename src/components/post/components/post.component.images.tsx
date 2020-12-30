@@ -3,7 +3,7 @@ import { Carousel, Row } from 'antd';
 import { RightCircleTwoTone, LeftCircleTwoTone } from '@ant-design/icons';
 import { Post } from '../../interfaces/user.interface';
 import { useDoubleTap } from 'use-double-tap';
-
+import { LazyImage } from '../lazy-load/lazy-load';
 interface IPostImagesProps {
   post: Post;
   imageHeight?: number;
@@ -31,10 +31,10 @@ export const PostImages = (props: IPostImagesProps) => {
       >
         {props.post.image_url?.map((url, idx) => (
           <Row className="Post-image" justify="center" align="middle" key={idx}>
-            <img
-              style={{
-                height: imageHeight ? `${imageHeight}px` : 'auto',
-              }}
+            <LazyImage
+              // style={{
+              //   height: imageHeight ? `${imageHeight}px` : 'auto',
+              // }}
               alt={props.post.caption}
               src={url}
             />

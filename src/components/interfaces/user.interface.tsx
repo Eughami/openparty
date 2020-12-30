@@ -70,6 +70,7 @@ export interface Post {
     image_url: string;
   };
   id: string;
+  open?: boolean;
 }
 
 export interface RegistrationObject {

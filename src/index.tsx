@@ -6,7 +6,7 @@ import * as serviceWorker from './serviceWorker';
 import { Provider } from 'react-redux';
 import { BrowserRouter } from 'react-router-dom';
 import store from './redux/store';
-import ScrollMemory from 'react-router-scroll-memory';
+// import ScrollMemory from 'react-router-scroll-memory';
 
 import firebase from 'firebase';
 
@@ -29,7 +29,7 @@ localStorage.removeItem('tagPostsSet');
 ReactDOM.render(
   <Provider store={store}>
     <BrowserRouter>
-      <ScrollMemory />
+      {/* <ScrollMemory /> */}
       <App />
     </BrowserRouter>
   </Provider>,

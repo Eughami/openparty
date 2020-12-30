@@ -17,11 +17,11 @@ export const PostOverlay = ({ comments, likes, imgUrl }: IPostOverlay) => (
         <Row justify="center" align="middle">
           <Col>
             <HeartFilled />
-            <span style={{ marginLeft: 5 }}> {likes ? likes : '4.1k'} </span>
+            <span style={{ marginLeft: 5 }}> {likes ? likes : '0'} </span>
           </Col>
           <Col style={{ marginLeft: 20 }}>
             <CommentOutlined />
-            <span style={{ marginLeft: 5 }}>{comments ? comments : '123'}</span>
+            <span style={{ marginLeft: 5 }}>{comments ? comments : '0'}</span>
           </Col>
         </Row>
       </div>

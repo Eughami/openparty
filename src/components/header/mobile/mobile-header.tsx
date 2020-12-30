@@ -175,7 +175,7 @@ const MobileHeaderLikes = ({ history }: IHistory) => (
 );
 
 const MobileHeaderActivity = ({ history }: IHistory) => (
-  <Row style={{ padding: 16 }} align="middle" justify="space-between">
+  <Row style={{ padding: 16 }} align="middle" justify="center">
     <Col>
       <span style={{ fontWeight: 600 }}> Activity </span>
     </Col>
@@ -185,8 +185,6 @@ const MobileHeaderActivity = ({ history }: IHistory) => (
 const MobileHeader = (props: IMobileHeaderProps) => {
   const location = useRouteMatch(useLocation().pathname);
   const history = useHistory();
-
-  console.log('@LOCATION: ', props);
 
   return (
     <nav className="Nav">
@@ -201,13 +199,14 @@ const MobileHeader = (props: IMobileHeaderProps) => {
             />
           ) : location.path.split('/')[1] === 'explore' ? (
             <MobileHeaderExplore history={history} />
+          ) : location.path.split('/')[1] === 'account' &&
+            location.path.split('/')[2] === 'activity' ? (
+            <MobileHeaderActivity history={history} />
           ) : location.path.split('/')[1] === 'account' ? (
             <MobileHeaderAccount
               currentUserInfo={props.currentUserInfo}
               history={history}
             />
-          ) : location.path.split('/')[1] === 'activity' ? (
-            <MobileHeaderActivity history={history} />
           ) : location.path.split('/')[1] ===
             props.currentUserInfo?.username ? (
             <MobileHeaderSelfUserProfile
