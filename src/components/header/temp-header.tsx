@@ -1,7 +1,7 @@
 import { Row, Col, Avatar } from 'antd';
 import React from 'react';
-import { Link, useHistory } from 'react-router-dom';
-import TimeAgo, { Formatter } from 'react-timeago';
+import { Link } from 'react-router-dom';
+import TimeAgo from 'react-timeago';
 
 interface INotificationProps {
   imageUrl: string;

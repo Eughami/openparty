@@ -361,34 +361,42 @@ const Header = (props: IHeaderProps) => {
 
     const urls: string[] = [];
 
-    await bluebird.map(
-      values.upload,
-      async (file: any) => {
-        urls.push(await uploadFile(file.originFileObj));
-      },
-      { concurrency: values.upload.length }
-    );
-
-    postData.image_url = urls;
-
-    await axios
-      .post(`${API_BASE_URL}${ADD_POST_ENDPOINT}`, postData, {
-        headers: {
-          authorization: `Bearer ${props.currentUserToken}`,
+    await bluebird
+      .map(
+        values.upload,
+        async (file: any) => {
+          urls.push(await uploadFile(file.originFileObj));
         },
-      })
-      .then((data) => {
-        console.log('DATA: ', data.data);
-        message.success('Post uploaded 🌟 ');
-        setPostWorking(false);
-        setPostModalVisible(false);
-        clearForm();
-      })
+        { concurrency: values.upload.length }
+      )
       .catch((error) => {
         setPostWorking(false);
         setPostModalVisible(false);
         message.error('Post upload failed');
-        console.log('@UPLOAD POST ERROR: ', error);
+        console.log('@UPLOAD POST ERROR TO STORAGE: ', error);
+      })
+      .then(async () => {
+        postData.image_url = urls;
+
+        await axios
+          .post(`${API_BASE_URL}${ADD_POST_ENDPOINT}`, postData, {
+            headers: {
+              authorization: `Bearer ${props.currentUserToken}`,
+            },
+          })
+          .then((data) => {
+            console.log('DATA: ', data.data);
+            message.success('Post uploaded 🌟 ');
+            setPostWorking(false);
+            setPostModalVisible(false);
+            clearForm();
+          })
+          .catch((error) => {
+            setPostWorking(false);
+            setPostModalVisible(false);
+            message.error('Post upload failed');
+            console.log('@UPLOAD POST ERROR: ', error);
+          });
       });
   };
 

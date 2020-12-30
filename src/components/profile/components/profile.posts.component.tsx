@@ -53,6 +53,7 @@ import { PopupboxContainer, PopupboxManager } from 'react-popupbox';
 import { ProfileActionUnfollow } from './profile.component.actions';
 import { confirmUnfollow } from '../profile.actions';
 import { PostImages } from '../../post/components/post.component.images';
+import AsyncMention from '../../mentions/mentions.component';
 
 export const SPRITE_IMAGE_URL =
   'https://firebasestorage.googleapis.com/v0/b/openpaarty.appspot.com/o/defaults%2Ficons%2F65c15d7731ea.png?alt=media&token=0870e69e-ae19-42f6-aeb8-5bd40f1e040c';
@@ -377,8 +378,16 @@ const RenderPostCard = (props: IRenderPostCardProps) => {
           style={{ top: 20 }}
           okText="Save"
           title={
-            <div style={{ width: '70%' }}>
-              <Paragraph
+            <div style={{ width: '80%' }}>
+              <AsyncMention
+                value={selectedPost.caption}
+                placeholder={'Enter a caption'}
+                onChange={(v: string) => {
+                  setSelectedPost({ ...selectedPost, caption: v });
+                }}
+                autoSize
+              />
+              {/* <Paragraph
                 ellipsis
                 editable={{
                   onChange: (v) => {
@@ -386,8 +395,8 @@ const RenderPostCard = (props: IRenderPostCardProps) => {
                   },
                 }}
               >
-                {selectedPost.caption}
-              </Paragraph>
+                 
+              </Paragraph> */}
             </div>
           }
           visible={editPostModalVisible}
@@ -498,9 +507,9 @@ const RenderPostCard = (props: IRenderPostCardProps) => {
       )}
 
       {post.length === 0 ? (
-        <h1 style={{ textAlign: 'center' }}>
+        <div style={{ textAlign: 'center' }}>
           <Empty />
-        </h1>
+        </div>
       ) : (
         post.map((post, index) => (
           <Col

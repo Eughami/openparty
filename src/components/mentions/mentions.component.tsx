@@ -99,7 +99,6 @@ class AsyncMention extends React.Component<IMentionsProps, IMentionsState> {
 
   onSearch = (search: string) => {
     this.setState({ search, loading: !!search, users: [] });
-    console.log('Search:', search);
     this.loadGithubUsers(search);
   };
 

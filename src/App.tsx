@@ -155,11 +155,11 @@ const App = (props: IAppProps) => {
             <Route exact path="/:username" component={UserProfile} />
             <Route exact path="/t/:tag" component={Tags} />
             <Route exact path="/post/:postId" component={ViewPost} />
-            {/* <Route
+            <Route
               exact
               path="/post/:postId/comments"
               component={MobileComment}
-            /> */}
+            />
             <Route exact path="/account/edit" component={EditAccount} />
             <Route exact path="/account/activity" component={Activity} />
             {/* <Route exact path="/post/:postId/comments" component={ViewPostComments} />
