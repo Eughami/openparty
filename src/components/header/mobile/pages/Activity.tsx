@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import firebase from 'firebase';
-import { IHeaderProps, LIKED_POST_REACTION_ARRAY } from '../../header';
+import { IHeaderProps } from '../../header';
 import {
   setCurrentUserListener,
   setCurrentUserRootDatabaseListener,
 } from '../../../../redux/user/user.actions';
 import { connect } from 'react-redux';
 import TempHeaderNotification from '../../temp-header';
-import { Avatar, List, notification, Spin } from 'antd';
+import { Avatar, List, Spin } from 'antd';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
 import {
@@ -69,24 +69,57 @@ const Activity = (props: IHeaderProps) => {
           if (ssh.exists()) {
             const temp: any = {};
 
-            ssh.forEach((post) => {
-              if (post.val().likes && post.key !== 'HOT UPDATE') {
-                temp[`likes${post.key}`] = Object.values(post.val().likes);
-                temp[`likes${post.key}`].ref = post.key;
+            ssh.forEach((notification) => {
+              if (
+                notification.val().likes &&
+                notification.key !== 'HOT UPDATE'
+              ) {
+                temp[`likes${notification.key}`] = Object.values(
+                  notification.val().likes
+                );
+                temp[`likes${notification.key}`].ref = notification.key;
               }
 
-              if (post.val().comments && post.key !== 'HOT UPDATE') {
-                temp[`comments${post.key}`] = Object.values(
-                  post.val().comments
+              if (
+                notification.val().comments &&
+                notification.key !== 'HOT UPDATE'
+              ) {
+                temp[`comments${notification.key}`] = Object.values(
+                  notification.val().comments
                 );
-                temp[`comments${post.key}`].ref = post.key;
+                temp[`comments${notification.key}`].ref = notification.key;
               }
 
-              if (post.val().mentions && post.key !== 'HOT UPDATE') {
-                temp[`mentions${post.key}`] = Object.values(
-                  post.val().mentions
+              if (
+                notification.val().mentions &&
+                notification.key !== 'HOT UPDATE'
+              ) {
+                temp[`mentions${notification.key}`] = Object.values(
+                  notification.val().mentions
                 );
-                temp[`mentions${post.key}`].ref = post.key;
+                temp[`mentions${notification.key}`].ref = notification.key;
+              }
+
+              if (
+                notification.val().follows &&
+                notification.key !== 'HOT UPDATE'
+              ) {
+                temp[`follows${notification.key}`] = notification.val().follows;
+                temp[
+                  `follows${notification.key}`
+                ].ref = notification.val().follows.ref;
+              }
+
+              if (
+                notification.val().follow_requests &&
+                notification.key !== 'HOT UPDATE'
+              ) {
+                temp[
+                  `follow_requests${notification.key}`
+                ] = notification.val().follow_requests;
+                temp[
+                  `follow_requests${notification.key}`
+                ].ref = notification.val().follow_requests.ref;
               }
             });
 
@@ -113,46 +146,6 @@ const Activity = (props: IHeaderProps) => {
         .ref('Notifications')
         .child(props.currentUser?.uid!)
         .off('value', un_sub);
-  }, [props.currentUser]);
-
-  //Set listener for every hot notification update
-  useEffect(() => {
-    const un_sub = firebase
-      .database()
-      .ref('Notifications')
-      .child(props.currentUser?.uid!)
-      .child('HOT UPDATE')
-      .on(
-        'child_changed',
-        (ssh, __prevSsh) => {
-          if (ssh.exists()) {
-            if (ssh.child('desc').exists()) {
-              notification.open({
-                message: ssh.val().desc,
-                description: ssh.val().desc,
-                icon:
-                  LIKED_POST_REACTION_ARRAY[
-                    Math.floor(Math.random() * LIKED_POST_REACTION_ARRAY.length)
-                  ],
-                placement: 'topRight',
-                // onClick: () => setShowNotification(true),
-                style: { cursor: 'pointer' },
-              });
-            }
-          }
-        },
-        (error: any) => {
-          console.log(error);
-        }
-      );
-
-    return () =>
-      firebase
-        .database()
-        .ref('Notifications')
-        .child(props.currentUser?.uid!)
-        .child('HOT UPDATE')
-        .off('child_changed', un_sub);
   }, [props.currentUser]);
 
   const onFollowApproved = async (uid: string) => {

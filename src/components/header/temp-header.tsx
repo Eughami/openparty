@@ -8,7 +8,7 @@ interface INotificationProps {
   text: string;
   username: string;
   link: string;
-  thumbnail: string;
+  thumbnail?: string;
   time: number;
   imageSize?: number;
   style?: React.CSSProperties;
@@ -36,10 +36,10 @@ const TempHeaderNotification = (props: INotificationProps) => {
       >
         <Link
           style={{ color: 'rgba(var(--i1d,38,38,38),1)', fontWeight: 600 }}
-          to={`/post/${link}`}
+          to={thumbnail ? `/post/${link}` : `/${link}`}
         >
           <span>
-            {`${text.substring(0, 50)}...`}{' '}
+            {`${text.length > 50 ? text.substring(0, 50) + '...' : text}`}{' '}
             <p style={{ color: 'rgba(var(--f52,142,142,142),1)' }}>
               • <TimeAgo date={new Date(time)}></TimeAgo>
             </p>
@@ -47,13 +47,15 @@ const TempHeaderNotification = (props: INotificationProps) => {
         </Link>
       </Col>
       <Col span={2}>
-        <Link to={`/post/${link}`}>
-          <img
-            style={{ height: 40, width: 40, objectFit: 'contain' }}
-            src={thumbnail}
-            alt="post-thumbnail"
-          />
-        </Link>
+        {thumbnail && (
+          <Link to={`/post/${link}`}>
+            <img
+              style={{ height: 40, width: 40, objectFit: 'contain' }}
+              src={thumbnail}
+              alt="post-thumbnail"
+            />
+          </Link>
+        )}
       </Col>
     </Row>
   );

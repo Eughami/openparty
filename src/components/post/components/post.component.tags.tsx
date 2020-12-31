@@ -34,7 +34,7 @@ export const PostTags = (props: IPostTagsProps) => {
                           pathname: `/t/${tag}`,
                         }}
                       >
-                        {tag}
+                        #{tag}
                       </Link>{' '}
                     </Tag>
                   ))}
@@ -59,7 +59,7 @@ export const PostTags = (props: IPostTagsProps) => {
                         pathname: `/t/${tag}`,
                       }}
                     >
-                      {tag}
+                      #{tag}
                     </Link>{' '}
                   </Tag>
                 ))}
@@ -86,7 +86,7 @@ export const PostTags = (props: IPostTagsProps) => {
                       pathname: `/t/${tag}`,
                     }}
                   >
-                    {tag}
+                    #{tag}
                   </Link>{' '}
                 </Tag>
               ))}
@@ -107,7 +107,7 @@ export const PostTags = (props: IPostTagsProps) => {
                     pathname: `/t/${tag}`,
                   }}
                 >
-                  {tag}
+                  #{tag}
                 </Link>{' '}
               </Tag>
             ))}

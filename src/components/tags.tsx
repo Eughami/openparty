@@ -11,8 +11,15 @@ import { connect } from 'react-redux';
 import axios from 'axios';
 import bluebird from 'bluebird';
 import firebase from 'firebase';
-import { BackTop, Col, Skeleton } from 'antd';
-import { API_BASE_URL, GET_POST_TAGS_ENDPOINT } from '../service/api';
+import { BackTop, Col, List, Row, Skeleton, Tag } from 'antd';
+import {
+  API_BASE_URL,
+  GET_POPULAR_TAGS,
+  GET_POST_TAGS_ENDPOINT,
+} from '../service/api';
+import { getPostTagColor } from './post/post.actions';
+import { Link } from 'react-router-dom';
+import PerfectScrollbar from 'react-perfect-scrollbar';
 
 interface ITagsProps {
   setCurrentUserListener?: () => Promise<any>;
@@ -32,13 +39,16 @@ const Tags = (props: ITagsProps) => {
   const { tag } = props.match.params;
   const [loading, setLoading] = useState<boolean>(true);
   const [posts, setPosts] = useState<Array<Post> | null>([]);
+  const [popularTags, setPopularTags] = useState<
+    Array<{ count: number; posts: { [key: string]: string }; tag: string }>
+  >([]);
 
   useEffect(() => {
     document.title = `Open Party • Tags • ${tag} 👓`;
   }, [tag]);
 
   useEffect(() => {
-    const decodeProfile = async () => {
+    const getTags = async () => {
       if (!currentUser) return;
 
       if (!currentUserToken) {
@@ -98,6 +108,7 @@ const Tags = (props: ITagsProps) => {
                             s2.date_of_post - s1.date_of_post
                         ) as any[]
                       );
+                      setLoading(false);
                     }
 
                     if (
@@ -116,6 +127,7 @@ const Tags = (props: ITagsProps) => {
                       console.log('@POSTS DEBUG: ', Object.values(temp));
 
                       localStorage.setItem('tagPostsSet', 'true');
+                      setLoading(false);
                     }
                   },
                   (error: any) => {
@@ -134,12 +146,23 @@ const Tags = (props: ITagsProps) => {
           )
           .then(() => {
             console.log('DONE MAPPING');
+          });
+
+        await axios
+          .get(`${API_BASE_URL}${GET_POPULAR_TAGS}`, {
+            headers: {
+              authorization: `Bearer ${currentUserToken}`,
+            },
           })
-          .then(() => setLoading(false));
+          .then((popularTagsRes) => {
+            console.log('@POPULAR TAGS RES: ', popularTagsRes.data);
+
+            setPopularTags(popularTagsRes.data);
+          });
       }
     };
 
-    decodeProfile();
+    getTags();
 
     // return () => localStorage.removeItem("otherUserProfileLoaded")
   }, [tag, currentUser, currentUserToken, props.setCurrentUserToken]);
@@ -158,18 +181,130 @@ const Tags = (props: ITagsProps) => {
   }
 
   return (
-    <div>
-      <div>
-        <BackTop />
-        {posts === null ? (
-          <p style={{ textAlign: 'center' }}>
-            No Open Post with that tag found
-          </p>
-        ) : (
-          posts.map((val: any) => <MyPost key={val.key} post={val} />)
-        )}
-      </div>
-    </div>
+    <Row justify="center">
+      <Col
+        span={12}
+        md={{ span: 16, offset: 0 }}
+        xs={{ span: 24, offset: 0 }}
+        xl={10}
+      >
+        <>
+          <BackTop />
+
+          <Col style={{ paddingBottom: 20 }} md={0} sm={24} xs={24}>
+            <div
+              style={{
+                overflow: 'auto',
+                whiteSpace: 'nowrap',
+              }}
+            >
+              {popularTags.map(({ tag, count }, index) => (
+                <Link
+                  to={{
+                    pathname: `/t/${tag}`,
+                  }}
+                >
+                  <Tag
+                    key={index}
+                    style={{
+                      display: 'inline-block',
+                      textAlign: 'center',
+                      padding: 5,
+                      textDecoration: 'none',
+                      fontWeight: 600,
+                      margin: 4,
+                      width: '30%',
+                    }}
+                    color={getPostTagColor(tag as any)}
+                  >
+                    <span>
+                      {index < 1 ? (
+                        <>
+                          {`🔥 #${
+                            tag.length > 10 ? tag.substring(0, 10) + '...' : tag
+                          }`}{' '}
+                          <p
+                            style={{ color: 'rgba(var(--f52,142,142,142),1)' }}
+                          >
+                            • {count} Posts
+                          </p>
+                        </>
+                      ) : (
+                        <>
+                          {`#${
+                            tag.length > 10 ? tag.substring(0, 10) + '...' : tag
+                          }`}{' '}
+                          <p
+                            style={{ color: 'rgba(var(--f52,142,142,142),1)' }}
+                          >
+                            • {count} Posts
+                          </p>
+                        </>
+                      )}
+                    </span>
+                  </Tag>
+                </Link>
+              ))}
+            </div>
+          </Col>
+
+          {posts === null ? (
+            <p style={{ textAlign: 'center' }}>
+              No Open Post with that tag found
+            </p>
+          ) : (
+            posts.map((val: any) => <MyPost key={val.key} post={val} />)
+          )}
+        </>
+      </Col>
+      <Col sm={0} xs={0} md={{ span: 4, offset: 1 }}>
+        <div>
+          {popularTags.map(({ tag, count }, index) => (
+            <Link
+              to={{
+                pathname: `/t/${tag}`,
+              }}
+            >
+              <Tag
+                key={index}
+                style={{
+                  display: 'inline-block',
+                  textAlign: 'center',
+                  padding: 5,
+                  textDecoration: 'none',
+                  fontWeight: 600,
+                  margin: 4,
+                  width: '100%',
+                }}
+                color={getPostTagColor(tag as any)}
+              >
+                <span>
+                  {index < 1 ? (
+                    <>
+                      {`🔥 #${
+                        tag.length > 10 ? tag.substring(0, 10) + '...' : tag
+                      }`}{' '}
+                      <p style={{ color: 'rgba(var(--f52,142,142,142),1)' }}>
+                        • {count} Posts
+                      </p>
+                    </>
+                  ) : (
+                    <>
+                      {`#${
+                        tag.length > 10 ? tag.substring(0, 10) + '...' : tag
+                      }`}{' '}
+                      <p style={{ color: 'rgba(var(--f52,142,142,142),1)' }}>
+                        • {count} Posts
+                      </p>
+                    </>
+                  )}
+                </span>
+              </Tag>
+            </Link>
+          ))}
+        </div>
+      </Col>
+    </Row>
   );
 };
 

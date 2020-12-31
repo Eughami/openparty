@@ -275,11 +275,12 @@ export const setCurrentUserFollowingChangedListener = (
 
           //whenever user stops following someone, dispatch action to get eligible posts again.
           // setCurrentUserEligiblePosts(firebase.auth().currentUser!);
+          const newEligiblePosts = uFP.filter(
+            (ref) => ref.uidRef !== userFollowingSnap.val().uid
+          );
           dispatch({
             type: UserActionTypes.SET_CURRENT_USER_ELIGIBLE_POSTS,
-            payload: uFP.filter(
-              (ref) => ref.uidRef !== userFollowingSnap.val().uid
-            ),
+            payload: newEligiblePosts.length > 0 ? newEligiblePosts : null,
           });
           resolve(userFollowingSnap.val());
         });

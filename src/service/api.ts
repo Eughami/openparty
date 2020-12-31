@@ -70,4 +70,6 @@ export const GET_MORE_POSTS_FROM_USER = 'posts/more-posts';
 
 export const GET_USER_PROFILE_SNIPPET = 'users/:/username/snippet';
 
+export const GET_POPULAR_TAGS = 'posts/popular/tags';
+
 // export const _ENDPOINT = ""

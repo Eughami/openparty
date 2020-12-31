@@ -107,7 +107,7 @@ export const handlePostLike = async (
   }
 };
 
-export const getPostTagColor = (__tag: PostTags): string => {
+export const getPostTagColor = (__tag?: PostTags): string => {
   return POST_TAG_COLORS[Math.floor(Math.random() * POST_TAG_COLORS.length)];
   // switch (tag) {
   //   case PostTags.BEACH_PARTY:

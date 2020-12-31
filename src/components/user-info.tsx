@@ -383,10 +383,16 @@ const UserProfile = (props: IUserProps) => {
                     .ref('FollowRequests')
                     .child(result.data.targetUser.uid)
                     .child(currentUser.uid)
-                    .on('value', (ssh) => {
-                      setFollowActionLoading(false);
-                      setRequestedFollow(ssh.exists());
-                    });
+                    .on(
+                      'value',
+                      (ssh) => {
+                        setFollowActionLoading(false);
+                        setRequestedFollow(ssh.exists());
+                      },
+                      (error: any) => {
+                        console.log('@FOLLOW REQUESTS DB ERROR: ', error);
+                      }
+                    );
 
                   //If target user's profile is private, don't show them any posts. Just show them simple info
                   if (result.data.privacy === 'closed') {

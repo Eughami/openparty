@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import './mobile-header.css';
-import { Col, Row, Input, Dropdown, Menu } from 'antd';
+import { Col, Row, Input, Dropdown, Menu, notification } from 'antd';
 import {
   MessageOutlined,
   ArrowLeftOutlined,
@@ -15,6 +15,7 @@ import { connect } from 'react-redux';
 import { Post, RegistrationObject } from '../../interfaces/user.interface';
 import firebase from 'firebase';
 import { Link, useHistory, useLocation, useRouteMatch } from 'react-router-dom';
+import { LIKED_POST_REACTION_ARRAY } from '../header';
 
 const { Search } = Input;
 
@@ -175,7 +176,10 @@ const MobileHeaderLikes = ({ history }: IHistory) => (
 );
 
 const MobileHeaderActivity = ({ history }: IHistory) => (
-  <Row style={{ padding: 16 }} align="middle" justify="center">
+  <Row style={{ padding: 16 }} align="middle" justify="space-between">
+    <Col>
+      <ArrowLeftOutlined onClick={() => history.goBack()} />
+    </Col>
     <Col>
       <span style={{ fontWeight: 600 }}> Activity </span>
     </Col>
@@ -185,6 +189,57 @@ const MobileHeaderActivity = ({ history }: IHistory) => (
 const MobileHeader = (props: IMobileHeaderProps) => {
   const location = useRouteMatch(useLocation().pathname);
   const history = useHistory();
+
+  //Set listener for every hot notification update
+  useEffect(() => {
+    const un_sub = firebase
+      .database()
+      .ref('Notifications')
+      .child(props.currentUser?.uid!)
+      .child('HOT UPDATE')
+      .on(
+        'child_changed',
+        (ssh, __prevSsh) => {
+          if (ssh.exists()) {
+            if (ssh.child('desc').exists()) {
+              notification.open({
+                message: ssh.val().desc,
+                description: ssh.val().desc,
+                icon:
+                  LIKED_POST_REACTION_ARRAY[
+                    Math.floor(Math.random() * LIKED_POST_REACTION_ARRAY.length)
+                  ],
+                placement: 'topRight',
+                onClick: () => {
+                  if (location && location.isExact) {
+                    if (
+                      location.path.split('/')[1] === 'account' &&
+                      location.path.split('/')[2] === 'activity'
+                    ) {
+                      return;
+                    }
+                    history.push('/account/activity');
+                  }
+                },
+                duration: 5,
+                style: { cursor: 'pointer' },
+              });
+            }
+          }
+        },
+        (error: any) => {
+          console.log(error);
+        }
+      );
+
+    return () =>
+      firebase
+        .database()
+        .ref('Notifications')
+        .child(props.currentUser?.uid!)
+        .child('HOT UPDATE')
+        .off('child_changed', un_sub);
+  }, [props.currentUser, location, history]);
 
   return (
     <nav className="Nav">
