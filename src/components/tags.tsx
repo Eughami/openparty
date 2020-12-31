@@ -200,12 +200,12 @@ const Tags = (props: ITagsProps) => {
             >
               {popularTags.map(({ tag, count }, index) => (
                 <Link
+                  key={index}
                   to={{
                     pathname: `/t/${tag}`,
                   }}
                 >
                   <Tag
-                    key={index}
                     style={{
                       display: 'inline-block',
                       textAlign: 'center',
@@ -261,12 +261,12 @@ const Tags = (props: ITagsProps) => {
         <div>
           {popularTags.map(({ tag, count }, index) => (
             <Link
+              key={index}
               to={{
                 pathname: `/t/${tag}`,
               }}
             >
               <Tag
-                key={index}
                 style={{
                   display: 'inline-block',
                   textAlign: 'center',
