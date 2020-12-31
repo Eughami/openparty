@@ -1,7 +1,9 @@
 import { Button, Col, Result, Row, Skeleton } from 'antd';
 import Avatar from 'antd/lib/avatar/avatar';
 import React, { useEffect, useState } from 'react';
-import AsyncMention from '../../../mentions/mentions.component';
+import AsyncMention, {
+  replaceAtMentionsWithLinks2,
+} from '../../../mentions/mentions.component';
 import {
   Comment,
   RegistrationObject,
@@ -12,9 +14,10 @@ import {
   setCurrentUserRootDatabaseListener,
 } from '../../../../redux/user/user.actions';
 import { onPostComment } from '../../../post/post.actions';
-import { RouteComponentProps, useParams } from 'react-router-dom';
+import { Link, RouteComponentProps, useParams } from 'react-router-dom';
 import Axios from 'axios';
 import { API_BASE_URL, GET_ALL_POST_ENDPOINT } from '../../../../service/api';
+import TimeAgo from 'react-timeago';
 
 interface postIdInterface {
   postId: string;
@@ -33,6 +36,7 @@ const MobileComments = (props: MobileCommentsProps) => {
   const { postId: id }: postIdInterface = useParams();
   const [postExists, setPostExists] = useState<boolean>(true);
   const [postCommentLoading, setPostCommentLoading] = useState<boolean>(false);
+  const [comments, setComments] = useState<Comment[] | undefined>(undefined);
   const [comment, setComment] = useState<Comment>({
     comment: '',
     comments: [],
@@ -55,12 +59,14 @@ const MobileComments = (props: MobileCommentsProps) => {
       )
         .then((res) => {
           console.log('New comment endpoint', res.data);
-
           if (res.data === null) {
             setPostExists(false);
             setLoadingPost(false);
             return;
           }
+          setComments(res.data);
+          setPostExists(true);
+          setLoadingPost(false);
         })
         .catch((e) => {
           console.log('@GET POST ERROR: ', e);
@@ -71,7 +77,6 @@ const MobileComments = (props: MobileCommentsProps) => {
     getPost();
   }, [props.currentUserToken, props.currentUserInfo, id]);
 
-  const { image_url, username } = props.currentUserInfo!;
   const { currentUser, currentUserInfo, currentUserToken } = props;
 
   const resetCommentForm = () =>
@@ -90,7 +95,9 @@ const MobileComments = (props: MobileCommentsProps) => {
         comment: value,
         user: {
           user_id: currentUser ? currentUser.uid : '-user',
-          image_url,
+          image_url: currentUserInfo?.image_url
+            ? currentUserInfo?.image_url
+            : '',
           username: currentUserInfo ? currentUserInfo.username : '-user',
         },
         comments: [],
@@ -127,35 +134,92 @@ const MobileComments = (props: MobileCommentsProps) => {
   }
 
   return (
-    <div style={{ width: '100vw', height: '100vh', border: 'black solid' }}>
-      <Row align="middle">
-        <Avatar src={currentUser?.photoURL} />
-        <Row style={{ flex: 1 }} className="post__add__comment">
-          <AsyncMention
-            value={comment.comment}
-            onChange={handleCommentChange}
-            placeholder="Add a comment..."
-          />
-        </Row>
-        <Button
-          loading={postCommentLoading}
-          onClick={() =>
-            onPostComment(
-              setPostCommentLoading,
-              currentUserInfo!,
-              id,
-              username,
-              comment,
-              currentUserToken!
-            ).finally(() => resetCommentForm())
-          }
-          disabled={comment.comment.length === 0}
-          style={{ height: 50 }}
-        >
-          Post
-        </Button>
+    <div style={{ width: '100%', height: '100%' }}>
+      <Row align="middle" justify="center">
+        <Col span={2}>
+          <Avatar src={currentUser?.photoURL} />
+        </Col>
+        <Col span={18}>
+          <Row>
+            <Row
+              style={{ flex: 1, height: 40, border: 'none' }}
+              className="post__add__comment"
+            >
+              <AsyncMention
+                value={comment.comment}
+                onChange={handleCommentChange}
+                placeholder="Add a comment..."
+              />
+            </Row>
+            <Button
+              loading={postCommentLoading}
+              onClick={() =>
+                onPostComment(
+                  setPostCommentLoading,
+                  currentUserInfo!,
+                  id,
+                  currentUserInfo?.username!,
+                  comment,
+                  currentUserToken!
+                ).finally(() => resetCommentForm())
+              }
+              disabled={comment.comment.length === 0}
+              style={{ height: 40, border: 'none' }}
+            >
+              Post
+            </Button>
+          </Row>
+        </Col>
       </Row>
-      <Row></Row>
+      <Row className="mobile__comments__container">
+        {comments ? (
+          comments.length === 0 ? (
+            <span>No Comments</span>
+          ) : (
+            <div
+              style={{
+                padding: '10px',
+              }}
+            >
+              {comments.map((comment) => (
+                <Row justify="start" align="middle">
+                  {/* <Col xl={2} lg={3} sm={2} xs={3}> */}
+                  <span style={{ width: '32px' }}>
+                    <Avatar
+                      alt="user avatar"
+                      src={comment.user.image_url}
+                      size={32}
+                    />
+                  </span>
+                  <div
+                    className="comment__container"
+                    style={{ overflowX: 'hidden', paddingLeft: 12 }}
+                  >
+                    <Link
+                      to={{
+                        pathname: `/${comment.user.username}`,
+                      }}
+                    >
+                      <span
+                        style={{
+                          fontWeight: 600,
+                          color: 'rgba(var(--i1d,38,38,38),1)',
+                        }}
+                      >
+                        {comment.user.username}{' '}
+                      </span>
+                    </Link>
+                    {replaceAtMentionsWithLinks2(comment.comment)}
+                    <p style={{ color: 'rgba(var(--f52,142,142,142),1)' }}>
+                      • <TimeAgo date={new Date(comment.timestamp)}></TimeAgo>
+                    </p>
+                  </div>
+                </Row>
+              ))}
+            </div>
+          )
+        ) : null}
+      </Row>
     </div>
   );
 };
