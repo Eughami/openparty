@@ -355,25 +355,27 @@ const ViewPost = (props: ViewPostProps) => {
                   </PerfectScrollbar>
                 </div>
                 <div className="full__page__post__actions__container">
-                  <Row justify="start" align="top">
-                    <Col span={14}>
-                      <PostActions currentUser={currentUser!} post={post} />
-                    </Col>
-                    <Col span={10}>
-                      <PostEventTime post={post} />
-                    </Col>
-                  </Row>
-                  <Row>
-                    <Col span={8}>
-                      <PostLikes post={post} />
-                    </Col>
-                    <Col span={16}>
-                      <PostTags post={post} />
-                    </Col>
-                    <Row>
-                      <PostCaption post={post} />
+                  <PerfectScrollbar>
+                    <Row justify="start" align="top">
+                      <Col span={14}>
+                        <PostActions currentUser={currentUser!} post={post} />
+                      </Col>
+                      <Col span={10}>
+                        <PostEventTime post={post} />
+                      </Col>
                     </Row>
-                  </Row>
+                    <Row>
+                      <Col span={8}>
+                        <PostLikes post={post} />
+                      </Col>
+                      <Col span={16}>
+                        <PostTags post={post} />
+                      </Col>
+                      <Row>
+                        <PostCaption post={post} />
+                      </Row>
+                    </Row>
+                  </PerfectScrollbar>
                 </div>
                 <Row className="full__post__add__comment__container">
                   <Col flex="auto">
@@ -411,7 +413,7 @@ const ViewPost = (props: ViewPostProps) => {
               </Col>
               {/* show on small size screen */}
               <Col lg={0} md={aspectRation > 1 ? 24 : 0} sm={24}>
-                <div className="full__page__post__actions__container">
+                <div style={{ height: '100%', padding: 10 }}>
                   <Row justify="start" align="top">
                     <Col span={12}>
                       <PostActions currentUser={currentUser!} post={post} />
@@ -464,20 +466,8 @@ const ViewPost = (props: ViewPostProps) => {
                     </Button>
                   </Col>
                 </Row>
-                <div
-                  className="full__post__comments__container"
-                  style={{
-                    minHeight: aspectRation > 1 ? 160 : 360,
-                    height:
-                      initImageDim.height / 2 <= 400
-                        ? 160
-                        : initImageDim.height / 2 - 240,
-                    maxHeight: 360,
-                  }}
-                >
-                  <PerfectScrollbar>
-                    <PostComments full={false} post={post!} />
-                  </PerfectScrollbar>
+                <div className="full__post__comments__container">
+                  <PostComments full={false} post={post!} />
                 </div>
               </Col>
 

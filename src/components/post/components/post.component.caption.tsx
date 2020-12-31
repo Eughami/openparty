@@ -10,7 +10,7 @@ export const PostCaption = (props: IPostCaptionProps) => {
   const { post } = props;
   return (
     <>
-      <strong>{post.user.username}</strong>{' '}
+      <strong>{post.user.username}</strong>&nbsp;&nbsp;
       {replaceAtMentionsWithLinks2(post.caption)}
     </>
   );

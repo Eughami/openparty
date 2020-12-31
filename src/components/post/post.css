@@ -64,6 +64,7 @@
   padding: 16px;
   height: 140px;
   width: 100%;
+  overflow: auto;
   border-top: #f1e6e6 solid 1px;
   border-left: #f1e6e6 solid 1px;
 }
@@ -132,4 +133,11 @@
   width: 100%;
   height: 350px;
   object-fit: cover;
+}
+
+/* Mobile comment  */
+.mobile__comments__container {
+  margin-top: 10px;
+  background-color: rgba(239, 239, 239);
+  border-top: rgba(239, 239, 239) solid 1px;
 }

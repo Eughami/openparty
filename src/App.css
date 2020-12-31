@@ -110,6 +110,9 @@
 .post__clikes__and__comments > *:hover {
   cursor: pointer;
 }
+.post_tags {
+  margin-bottom: 5px !important;
+}
 .post__captions {
   /* border: black solid 1px; */
   height: 10%;

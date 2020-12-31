@@ -17,18 +17,18 @@ export const PostTags = (props: IPostTagsProps) => {
   if (showTooltip) {
     if (limitTags) {
       return (
-        <Row
-          style={style ? { ...style } : { marginBottom: 10 }}
-          className="post__clikes__and__comments"
-          align="middle"
-        >
+        <Row style={style ? { ...style } : { marginBottom: 10 }} align="middle">
           {post.tags && (
             <Tooltip title="Click to view posts with this tag">
               {post.tags &&
                 post.tags
                   .slice(0, limitTags)
                   .map((tag: IPostTags, index: number) => (
-                    <Tag color={getPostTagColor(tag)} key={index}>
+                    <Tag
+                      className="post_tags"
+                      color={getPostTagColor(tag)}
+                      key={index}
+                    >
                       <Link
                         to={{
                           pathname: `/t/${tag}`,
@@ -44,16 +44,16 @@ export const PostTags = (props: IPostTagsProps) => {
       );
     } else {
       return (
-        <Row
-          style={{ marginBottom: 10 }}
-          className="post__clikes__and__comments"
-          align="middle"
-        >
+        <Row style={{ marginBottom: 10 }} align="middle">
           {post.tags && (
             <Tooltip title="Click to view posts with this tag">
               {post.tags &&
                 post.tags.map((tag: IPostTags, index: number) => (
-                  <Tag color={getPostTagColor(tag)} key={index}>
+                  <Tag
+                    className="post_tags"
+                    color={getPostTagColor(tag)}
+                    key={index}
+                  >
                     <Link
                       to={{
                         pathname: `/t/${tag}`,

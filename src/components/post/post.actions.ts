@@ -129,6 +129,14 @@ export const onPostComment = async (
   comment: Comment,
   currentUserToken: string
 ) => {
+  console.log('CAlled with :', {
+    currentUserInfo,
+    post_id,
+    username,
+    comment,
+    currentUserToken,
+  });
+  return;
   if (!currentUserInfo) {
     alert("We're having trouble posting your comment. Please wait...");
     return false;
