@@ -205,6 +205,7 @@ const Tags = (props: ITagsProps) => {
                   to={{
                     pathname: `/t/${tag}`,
                   }}
+                  onClick={() => setLoading(true)}
                 >
                   <Tag
                     style={{
@@ -266,6 +267,7 @@ const Tags = (props: ITagsProps) => {
               to={{
                 pathname: `/t/${tag}`,
               }}
+              onClick={() => setLoading(true)}
             >
               <Tag
                 style={{
