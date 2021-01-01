@@ -46,35 +46,35 @@ const MobileComments = (props: MobileCommentsProps) => {
     user: { image_url: '', user_id: '', username: '' },
   });
   const [loadingPost, setLoadingPost] = useState<boolean>(true);
-  useEffect(() => {
-    console.log('Mounted');
-    const getPost = async () => {
-      await Axios.get(
-        `${API_BASE_URL}${GET_ALL_POST_ENDPOINT}/${id}/comments`,
-        {
-          headers: {
-            Authorization: `Bearer ${props.currentUserToken}`,
-          },
-        }
-      )
-        .then((res) => {
-          console.log('New comment endpoint', res.data);
-          if (res.data === null) {
-            setPostExists(false);
-            setLoadingPost(false);
-            return;
-          }
-          setComments(res.data);
-          setPostExists(true);
-          setLoadingPost(false);
-        })
-        .catch((e) => {
-          console.log('@GET POST ERROR: ', e);
+
+  const getComment = async () => {
+    await Axios.get(`${API_BASE_URL}${GET_ALL_POST_ENDPOINT}/${id}/comments`, {
+      headers: {
+        Authorization: `Bearer ${props.currentUserToken}`,
+      },
+    })
+      .then((res) => {
+        console.log('New comment endpoint', res.data);
+        if (res.data === null) {
           setPostExists(false);
           setLoadingPost(false);
-        });
-    };
-    getPost();
+          return;
+        }
+        setComments(res.data);
+        setPostExists(true);
+        setLoadingPost(false);
+      })
+      .catch((e) => {
+        console.log('@GET POST ERROR: ', e);
+        setPostExists(false);
+        setLoadingPost(false);
+      });
+  };
+
+  useEffect(() => {
+    console.log('Mounted');
+
+    getComment();
   }, [props.currentUserToken, props.currentUserInfo, id]);
 
   const { currentUser, currentUserInfo, currentUserToken } = props;
@@ -161,7 +161,10 @@ const MobileComments = (props: MobileCommentsProps) => {
                   currentUserInfo?.username!,
                   comment,
                   currentUserToken!
-                ).finally(() => resetCommentForm())
+                ).finally(() => {
+                  resetCommentForm();
+                  getComment();
+                })
               }
               disabled={comment.comment.length === 0}
               style={{ height: 40, border: 'none' }}
@@ -181,8 +184,8 @@ const MobileComments = (props: MobileCommentsProps) => {
                 padding: '10px',
               }}
             >
-              {comments.map((comment) => (
-                <Row justify="start" align="middle">
+              {comments.map((comment, index) => (
+                <Row key={index} justify="start" align="middle">
                   {/* <Col xl={2} lg={3} sm={2} xs={3}> */}
                   <span style={{ width: '32px' }}>
                     <Avatar

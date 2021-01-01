@@ -20,6 +20,7 @@ import {
 import { getPostTagColor } from './post/post.actions';
 import { Link } from 'react-router-dom';
 import PerfectScrollbar from 'react-perfect-scrollbar';
+const abbreviate = require('number-abbreviate');
 
 interface ITagsProps {
   setCurrentUserListener?: () => Promise<any>;
@@ -226,7 +227,7 @@ const Tags = (props: ITagsProps) => {
                           <p
                             style={{ color: 'rgba(var(--f52,142,142,142),1)' }}
                           >
-                            • {count} Posts
+                            • {abbreviate(count, 1)} Posts
                           </p>
                         </>
                       ) : (
@@ -237,7 +238,7 @@ const Tags = (props: ITagsProps) => {
                           <p
                             style={{ color: 'rgba(var(--f52,142,142,142),1)' }}
                           >
-                            • {count} Posts
+                            • {abbreviate(count, 1)} Posts
                           </p>
                         </>
                       )}
@@ -285,7 +286,7 @@ const Tags = (props: ITagsProps) => {
                         tag.length > 10 ? tag.substring(0, 10) + '...' : tag
                       }`}{' '}
                       <p style={{ color: 'rgba(var(--f52,142,142,142),1)' }}>
-                        • {count} Posts
+                        • {abbreviate(count, 1)} Posts
                       </p>
                     </>
                   ) : (
@@ -294,7 +295,7 @@ const Tags = (props: ITagsProps) => {
                         tag.length > 10 ? tag.substring(0, 10) + '...' : tag
                       }`}{' '}
                       <p style={{ color: 'rgba(var(--f52,142,142,142),1)' }}>
-                        • {count} Posts
+                        • {abbreviate(count, 1)} Posts
                       </p>
                     </>
                   )}

@@ -175,6 +175,17 @@ const MobileHeaderLikes = ({ history }: IHistory) => (
   </Row>
 );
 
+const MobileHeaderTags = ({ history }: IHistory) => (
+  <Row style={{ padding: 16 }} align="middle" justify="space-between">
+    <Col>
+      <ArrowLeftOutlined onClick={() => history.goBack()} />
+    </Col>
+    <Col>
+      <span style={{ fontWeight: 600 }}> Tags </span>
+    </Col>
+  </Row>
+);
+
 const MobileHeaderActivity = ({ history }: IHistory) => (
   <Row style={{ padding: 16 }} align="middle" justify="space-between">
     <Col>
@@ -262,6 +273,8 @@ const MobileHeader = (props: IMobileHeaderProps) => {
               currentUserInfo={props.currentUserInfo}
               history={history}
             />
+          ) : location.path.split('/')[1] === 't' ? (
+            <MobileHeaderTags history={history} />
           ) : location.path.split('/')[1] ===
             props.currentUserInfo?.username ? (
             <MobileHeaderSelfUserProfile
