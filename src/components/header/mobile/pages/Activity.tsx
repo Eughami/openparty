@@ -7,7 +7,7 @@ import {
 } from '../../../../redux/user/user.actions';
 import { connect } from 'react-redux';
 import TempHeaderNotification from '../../temp-header';
-import { Avatar, List, Spin } from 'antd';
+import { Avatar, Badge, Button, Col, List, Row, Spin } from 'antd';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
 import {
@@ -23,6 +23,7 @@ const Activity = (props: IHeaderProps) => {
   );
   const [followRequests, setFollowRequests] = useState([]);
   const [userNotifications, setUserNotifications] = useState([]);
+  const [showFollowRequest, setShowFollowRequest] = useState<boolean>(false);
 
   //Set listener for active follow requests
   useEffect(() => {
@@ -176,6 +177,10 @@ const Activity = (props: IHeaderProps) => {
     );
   };
 
+  const toggle = () => {
+    setShowFollowRequest(!showFollowRequest);
+  };
+
   if (notificationsLoading) {
     return (
       <div style={{ textAlign: 'center', marginTop: 30 }}>
@@ -186,7 +191,28 @@ const Activity = (props: IHeaderProps) => {
 
   return (
     <>
-      {userNotifications.length > 0 &&
+      <Row
+        className="mobile__activity__follow__request__title"
+        // justify="center"
+        align="middle"
+        onClick={toggle}
+      >
+        {!showFollowRequest ? (
+          <>
+            <Col offset={1}>
+              <Badge
+                overflowCount={10}
+                count={followRequests.length ? followRequests.length : 0}
+              />
+            </Col>
+            <Col style={{ marginLeft: 10 }}>Follow requests</Col>
+          </>
+        ) : (
+          <Col offset={1}>My Activity</Col>
+        )}
+      </Row>
+      {!showFollowRequest &&
+        userNotifications.length > 0 &&
         userNotifications.map((not: any, index) => (
           <TempHeaderNotification
             time={not.time}
@@ -198,47 +224,50 @@ const Activity = (props: IHeaderProps) => {
             thumbnail={not.thumbnail}
           />
         ))}
-      {Object.keys(followRequests).length > 0 ? (
-        <List
-          itemLayout="horizontal"
-          size="small"
-          dataSource={followRequests}
-          renderItem={(item: any) => (
-            <List.Item
-              actions={[
-                <p
-                  onClick={() => onFollowApproved(item.uid)}
-                  style={{ color: 'green', cursor: 'pointer' }}
-                  key={JSON.stringify(item)}
-                >
-                  Approve
-                </p>,
-                <p
-                  onClick={() => onFollowIgnored(item.uid)}
-                  style={{ color: 'red', cursor: 'pointer' }}
-                  key={JSON.stringify(item)}
-                >
-                  Ignore
-                </p>,
-              ]}
-            >
-              <List.Item.Meta
-                avatar={<Avatar src={item.image_url} />}
-                title={
-                  <Link to={{ pathname: `/${item.username}` }}>
-                    {item.username}
-                  </Link>
-                }
-                description={
-                  <TimeAgo date={new Date(`${item.time}`)}></TimeAgo>
-                }
-              />
-            </List.Item>
-          )}
-        />
-      ) : (
-        <></>
-      )}
+      {showFollowRequest &&
+        (Object.keys(followRequests).length > 0 ? (
+          <List
+            itemLayout="horizontal"
+            size="small"
+            dataSource={followRequests}
+            renderItem={(item: any) => (
+              <List.Item
+                actions={[
+                  <p
+                    onClick={() => onFollowApproved(item.uid)}
+                    style={{ color: 'green', cursor: 'pointer' }}
+                    key={JSON.stringify(item)}
+                  >
+                    Approve
+                  </p>,
+                  <p
+                    onClick={() => onFollowIgnored(item.uid)}
+                    style={{ color: 'red', cursor: 'pointer' }}
+                    key={JSON.stringify(item)}
+                  >
+                    Ignore
+                  </p>,
+                ]}
+              >
+                <List.Item.Meta
+                  avatar={<Avatar src={item.image_url} />}
+                  title={
+                    <Link to={{ pathname: `/${item.username}` }}>
+                      {item.username}
+                    </Link>
+                  }
+                  description={
+                    <TimeAgo date={new Date(`${item.time}`)}></TimeAgo>
+                  }
+                />
+              </List.Item>
+            )}
+          />
+        ) : (
+          <Row justify="center" style={{ fontSize: '1.3rme' }}>
+            No Follow Requests
+          </Row>
+        ))}
     </>
   );
 };

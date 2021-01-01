@@ -13,6 +13,9 @@ import {
   setCurrentUserRootDatabaseListener,
 } from '../../redux/user/user.actions';
 import bluebird from 'bluebird';
+import Axios from 'axios';
+import { API_BASE_URL, GET_POPULAR_USERS } from '../../service/api';
+import UserSuggestions from '../userSuggestions';
 
 interface IPostsProps {
   setCurrentUserListener?: () => Promise<any>;
@@ -21,6 +24,7 @@ interface IPostsProps {
   currentUserInfo?: RegistrationObject;
   fromProfile?: boolean;
   currentUserEligiblePosts?: Array<any>;
+  currentUserToken?: string;
 }
 
 /**
@@ -130,11 +134,13 @@ const Posts = (props: IPostsProps) => {
     localStorage.getItem('postsSet') === null
   );
   const [posts, setPosts] = useState<Array<any>>([]);
-
+  const [suggestedUsers, setSuggesedUsers] = useState<RegistrationObject[]>([]);
+  const [loadingRecommended, setloadingRecommended] = useState<boolean>(false);
   useEffect(() => {
     if (!currentUser) return;
     if (currentUserEligiblePosts === null) {
       setLoading(false);
+      getPopularUsers();
       return;
     }
     // if (localStorage.getItem('postsSet')) return;
@@ -240,6 +246,33 @@ const Posts = (props: IPostsProps) => {
     getEligible();
   }, [currentUser, currentUserEligiblePosts]);
 
+  // fetch mos popular users
+  const getPopularUsers = async () => {
+    setloadingRecommended(true);
+    await Axios.get(`${API_BASE_URL}${GET_POPULAR_USERS}`, {
+      headers: {
+        Authorization: `Bearer ${props.currentUserToken}`,
+      },
+    })
+      .then((res) => {
+        console.log('New popular endpoint', res.data);
+        setloadingRecommended(false);
+        if (res.data === null) {
+          return;
+        }
+        setSuggesedUsers(res.data);
+        // setComments(res.data);
+        // setPostExists(true);
+        // setLoadingPost(false);
+      })
+      .catch((e) => {
+        setloadingRecommended(false);
+        console.log('@GET POST ERROR: ', e);
+        // setPostExists(false);
+        // setLoadingPost(false);
+      });
+  };
+
   if (loading) {
     return (
       <Col offset={6} span={12}>
@@ -255,9 +288,17 @@ const Posts = (props: IPostsProps) => {
       <div style={{ textAlign: 'center' }}>
         <img alt="empty" src={require('../images/lonely.png')} />
         <br />
-        You are not following anyone. Follow people to see their posts here.{' '}
-        <br />
-        <Button>Click here to explore posts and users</Button>
+        Follow People to see their events.
+        {loadingRecommended && (
+          <Col offset={6} span={12}>
+            {[1, 1, 1, 1].map((_, index) => (
+              <Skeleton key={index} avatar active paragraph={{ rows: 4 }} />
+            ))}
+          </Col>
+        )}
+        {Object.keys(suggestedUsers).length > 0 && (
+          <UserSuggestions users={suggestedUsers} />
+        )}
       </div>
     );
   }
@@ -276,6 +317,7 @@ const mapStateToProps = (state: any) => {
     currentUser: state.user.currentUser,
     currentUserInfo: state.user.userInfo,
     currentUserEligiblePosts: state.user.currentUserEligiblePosts,
+    currentUserToken: state.user.currentUserToken,
   };
 };
 

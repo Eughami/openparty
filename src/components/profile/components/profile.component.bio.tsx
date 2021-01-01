@@ -17,7 +17,7 @@ export const ProfileBio = (props: IProfileBioProps) => {
         <Paragraph
           style={{
             ...style,
-            width: '150px',
+            // width: '150px',
           }}
           ellipsis={{ rows: 1, expandable: true, symbol: 'more' }}
         >

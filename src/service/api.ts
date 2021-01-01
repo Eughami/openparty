@@ -72,4 +72,6 @@ export const GET_USER_PROFILE_SNIPPET = 'users/:/username/snippet';
 
 export const GET_POPULAR_TAGS = 'posts/popular/tags';
 
+export const GET_POPULAR_USERS = 'users/recommended/get-popular';
+
 // export const _ENDPOINT = ""

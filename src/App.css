@@ -176,3 +176,8 @@ hr.light {
 .mobile__navbar > *:hover {
   cursor: pointer;
 }
+.suggested__users__containers {
+  border: rgba(239, 239, 239) solid 1px;
+  padding: 10px;
+  margin: 10px;
+}

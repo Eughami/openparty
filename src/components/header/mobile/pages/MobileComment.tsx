@@ -139,7 +139,7 @@ const MobileComments = (props: MobileCommentsProps) => {
         <Col span={2}>
           <Avatar src={currentUser?.photoURL} />
         </Col>
-        <Col span={18}>
+        <Col span={18} offset={1}>
           <Row>
             <Row
               style={{ flex: 1, height: 40, border: 'none' }}
