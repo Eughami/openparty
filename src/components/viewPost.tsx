@@ -308,7 +308,12 @@ const ViewPost = (props: ViewPostProps) => {
                       <img
                         style={{
                           objectFit: 'cover',
-                          minHeight: aspectRation > 1 ? 400 : 600,
+                          minHeight:
+                            aspectRation > 0.85
+                              ? aspectRation > 1.15
+                                ? 400
+                                : 500
+                              : 600,
                           height:
                             initImageDim.height / 2 <= 400
                               ? 400
@@ -342,7 +347,12 @@ const ViewPost = (props: ViewPostProps) => {
                 <div
                   className="full__post__comments__container"
                   style={{
-                    minHeight: aspectRation > 1 ? 160 : 360,
+                    minHeight:
+                      aspectRation > 0.85
+                        ? aspectRation > 1.15
+                          ? 160
+                          : 260
+                        : 360,
                     height:
                       initImageDim.height / 2 <= 400
                         ? 160
