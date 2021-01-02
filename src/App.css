@@ -184,3 +184,11 @@ hr.light {
 .profile__details__container {
   width: calc(100% - 120px);
 }
+
+/* arrow fix */
+.ant-carousel .slick-prev {
+  z-index: 1 !important;
+}
+.ant-carousel .slick-next {
+  z-index: 1 !important;
+}

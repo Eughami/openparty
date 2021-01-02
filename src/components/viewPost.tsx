@@ -57,6 +57,7 @@ interface ViewPostProps extends RouteComponentProps<any> {
   currentUserToken?: string;
   post: PostInterface;
   fullPage: boolean;
+  postUrl?: string;
 }
 
 interface ProbeResult {
@@ -211,7 +212,7 @@ const ViewPost = (props: ViewPostProps) => {
       await Axios.post(
         `${API_BASE_URL}${GET_ONE_POST}`,
         {
-          postId: id,
+          postId: props.postUrl ? props.postUrl : id,
         },
         {
           headers: {
