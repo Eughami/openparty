@@ -26,6 +26,7 @@ const RelatedPosts = (props: RelatedPostsProps) => {
               likes={post.likes ? Object.values(post.likes).length : 0}
               comments={post.comments ? Object.values(post.comments).length : 0}
               imgUrl={post.image_url![0]}
+              url={post.id}
             />
           </Link>
         </Col>
