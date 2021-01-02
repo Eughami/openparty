@@ -282,11 +282,11 @@ const ViewPost = (props: ViewPostProps) => {
             />
             <Col
               className="full__post__left__container"
-              xxl={aspectRation > 1 ? 9 : 6}
-              xl={aspectRation > 1 ? 10 : 8}
-              lg={aspectRation > 1 ? 11 : 9}
-              md={aspectRation > 1 ? 18 : 12}
-              sm={aspectRation > 1 ? 20 : 18}
+              xxl={aspectRation > 0.85 ? (aspectRation > 1.15 ? 9 : 6) : 7}
+              xl={aspectRation > 0.85 ? (aspectRation > 1.15 ? 10 : 8) : 8}
+              lg={aspectRation > 0.85 ? (aspectRation > 1.15 ? 11 : 8) : 9}
+              md={aspectRation > 0.85 ? (aspectRation > 1.15 ? 18 : 10) : 12}
+              sm={aspectRation > 0.85 ? (aspectRation > 1.15 ? 20 : 16) : 18}
               xs={24}
             >
               <Col lg={0} md={aspectRation > 1 ? 24 : 0} sm={24}>
@@ -327,11 +327,11 @@ const ViewPost = (props: ViewPostProps) => {
             </Col>
             <Col
               className="full__post__right__container"
-              xxl={aspectRation > 1 ? 7 : 6}
-              xl={aspectRation > 1 ? 8 : 8}
-              lg={aspectRation > 1 ? 9 : 9}
-              md={aspectRation > 1 ? 18 : 12}
-              sm={aspectRation > 1 ? 20 : 18}
+              xxl={aspectRation > 0.85 ? (aspectRation > 1.15 ? 7 : 5) : 6}
+              xl={aspectRation > 0.85 ? (aspectRation > 1.15 ? 8 : 7) : 8}
+              lg={aspectRation > 0.85 ? (aspectRation > 1.15 ? 9 : 7) : 9}
+              md={aspectRation > 0.85 ? (aspectRation > 1.15 ? 18 : 9) : 12}
+              sm={aspectRation > 0.85 ? (aspectRation > 1.15 ? 20 : 15) : 18}
               xs={24}
             >
               {/* hide on small size screen */}

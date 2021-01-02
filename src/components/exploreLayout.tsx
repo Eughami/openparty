@@ -62,6 +62,16 @@ const ExploreLayout = (props: IExploreLayoutProps) => {
           <Row>
             <Col span={24} className="smallPostDouble dynamicHeight">
               <PostOverlay
+                likes={
+                  arrayOfPosts[0].likes
+                    ? Object.values(arrayOfPosts[0].likes).length
+                    : 0
+                }
+                comments={
+                  arrayOfPosts[0].comments
+                    ? Object.values(arrayOfPosts[0].comments).length
+                    : 0
+                }
                 // likes={Object.keys(props.arrayOfPosts[0].likes).length}
                 // comments={Object.keys(props.arrayOfPosts[0].comments!).length}
                 imgUrl={arrayOfPosts[0].image_url![0]}
@@ -71,6 +81,16 @@ const ExploreLayout = (props: IExploreLayoutProps) => {
             {smallDivider()}
             <Col span={24} className="smallPostDouble dynamicHeight">
               <PostOverlay
+                likes={
+                  arrayOfPosts[1].likes
+                    ? Object.values(arrayOfPosts[1].likes).length
+                    : 0
+                }
+                comments={
+                  arrayOfPosts[1].comments
+                    ? Object.values(arrayOfPosts[1].comments).length
+                    : 0
+                }
                 // likes={Object.keys(props.arrayOfPosts[1].likes).length}
                 // comments={Object.keys(props.arrayOfPosts[1].comments!).length}
                 imgUrl={arrayOfPosts[1].image_url![0]}
@@ -86,6 +106,16 @@ const ExploreLayout = (props: IExploreLayoutProps) => {
           className="bigPost dynamicHeight"
         >
           <PostOverlay
+            likes={
+              arrayOfPosts[2].likes
+                ? Object.values(arrayOfPosts[2].likes).length
+                : 0
+            }
+            comments={
+              arrayOfPosts[2].comments
+                ? Object.values(arrayOfPosts[2].comments).length
+                : 0
+            }
             // likes={Object.keys(props.arrayOfPosts[2].likes).length}
             // comments={Object.keys(props.arrayOfPosts[2].comments!).length}
             url={arrayOfPosts[2].id}
@@ -97,6 +127,16 @@ const ExploreLayout = (props: IExploreLayoutProps) => {
       <Row>
         <Col md={7} sm={8} xs={8} className="smallPost dynamicHeight">
           <PostOverlay
+            likes={
+              arrayOfPosts[3].likes
+                ? Object.values(arrayOfPosts[3].likes).length
+                : 0
+            }
+            comments={
+              arrayOfPosts[3].comments
+                ? Object.values(arrayOfPosts[3].comments).length
+                : 0
+            }
             // likes={Object.keys(props.arrayOfPosts[3].likes).length}
             // comments={Object.keys(props.arrayOfPosts[3].comments!).length}
             url={arrayOfPosts[3].id}
@@ -110,6 +150,16 @@ const ExploreLayout = (props: IExploreLayoutProps) => {
           className="smallPost dynamicHeight"
         >
           <PostOverlay
+            likes={
+              arrayOfPosts[4].likes
+                ? Object.values(arrayOfPosts[4].likes).length
+                : 0
+            }
+            comments={
+              arrayOfPosts[4].comments
+                ? Object.values(arrayOfPosts[4].comments).length
+                : 0
+            }
             // likes={Object.keys(props.arrayOfPosts[4].likes).length}
             // comments={Object.keys(props.arrayOfPosts[4].comments!).length}
             imgUrl={arrayOfPosts[4].image_url![0]}
@@ -123,6 +173,16 @@ const ExploreLayout = (props: IExploreLayoutProps) => {
           className="smallPost dynamicHeight"
         >
           <PostOverlay
+            likes={
+              arrayOfPosts[5].likes
+                ? Object.values(arrayOfPosts[5].likes).length
+                : 0
+            }
+            comments={
+              arrayOfPosts[5].comments
+                ? Object.values(arrayOfPosts[5].comments).length
+                : 0
+            }
             // likes={Object.keys(props.arrayOfPosts[5].likes).length}
             // comments={Object.keys(props.arrayOfPosts[5].comments!).length}
             url={arrayOfPosts[5].id}
@@ -134,6 +194,16 @@ const ExploreLayout = (props: IExploreLayoutProps) => {
       <Row>
         <Col md={7} sm={8} xs={8} className="smallPost dynamicHeight">
           <PostOverlay
+            likes={
+              arrayOfPosts[6].likes
+                ? Object.values(arrayOfPosts[6].likes).length
+                : 0
+            }
+            comments={
+              arrayOfPosts[6].comments
+                ? Object.values(arrayOfPosts[6].comments).length
+                : 0
+            }
             // likes={Object.keys(props.arrayOfPosts[6].likes).length}
             // comments={Object.keys(props.arrayOfPosts[6].comments!).length}
             imgUrl={arrayOfPosts[6].image_url![0]}
@@ -147,6 +217,16 @@ const ExploreLayout = (props: IExploreLayoutProps) => {
           className="smallPost dynamicHeight"
         >
           <PostOverlay
+            likes={
+              arrayOfPosts[7].likes
+                ? Object.values(arrayOfPosts[7].likes).length
+                : 0
+            }
+            comments={
+              arrayOfPosts[7].comments
+                ? Object.values(arrayOfPosts[7].comments).length
+                : 0
+            }
             // likes={Object.keys(props.arrayOfPosts[7].likes).length}
             // comments={Object.keys(props.arrayOfPosts[7].comments!).length}
             imgUrl={arrayOfPosts[7].image_url![0]}
@@ -160,6 +240,16 @@ const ExploreLayout = (props: IExploreLayoutProps) => {
           className="smallPost dynamicHeight"
         >
           <PostOverlay
+            likes={
+              arrayOfPosts[8].likes
+                ? Object.values(arrayOfPosts[8].likes).length
+                : 0
+            }
+            comments={
+              arrayOfPosts[8].comments
+                ? Object.values(arrayOfPosts[8].comments).length
+                : 0
+            }
             // likes={Object.keys(props.arrayOfPosts[8].likes).length}
             // comments={Object.keys(props.arrayOfPosts[8].comments!).length}
             imgUrl={arrayOfPosts[8].image_url![0]}
