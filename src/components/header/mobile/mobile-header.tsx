@@ -187,10 +187,10 @@ const MobileHeaderTags = ({ history }: IHistory) => (
 );
 
 const MobileHeaderActivity = ({ history }: IHistory) => (
-  <Row style={{ padding: 16 }} align="middle" justify="space-between">
-    <Col>
+  <Row style={{ padding: 16 }} align="middle" justify="center">
+    {/* <Col>
       <ArrowLeftOutlined onClick={() => history.goBack()} />
-    </Col>
+    </Col> */}
     <Col>
       <span style={{ fontWeight: 600 }}> Activity </span>
     </Col>

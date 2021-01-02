@@ -205,7 +205,6 @@ const Tags = (props: ITagsProps) => {
                   to={{
                     pathname: `/t/${tag}`,
                   }}
-                  onClick={() => setLoading(true)}
                 >
                   <Tag
                     style={{
@@ -217,6 +216,7 @@ const Tags = (props: ITagsProps) => {
                       margin: 4,
                       width: '30%',
                     }}
+                    onClick={() => setLoading(true)}
                     color={getPostTagColor(tag as any)}
                   >
                     <span>
@@ -279,6 +279,7 @@ const Tags = (props: ITagsProps) => {
                   margin: 4,
                   width: '100%',
                 }}
+                onClick={() => setLoading(true)}
                 color={getPostTagColor(tag as any)}
               >
                 <span>

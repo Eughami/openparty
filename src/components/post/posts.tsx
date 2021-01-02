@@ -286,9 +286,15 @@ const Posts = (props: IPostsProps) => {
   if (currentUserEligiblePosts === null) {
     return (
       <div style={{ textAlign: 'center' }}>
-        <img alt="empty" src={require('../images/lonely.png')} />
+        <img
+          style={{ maxWidth: 200 }}
+          alt="empty"
+          src={require('../images/lonely.png')}
+        />
         <br />
-        Follow People to see their events.
+        No post to show here. Follow people to see their posts here.
+        <br />
+        {/* <p style={{ textAlign: 'left' }}> Popular suggestions </p> */}
         {loadingRecommended && (
           <Col offset={6} span={12}>
             {[1, 1, 1, 1].map((_, index) => (
