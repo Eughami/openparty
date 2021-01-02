@@ -8,6 +8,7 @@ interface IPostLikesProps {
 
 export const PostLikes = (props: IPostLikesProps) => {
   const { post } = props;
+  console.log('@EXPLORE', post.likes);
   return (
     <Row align="middle">
       {Array.isArray(post.likes) ? (
@@ -18,10 +19,11 @@ export const PostLikes = (props: IPostLikesProps) => {
         </p>
       ) : (
         <p style={{ textAlign: 'left', fontWeight: 'bold' }}>
-          {Object.values(post.likes).length === 0 ||
-          Object.values(post.likes).length > 1
-            ? Object.values(post.likes).length + ' interests'
-            : Object.values(post.likes).length + ' interest'}
+          {post.likes
+            ? Object.values(post.likes).length >= 1
+              ? Object.values(post.likes).length + ' interests'
+              : Object.values(post.likes).length + ' interest'
+            : ''}
         </p>
       )}
     </Row>

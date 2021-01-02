@@ -464,7 +464,7 @@ export const EditProfile = (props: IEditProfileInterface) => {
         <Form.Item
           help={
             <p style={{ ...descStyle }}>
-              A short info about you{' '}
+              A short info about you (50 words max)
               <span role="img" aria-label="smile-blush">
                 😊
               </span>
@@ -473,7 +473,7 @@ export const EditProfile = (props: IEditProfileInterface) => {
           name="bio"
           label="Bio"
         >
-          <Input.TextArea />
+          <Input.TextArea maxLength={50} />
         </Form.Item>
         <Form.Item name="gender" label="Gender">
           <Select>

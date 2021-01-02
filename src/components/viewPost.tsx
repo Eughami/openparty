@@ -57,6 +57,7 @@ interface ViewPostProps extends RouteComponentProps<any> {
   currentUserToken?: string;
   post: PostInterface;
   fullPage: boolean;
+  postUrl?: string;
 }
 
 interface ProbeResult {
@@ -211,7 +212,7 @@ const ViewPost = (props: ViewPostProps) => {
       await Axios.post(
         `${API_BASE_URL}${GET_ONE_POST}`,
         {
-          postId: id,
+          postId: props.postUrl ? props.postUrl : id,
         },
         {
           headers: {
@@ -282,11 +283,11 @@ const ViewPost = (props: ViewPostProps) => {
             />
             <Col
               className="full__post__left__container"
-              xxl={aspectRation > 1 ? 9 : 6}
-              xl={aspectRation > 1 ? 10 : 8}
-              lg={aspectRation > 1 ? 11 : 9}
-              md={aspectRation > 1 ? 18 : 12}
-              sm={aspectRation > 1 ? 20 : 18}
+              xxl={aspectRation > 0.85 ? (aspectRation > 1.15 ? 9 : 6) : 7}
+              xl={aspectRation > 0.85 ? (aspectRation > 1.15 ? 10 : 8) : 8}
+              lg={aspectRation > 0.85 ? (aspectRation > 1.15 ? 11 : 8) : 9}
+              md={aspectRation > 0.85 ? (aspectRation > 1.15 ? 18 : 10) : 12}
+              sm={aspectRation > 0.85 ? (aspectRation > 1.15 ? 20 : 16) : 18}
               xs={24}
             >
               <Col lg={0} md={aspectRation > 1 ? 24 : 0} sm={24}>
@@ -308,7 +309,12 @@ const ViewPost = (props: ViewPostProps) => {
                       <img
                         style={{
                           objectFit: 'cover',
-                          minHeight: aspectRation > 1 ? 400 : 600,
+                          minHeight:
+                            aspectRation > 0.85
+                              ? aspectRation > 1.15
+                                ? 400
+                                : 500
+                              : 600,
                           height:
                             initImageDim.height / 2 <= 400
                               ? 400
@@ -327,11 +333,11 @@ const ViewPost = (props: ViewPostProps) => {
             </Col>
             <Col
               className="full__post__right__container"
-              xxl={aspectRation > 1 ? 7 : 6}
-              xl={aspectRation > 1 ? 8 : 8}
-              lg={aspectRation > 1 ? 9 : 9}
-              md={aspectRation > 1 ? 18 : 12}
-              sm={aspectRation > 1 ? 20 : 18}
+              xxl={aspectRation > 0.85 ? (aspectRation > 1.15 ? 7 : 5) : 6}
+              xl={aspectRation > 0.85 ? (aspectRation > 1.15 ? 8 : 7) : 8}
+              lg={aspectRation > 0.85 ? (aspectRation > 1.15 ? 9 : 7) : 9}
+              md={aspectRation > 0.85 ? (aspectRation > 1.15 ? 18 : 9) : 12}
+              sm={aspectRation > 0.85 ? (aspectRation > 1.15 ? 20 : 15) : 18}
               xs={24}
             >
               {/* hide on small size screen */}
@@ -342,7 +348,12 @@ const ViewPost = (props: ViewPostProps) => {
                 <div
                   className="full__post__comments__container"
                   style={{
-                    minHeight: aspectRation > 1 ? 160 : 360,
+                    minHeight:
+                      aspectRation > 0.85
+                        ? aspectRation > 1.15
+                          ? 160
+                          : 260
+                        : 360,
                     height:
                       initImageDim.height / 2 <= 400
                         ? 160

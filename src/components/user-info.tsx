@@ -633,12 +633,14 @@ const UserProfile = (props: IUserProps) => {
         {selfUser && currentUserInfo ? (
           <div>
             <Row align="middle">
-              <ProfileAvatar user={currentUserInfo} />
-              <div style={{ marginLeft: '5%' }}>
+              <Col style={{ width: 120 }}>
+                <ProfileAvatar user={currentUserInfo} />
+              </Col>
+              <Col className="profile__details__container">
                 <Row align="middle" justify="start">
                   <ProfileUsername
                     user={currentUserInfo}
-                    style={{ fontSize: 20, float: 'left' }}
+                    style={{ fontSize: 20 }}
                   />
                   <Link to={`/account/edit`}>
                     <ProfileActionEdit selfUserInfo={currentUserInfo} />
@@ -650,7 +652,7 @@ const UserProfile = (props: IUserProps) => {
                   postsCount={currentUserInfo.posts_count}
                 />
                 <ProfileBio user={currentUserInfo} />
-              </div>
+              </Col>
             </Row>
 
             <Divider />
