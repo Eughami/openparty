@@ -32,6 +32,7 @@ import Explore from './components/explore';
 import MobileNavbar from './components/mobileNarbar';
 import Activity from './components/header/mobile/pages/Activity';
 import MobileComment from './components/header/mobile/pages/MobileComment';
+import Inbox from './components/chats/inbox';
 
 // const currentUser = true
 
@@ -152,6 +153,7 @@ const App = (props: IAppProps) => {
           <Switch>
             <Route exact path="/" component={Homepage} />
             <Route exact path="/explore" component={Explore} />
+            <Route exact path="/messages" component={Inbox} />
             <Route exact path="/:username" component={UserProfile} />
             <Route exact path="/t/:tag" component={Tags} />
             <Route exact path="/post/:postId" component={ViewPost} />
@@ -162,11 +164,6 @@ const App = (props: IAppProps) => {
             />
             <Route exact path="/account/edit" component={EditAccount} />
             <Route exact path="/account/activity" component={Activity} />
-            {/* <Route exact path="/post/:postId/comments" component={ViewPostComments} />
-            <Route exact path="/post/:postId/likes" component={ViewPostLikes} /> */}
-            <Route exact path="/test/p" component={ProfileUI} />
-
-            {/* <Route component={Homepage} /> */}
           </Switch>
           {/* here the mobile navbar */}
           {xs && currentUserInfo && (

@@ -192,3 +192,33 @@ hr.light {
 .ant-carousel .slick-next {
   z-index: 1 !important;
 }
+
+/* Inbox styling */
+
+.blackB {
+  border: black solid 1px;
+  height: 600px;
+}
+.user__msg__container {
+  background-color: aqua;
+  border-radius: 20px;
+  padding: 8px;
+  margin-right: 10px;
+}
+.received__msg__container {
+  background-color: bisque;
+  border-radius: 20px;
+  padding: 8px;
+  margin-left: 10px;
+}
+.send__msg__container {
+  width: 100%;
+  position: absolute;
+  bottom: 0;
+  height: 40px;
+}
+
+.chatbox__container {
+  /* position: relative; */
+  /* bottom: 0; */
+}
