@@ -1,6 +1,7 @@
 import { Button, Col, Row } from 'antd';
 import Avatar from 'antd/lib/avatar/avatar';
-import React from 'react';
+import firebase from 'firebase';
+import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import {
   setCurrentUserListener,
@@ -8,82 +9,112 @@ import {
 } from '../../redux/user/user.actions';
 import { RegistrationObject } from '../interfaces/user.interface';
 import AsyncMention from '../mentions/mentions.component';
+import { ICurrentChatDetails } from './inbox';
+import { v1 } from 'uuid';
 
-interface message {
-  content: string;
-  sender: string;
-  timestamp: number;
-}
-interface userlistSingleUser {
-  image_url: string;
-  username: string;
-}
 interface ChatBoxProps {
-  messages: message[];
-  // make type for this property
-  userslist: any;
+  currentChatDetails: ICurrentChatDetails;
   setCurrentUserListener?: () => Promise<any>;
   setCurrentUserRootDatabaseListener?: (uid: string) => Promise<any>;
   currentUser?: firebase.User;
   currentUserInfo?: RegistrationObject;
   currentUserToken?: string;
 }
-
+interface messageInterface {
+  senderId: string;
+  id: string;
+  text: string;
+}
 const ChatBox = (props: ChatBoxProps) => {
+  const [messages, setMessages] = useState<messageInterface[]>();
+  const [writtenMessage, setWrittenMessage] = useState<string>('');
+  const {
+    currentUserInfo,
+    currentChatDetails,
+    currentUser,
+    currentUserToken,
+  } = props;
+  useEffect(() => {
+    const fetchChat = () =>
+      firebase
+        .database()
+        .ref(`Chats/${currentChatDetails.id}/messages/`)
+        .on('value', (ssh) => {
+          setMessages(Object.values(ssh.val()));
+          console.log('ChatData.inside', Object.values(ssh.val()));
+        });
+    fetchChat();
+  }, [currentUser, currentUserInfo, currentUserToken, currentChatDetails]);
   console.log('@INBOX:', props.currentUserInfo?.uid);
-  const { messages, userslist, currentUserInfo } = props;
+  const saveMesage = (msg: string) => {
+    const message = {
+      id: v1(),
+      text: msg,
+      createdAt: new Date(),
+      senderId: currentUserInfo?.uid,
+    };
+
+    firebase
+      .database()
+      .ref(`/Chats/${currentChatDetails.id}/messages/`)
+      .push(message)
+      .catch((e) => console.log('Error savng to db ', e));
+    setWrittenMessage('');
+  };
   return (
-    <Row className="chatbox__container">
-      {messages &&
-        Object.keys(messages).length > 0 &&
-        Object.values(messages).map((message) => {
-          console.log(
-            '@INBOX: chatbox:',
-            message
-            // userslist[message.sender].image_url
-          );
-          return (
+    <>
+      <div className="chatbox__container">
+        {messages &&
+          Object.keys(messages).length > 0 &&
+          Object.values(messages).map((message) => (
             <Row
-              align="middle"
-              justify={userslist[message.sender] ? 'start' : 'end'}
+              justify={
+                message.senderId !== currentUserInfo?.uid ? 'start' : 'end'
+              }
               style={{ width: '100%', padding: 10 }}
             >
-              {userslist[message.sender] ? (
-                <>
-                  <Col>
-                    <Avatar
-                      src={userslist[message.sender].image_url}
-                      size={32}
-                    />
-                  </Col>
-                  <Col className="received__msg__container ">
-                    {message.content}
-                  </Col>
-                </>
+              {message.senderId !== currentUserInfo?.uid ? (
+                <div>
+                  <Row>
+                    <Col>
+                      <Avatar src={currentChatDetails.avatar} size={32} />
+                    </Col>
+                    <Col className="received__msg__container ">
+                      {message.text}
+                    </Col>
+                  </Row>
+                </div>
               ) : (
-                <>
-                  <Col className="user__msg__container">{message.content}</Col>
-                  <Col>
-                    <Avatar src={currentUserInfo?.image_url} size={32} />
-                  </Col>
-                </>
+                <div>
+                  <Row>
+                    <Col className="user__msg__container">{message.text}</Col>
+                    <Col>
+                      <Avatar src={currentUserInfo?.image_url} size={32} />
+                    </Col>
+                  </Row>
+                </div>
               )}
             </Row>
-          );
-        })}
+          ))}
+      </div>
       <Row className="send__msg__container">
         <Col flex="auto">
           <AsyncMention
-            value={''}
-            onChange={() => {}}
+            value={writtenMessage}
+            onChange={setWrittenMessage}
             placeholder="Add a comment..."
           />
         </Col>
         <Col style={{ height: 'inherit' }} flex="50px">
-          <Button style={{ height: 'inherit' }}>send</Button>
+          <Button
+            style={{ height: 'inherit' }}
+            onClick={() => saveMesage(writtenMessage)}
+          >
+            send
+          </Button>
         </Col>
       </Row>
-    </Row>
+    </>
   );
 };
 

@@ -6,12 +6,18 @@ import { RouteComponentProps } from 'react-router-dom';
 import {
   setCurrentUserListener,
   setCurrentUserRootDatabaseListener,
-  setCurrentUserPostViewing,
 } from '../../redux/user/user.actions';
 import { RegistrationObject } from '../interfaces/user.interface';
 import ChatBox from './chatBox';
 import ChatPreview from './chatPreview';
 
+export interface chatsId {
+  chatId: string;
+  username: string;
+  avatar: string;
+  latestMessage: string;
+  latestMessageSenderId: string | undefined;
+}
 interface InboxProps extends RouteComponentProps<any> {
   setCurrentUserListener?: () => Promise<any>;
   setCurrentUserRootDatabaseListener?: (uid: string) => Promise<any>;
@@ -19,12 +25,19 @@ interface InboxProps extends RouteComponentProps<any> {
   currentUserInfo?: RegistrationObject;
   currentUserToken?: string;
 }
-
+export interface ICurrentChatDetails {
+  id: string;
+  username: string;
+  avatar: string;
+}
 const Inbox = (props: InboxProps) => {
-  const [loading, setLoading] = useState<boolean>(true);
-  const [chats, setChats] = useState<any[]>();
-  const [currentMessageList, setCurrentMessageList] = useState<any>(undefined);
   const { currentUser, currentUserInfo, currentUserToken } = props;
+  const [loading, setLoading] = useState<boolean>(true);
+  // new
+  const [chatIds, setChatIds] = useState<chatsId[]>([]);
+  const [currentChatDetails, setCurrentChatDetails] = useState<
+    ICurrentChatDetails | undefined
+  >();
 
   useEffect(() => {
     const fetchChats = (currentUserId: string) => {
@@ -32,32 +45,58 @@ const Inbox = (props: InboxProps) => {
       // fetch this user chats
       firebase
         .database()
-        .ref('Chats')
+        .ref('Chats/')
         .on(
           'value',
           (ssh) => {
+            setLoading(false);
+
             if (!ssh.exists()) {
               setLoading(false);
               return;
             }
-            // manipulate chats
-            // restrict access from db rules
-            // only the chats which this user is a
-            // part of should be conatined in this response
-            setLoading(false);
-            let data = ssh.val();
-            let chats: any[] = [];
+            // new dynamic
+            const data = ssh.val();
+            let arr: any[] = [];
 
-            Object.keys(data).forEach((chat) => {
-              const usersList = Object.keys(data[chat].userslist);
-              if (usersList.includes(currentUserId)) {
-                // remove currentUser from userList
-                delete data[chat].userslist[currentUserId];
-                chats.push(data[chat]);
+            Object.keys(data).forEach((discussion) => {
+              const chatData: chatsId = {
+                chatId: discussion,
+                avatar:
+                  data[discussion].userslist[
+                    Object.keys(data[discussion].userslist)[0]
+                  ].avatar,
+                username:
+                  data[discussion].userslist[
+                    Object.keys(data[discussion].userslist)[0]
+                  ].username,
+                latestMessage:
+                  data[discussion].messages[
+                    Object.keys(data[discussion].messages)[
+                      Object.keys(data[discussion].messages).length - 1
+                    ]
+                  ].text,
+                latestMessageSenderId:
+                  data[discussion].messages[
+                    Object.keys(data[discussion].messages)[
+                      Object.keys(data[discussion].messages).length - 1
+                    ]
+                  ].senderId,
+              };
+
+              // to get the latest msg id in the db
+              // Object.keys(data[discussion].messages)[
+              //   Object.keys(data[discussion].messages).length - 1
+              // ]
+              // clear last user message id if from current user
+              if (chatData.latestMessageSenderId == currentUserInfo?.uid) {
+                chatData.latestMessageSenderId = undefined;
               }
+
+              arr.push(chatData);
             });
-            setChats(chats);
-            console.log('@INBOX, db value :', data);
+            setChatIds(arr);
+            console.log('ChatData:', arr);
           },
           (error: any) => {
             setLoading(false);
@@ -79,56 +118,30 @@ const Inbox = (props: InboxProps) => {
 
   return (
     <>
-      {chats && Object.keys(chats).length > 0 && (
-        <Row justify="center" align="middle">
-          <Col className="blackB" span={6}>
-            {chats.map((chat) => {
-              console.log(
-                '@INBOX:chat:',
-                // this is the other user details (image,username)
-                chat.userslist[Object.keys(chat.userslist)[0]]
-              );
-              return (
-                <div
-                  onClick={() =>
-                    setCurrentMessageList({
-                      messages: chat.messages,
-                      userslist: chat.userslist,
-                    })
-                  }
-                >
-                  <ChatPreview
-                    username={
-                      chat.userslist[Object.keys(chat.userslist)[0]].username
-                    }
-                    imageUrl={
-                      chat.userslist[Object.keys(chat.userslist)[0]].image_url
-                    }
-                    latestMessageContent={
-                      chat.messages[Object.keys(chat.messages)[0]].content
-                    }
-                    sender={
-                      chat.messages[Object.keys(chat.messages)[0]].sender ===
-                      currentUserInfo?.uid
-                    }
-                    timestamp={
-                      chat.messages[Object.keys(chat.messages)[0]].timestamp
-                    }
-                  />
-                </div>
-              );
-            })}
-          </Col>
-          <Col className="blackB" span={14}>
-            {currentMessageList !== undefined && (
-              <ChatBox
-                messages={currentMessageList.messages}
-                userslist={currentMessageList.userslist}
-              />
-            )}
-          </Col>
-        </Row>
-      )}
+      <Row justify="center" align="top">
+        <Col className="blackB" span={8}>
+          {chatIds &&
+            chatIds.map((chatId) => (
+              <div
+                onClick={() =>
+                  setCurrentChatDetails({
+                    id: chatId.chatId,
+                    username: chatId.username,
+                    avatar: chatId.avatar,
+                  } as ICurrentChatDetails)
+                }
+              >
+                <ChatPreview details={chatId} />
+              </div>
+            ))}
+        </Col>
+        <Col span={14} className="current__chat__container">
+          {currentChatDetails !== undefined && (
+            <ChatBox currentChatDetails={currentChatDetails} />
+          )}
+        </Col>
+      </Row>
+      {/* )} */}
     </>
   );
 };
