@@ -7,8 +7,10 @@ import {
   RegistrationObject,
 } from '../interfaces/user.interface';
 import { Col, Skeleton, BackTop, Button } from 'antd';
+import { RedoOutlined } from '@ant-design/icons';
 import { connect } from 'react-redux';
 import {
+  setCurrentUserEligiblePosts,
   setCurrentUserListener,
   setCurrentUserRootDatabaseListener,
 } from '../../redux/user/user.actions';
@@ -16,10 +18,12 @@ import bluebird from 'bluebird';
 import Axios from 'axios';
 import { API_BASE_URL, GET_POPULAR_USERS } from '../../service/api';
 import UserSuggestions from '../userSuggestions';
+import { FloatingButton, Item } from 'react-floating-button';
 
 interface IPostsProps {
   setCurrentUserListener?: () => Promise<any>;
   setCurrentUserRootDatabaseListener?: (uid: string) => Promise<any>;
+  setCurrentUserEligiblePosts?: (currentUser: firebase.User) => Promise<any>;
   currentUser?: firebase.User;
   currentUserInfo?: RegistrationObject;
   fromProfile?: boolean;
@@ -134,8 +138,12 @@ const Posts = (props: IPostsProps) => {
     localStorage.getItem('postsSet') === null
   );
   const [posts, setPosts] = useState<Array<any>>([]);
-  const [suggestedUsers, setSuggesedUsers] = useState<RegistrationObject[]>([]);
-  const [loadingRecommended, setloadingRecommended] = useState<boolean>(false);
+  const [suggestedUsers, setSuggestedUsers] = useState<RegistrationObject[]>(
+    []
+  );
+  const [loadingRecommended, setLoadingRecommended] = useState<boolean>(false);
+  const [shouldRefreshPost, setShouldRefreshPost] = useState<boolean>(true);
+
   useEffect(() => {
     if (!currentUser) return;
     if (currentUserEligiblePosts === null) {
@@ -246,9 +254,39 @@ const Posts = (props: IPostsProps) => {
     getEligible();
   }, [currentUser, currentUserEligiblePosts]);
 
+  //Set listener for every hot notification update in user's updated post
+  useEffect(() => {
+    const un_sub = firebase
+      .database()
+      .ref('Notifications')
+      .child(props.currentUser?.uid!)
+      .child('HOT UPDATE')
+      .on(
+        'child_changed',
+        (ssh, __prevSsh) => {
+          if (ssh.exists()) {
+            if (ssh.child('refresh_post').exists()) {
+              setShouldRefreshPost(true);
+            }
+          }
+        },
+        (error: any) => {
+          console.log(error);
+        }
+      );
+
+    return () =>
+      firebase
+        .database()
+        .ref('Notifications')
+        .child(props.currentUser?.uid!)
+        .child('HOT UPDATE')
+        .off('child_changed', un_sub);
+  }, [props.currentUser]);
+
   // fetch mos popular users
   const getPopularUsers = async () => {
-    setloadingRecommended(true);
+    setLoadingRecommended(true);
     await Axios.get(`${API_BASE_URL}${GET_POPULAR_USERS}`, {
       headers: {
         Authorization: `Bearer ${props.currentUserToken}`,
@@ -256,17 +294,17 @@ const Posts = (props: IPostsProps) => {
     })
       .then((res) => {
         console.log('New popular endpoint', res.data);
-        setloadingRecommended(false);
+        setLoadingRecommended(false);
         if (res.data === null) {
           return;
         }
-        setSuggesedUsers(res.data);
+        setSuggestedUsers(res.data);
         // setComments(res.data);
         // setPostExists(true);
         // setLoadingPost(false);
       })
       .catch((e) => {
-        setloadingRecommended(false);
+        setLoadingRecommended(false);
         console.log('@GET POST ERROR: ', e);
         // setPostExists(false);
         // setLoadingPost(false);
@@ -312,6 +350,21 @@ const Posts = (props: IPostsProps) => {
   return (
     <div className="posts__container">
       <BackTop />
+
+      {shouldRefreshPost && (
+        <Col
+          offset={12}
+          span={12}
+          style={{ zIndex: 2, position: 'fixed', textAlign: 'center', top: 0 }}
+        >
+          <RedoOutlined
+            onClick={() =>
+              props.setCurrentUserEligiblePosts!(props.currentUser!)
+            }
+            size={25}
+          />
+        </Col>
+      )}
       {posts.length > 0 &&
         posts.map((val) => <MyPost key={val.key} post={val} />)}
     </div>
@@ -332,6 +385,8 @@ const mapDispatchToProps = (dispatch: any) => {
     setCurrentUserListener: () => dispatch(setCurrentUserListener()),
     setCurrentUserRootDatabaseListener: (uid: string) =>
       dispatch(setCurrentUserRootDatabaseListener(uid)),
+    setCurrentUserEligiblePosts: (currentUser: firebase.User) =>
+      dispatch(setCurrentUserEligiblePosts(currentUser)),
   };
 };
 
