@@ -19,20 +19,20 @@ const TempHeaderNotification = (props: INotificationProps) => {
   return (
     <Row
       style={{ borderBottom: '1px solid #e6e6e6' }}
-      justify="center"
+      justify="start"
       align="middle"
-      gutter={[0, 12]}
+      // gutter={[0, 12]}
     >
-      <Col span={2}>
+      <Col xs={{ span: 2, offset: 1 }} sm={{ span: 2, offset: 0 }}>
         <Link to={`/${username}`}>
           <Avatar alt="user-avatar" src={imageUrl} size={imageSize || 36} />
         </Link>
       </Col>
       <Col
         span={16}
-        offset={1}
+        // offset={1}
         // to hide very long weird and probably non-existent one word
-        style={{ overflowX: 'hidden', fontSize: 12 }}
+        style={{ overflowX: 'hidden', fontSize: 12, marginLeft: 20 }}
       >
         <Link
           style={{ color: 'rgba(var(--i1d,38,38,38),1)', fontWeight: 600 }}
