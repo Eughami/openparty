@@ -2,37 +2,41 @@ import { Col, Row } from 'antd';
 import Avatar from 'antd/lib/avatar/avatar';
 import React from 'react';
 import TimeAgo from 'react-timeago';
+import { chatsId } from './inbox';
 
 interface ChatPreviewProps {
-  username: string;
-  imageUrl: string;
-  latestMessageContent: string;
-  sender: boolean;
-  timestamp: number;
+  details: chatsId;
 }
 
 const ChatPreview = (props: ChatPreviewProps) => {
-  const { username, imageUrl, latestMessageContent, sender, timestamp } = props;
+  const {
+    username,
+    avatar,
+    chatId,
+    latestMessage,
+    latestMessageSenderId,
+  } = props.details;
+  console.log('ChatData:called with', props);
   return (
     <Row style={{ padding: 10 }} align="middle" justify="space-between">
       <Col flex="80px">
-        <Avatar src={imageUrl} size={64} />
+        <Avatar src={avatar} size={64} />
       </Col>
       <Col flex="auto">
-        <Row justify="space-between" align="middle">
+        <Row justify="space-between" align="top">
           <Col>
             <span>
               <strong>{username}</strong>
             </span>
             <br />
             <span>
-              {sender && 'You:'} {latestMessageContent}
+              {latestMessageSenderId === undefined && 'You:'} {latestMessage}
             </span>
           </Col>
           <Col>
-            <span style={{ fontSize: 10 }}>
+            {/* <span style={{ fontSize: 10 }}>
               <TimeAgo live date={new Date(timestamp)} />
-            </span>
+            </span> */}
           </Col>
         </Row>
       </Col>
