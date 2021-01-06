@@ -39,6 +39,7 @@ const ChatBox = (props: ChatBoxProps) => {
       firebase
         .database()
         .ref(`Chats/${currentChatDetails.id}/messages/`)
+        .limitToLast(20)
         .on('value', (ssh) => {
           setMessages(Object.values(ssh.val()));
           console.log('ChatData.inside', Object.values(ssh.val()));
@@ -62,7 +63,7 @@ const ChatBox = (props: ChatBoxProps) => {
     setWrittenMessage('');
   };
   return (
-    <>
+    <div className="current__chat__container">
       <div className="chatbox__container">
         {messages &&
           Object.keys(messages).length > 0 &&
@@ -114,7 +115,7 @@ const ChatBox = (props: ChatBoxProps) => {
           </Button>
         </Col>
       </Row>
-    </>
+    </div>
   );
 };
 

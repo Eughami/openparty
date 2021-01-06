@@ -40,72 +40,81 @@ const Inbox = (props: InboxProps) => {
   >();
 
   useEffect(() => {
-    const fetchChats = (currentUserId: string) => {
-      console.log('@INBOX:userID:', currentUserId);
-      // fetch this user chats
-      firebase
-        .database()
-        .ref('Chats/')
-        .on(
-          'value',
-          (ssh) => {
-            setLoading(false);
-
-            if (!ssh.exists()) {
+    if (currentUser && currentUserInfo && currentUserToken) {
+      const fetchChats = (currentUserId: string) => {
+        console.log('@INBOX:userID:', currentUserId);
+        // fetch this user chats
+        firebase
+          .database()
+          .ref('Chats/')
+          .on(
+            'value',
+            (ssh) => {
               setLoading(false);
-              return;
-            }
-            // new dynamic
-            const data = ssh.val();
-            let arr: any[] = [];
 
-            Object.keys(data).forEach((discussion) => {
-              const chatData: chatsId = {
-                chatId: discussion,
-                avatar:
-                  data[discussion].userslist[
-                    Object.keys(data[discussion].userslist)[0]
-                  ].avatar,
-                username:
-                  data[discussion].userslist[
-                    Object.keys(data[discussion].userslist)[0]
-                  ].username,
-                latestMessage:
-                  data[discussion].messages[
-                    Object.keys(data[discussion].messages)[
-                      Object.keys(data[discussion].messages).length - 1
-                    ]
-                  ].text,
-                latestMessageSenderId:
-                  data[discussion].messages[
-                    Object.keys(data[discussion].messages)[
-                      Object.keys(data[discussion].messages).length - 1
-                    ]
-                  ].senderId,
-              };
-
-              // to get the latest msg id in the db
-              // Object.keys(data[discussion].messages)[
-              //   Object.keys(data[discussion].messages).length - 1
-              // ]
-              // clear last user message id if from current user
-              if (chatData.latestMessageSenderId == currentUserInfo?.uid) {
-                chatData.latestMessageSenderId = undefined;
+              if (!ssh.exists()) {
+                setLoading(false);
+                return;
               }
+              // new dynamic
+              const data = ssh.val();
+              let arr: any[] = [];
 
-              arr.push(chatData);
-            });
-            setChatIds(arr);
-            console.log('ChatData:', arr);
-          },
-          (error: any) => {
-            setLoading(false);
-            console.log('@INBOX:error:', error);
-          }
-        );
-    };
+              // remove current user from userlists
+              Object.keys(data).forEach(
+                (discussion) =>
+                  delete data[discussion].userslist[currentUserInfo?.uid]
+              );
+              Object.keys(data).forEach((discussion) => {
+                const chatData: chatsId = {
+                  chatId: discussion,
+                  // only remaining node will be the other user in the discussion
+                  // so we're geting his details at the index 0(only one)
+                  avatar:
+                    data[discussion].userslist[
+                      Object.keys(data[discussion].userslist)[0]
+                    ].avatar,
+                  username:
+                    data[discussion].userslist[
+                      Object.keys(data[discussion].userslist)[0]
+                    ].username,
+                  latestMessage:
+                    data[discussion].messages[
+                      Object.keys(data[discussion].messages)[
+                        Object.keys(data[discussion].messages).length - 1
+                      ]
+                    ].text,
+                  latestMessageSenderId:
+                    data[discussion].messages[
+                      Object.keys(data[discussion].messages)[
+                        Object.keys(data[discussion].messages).length - 1
+                      ]
+                    ].senderId,
+                };
 
-    fetchChats(props.currentUserInfo?.uid!);
+                // to get the latest msg id in the db
+                // Object.keys(data[discussion].messages)[
+                //   Object.keys(data[discussion].messages).length - 1
+                // ]
+                // clear last user message id if from current user
+                if (chatData.latestMessageSenderId == currentUserInfo?.uid) {
+                  chatData.latestMessageSenderId = undefined;
+                }
+
+                arr.push(chatData);
+              });
+              setChatIds(arr);
+              console.log('ChatData:', arr);
+            },
+            (error: any) => {
+              setLoading(false);
+              console.log('@INBOX:error:', error);
+            }
+          );
+      };
+
+      fetchChats(props.currentUserInfo?.uid!);
+    }
   }, [currentUser, currentUserInfo, currentUserToken]);
 
   if (loading) {
@@ -119,7 +128,7 @@ const Inbox = (props: InboxProps) => {
   return (
     <>
       <Row justify="center" align="top">
-        <Col className="blackB" span={8}>
+        <Col className="chats__list_container" span={6}>
           {chatIds &&
             chatIds.map((chatId) => (
               <div
@@ -135,9 +144,18 @@ const Inbox = (props: InboxProps) => {
               </div>
             ))}
         </Col>
-        <Col span={14} className="current__chat__container">
-          {currentChatDetails !== undefined && (
+        <Col span={14}>
+          {currentChatDetails !== undefined ? (
             <ChatBox currentChatDetails={currentChatDetails} />
+          ) : (
+            // this will be the empty box (default) when no user is selected
+            <Row
+              justify="center"
+              align="middle"
+              className="empty__chat__container"
+            >
+              Start Messaging people
+            </Row>
           )}
         </Col>
       </Row>

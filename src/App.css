@@ -195,10 +195,10 @@ hr.light {
 
 /* Inbox styling */
 
-.blackB {
+.chats__list_container {
   border: black solid 1px;
   background-color: azure;
-  height: 100%;
+  height: 650px;
 }
 .user__msg__container {
   background-color: aqua;
@@ -227,4 +227,8 @@ hr.light {
   border: black solid 1px;
   height: calc(100% - 40px);
   overflow: auto;
+}
+.empty__chat__container {
+  height: 650px;
+  border: black solid 1px;
 }
