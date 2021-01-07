@@ -1,7 +1,7 @@
 import { Button, Col, Row } from 'antd';
 import Avatar from 'antd/lib/avatar/avatar';
 import firebase from 'firebase';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { connect } from 'react-redux';
 import {
   setCurrentUserListener,
@@ -28,19 +28,30 @@ interface messageInterface {
 const ChatBox = (props: ChatBoxProps) => {
   const [messages, setMessages] = useState<messageInterface[]>();
   const [writtenMessage, setWrittenMessage] = useState<string>('');
+  const [messagesLimit, setMessagesLimit] = useState<number>(20);
   const {
     currentUserInfo,
     currentChatDetails,
     currentUser,
     currentUserToken,
   } = props;
+
+  const scrollToBottom = () => {
+    if (messagesEndRef.current && messagesEndRef && messagesLimit <= 20)
+      (messagesEndRef.current as any)!.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  const messagesEndRef = useRef(null);
+
+  useEffect(scrollToBottom);
+
   useEffect(() => {
     let sub: any;
     const fetchChat = () =>
       (sub = firebase
         .database()
         .ref(`Chats/${currentChatDetails.id}/thread/`)
-        .limitToLast(20)
+        .limitToLast(messagesLimit)
         .on('value', (ssh) => {
           setMessages(Object.values(ssh.val()));
           console.log('ChatData.inside', Object.values(ssh.val()));
@@ -51,7 +62,13 @@ const ChatBox = (props: ChatBoxProps) => {
         .database()
         .ref(`Chats/${currentChatDetails.id}/thread/`)
         .off('value', sub);
-  }, [currentUser, currentUserInfo, currentUserToken, currentChatDetails]);
+  }, [
+    currentUser,
+    currentUserInfo,
+    currentUserToken,
+    currentChatDetails,
+    messagesLimit,
+  ]);
 
   const saveMessage = (msg: string) => {
     const message = {
@@ -65,12 +82,21 @@ const ChatBox = (props: ChatBoxProps) => {
       .database()
       .ref(`/Chats/${currentChatDetails.id}/thread/`)
       .push(message)
-      .catch((e) => console.log('Error savng to db ', e));
+      .catch((e) => console.log('Error saving to db ', e));
     setWrittenMessage('');
   };
+
+  const handleScroll = (e: any) => {
+    if (e.target.scrollTop === 0) {
+      console.log('top reached');
+      setMessagesLimit(messagesLimit + 5);
+      e.target.scrollTop = 1;
+    }
+  };
+
   return (
     <div className="current__chat__container">
-      <div className="chatbox__container">
+      <div onScroll={handleScroll} className="chatbox__container">
         {messages &&
           Object.keys(messages).length > 0 &&
           Object.values(messages).map((message) => (
@@ -104,6 +130,7 @@ const ChatBox = (props: ChatBoxProps) => {
               )}
             </Row>
           ))}
+        <div ref={messagesEndRef}></div>
       </div>
       <Row className="send__msg__container">
         <Col flex="auto">
