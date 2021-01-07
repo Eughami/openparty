@@ -6,7 +6,7 @@ import {
   Post,
   RegistrationObject,
 } from '../interfaces/user.interface';
-import { Col, Skeleton, BackTop, Button } from 'antd';
+import { Col, Skeleton, BackTop, Button, Affix } from 'antd';
 import { RedoOutlined } from '@ant-design/icons';
 import { connect } from 'react-redux';
 import {
@@ -18,7 +18,6 @@ import bluebird from 'bluebird';
 import Axios from 'axios';
 import { API_BASE_URL, GET_POPULAR_USERS } from '../../service/api';
 import UserSuggestions from '../userSuggestions';
-import { FloatingButton, Item } from 'react-floating-button';
 
 interface IPostsProps {
   setCurrentUserListener?: () => Promise<any>;
@@ -137,12 +136,16 @@ const Posts = (props: IPostsProps) => {
   const [loading, setLoading] = useState<boolean>(
     localStorage.getItem('postsSet') === null
   );
+
+  const [refreshPostsLoading, setRefreshPostsLoading] = useState<boolean>(
+    false
+  );
   const [posts, setPosts] = useState<Array<any>>([]);
   const [suggestedUsers, setSuggestedUsers] = useState<RegistrationObject[]>(
     []
   );
   const [loadingRecommended, setLoadingRecommended] = useState<boolean>(false);
-  const [shouldRefreshPost, setShouldRefreshPost] = useState<boolean>(true);
+  const [shouldRefreshPost, setShouldRefreshPost] = useState<boolean>(false);
 
   useEffect(() => {
     if (!currentUser) return;
@@ -353,16 +356,28 @@ const Posts = (props: IPostsProps) => {
 
       {shouldRefreshPost && (
         <Col
-          offset={12}
+          offset={6}
           span={12}
-          style={{ zIndex: 2, position: 'fixed', textAlign: 'center', top: 0 }}
+          // style={{ zIndex: 2, position: 'fixed', textAlign: 'center', top: 0 }}
         >
-          <RedoOutlined
-            onClick={() =>
-              props.setCurrentUserEligiblePosts!(props.currentUser!)
-            }
-            size={25}
-          />
+          <Affix offsetTop={70}>
+            <Button
+              loading={refreshPostsLoading}
+              type="text"
+              onClick={() => {
+                setRefreshPostsLoading(true);
+                props.setCurrentUserEligiblePosts!(props.currentUser!).finally(
+                  () => {
+                    setRefreshPostsLoading(false);
+                    setShouldRefreshPost(false);
+                  }
+                );
+              }}
+              icon={<RedoOutlined size={25} />}
+            >
+              Refresh posts
+            </Button>
+          </Affix>
         </Col>
       )}
       {posts.length > 0 &&
