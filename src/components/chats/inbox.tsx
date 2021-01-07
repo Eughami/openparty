@@ -1,4 +1,5 @@
 import { Col, Row, Skeleton } from 'antd';
+import Bluebird from 'bluebird';
 import firebase from 'firebase';
 import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
@@ -39,83 +40,154 @@ const Inbox = (props: InboxProps) => {
     ICurrentChatDetails | undefined
   >();
 
+  // useEffect(() => {
+  //   if (currentUser && currentUserInfo && currentUserToken) {
+  //     const fetchChats = (currentUserId: string) => {
+  //       console.log('@INBOX:userID:', currentUserId);
+  //       // fetch this user chats
+  //       firebase
+  //         .database()
+  //         .ref('Chats/')
+  //         .on(
+  //           'value',
+  //           (ssh) => {
+  //             setLoading(false);
+
+  //             if (!ssh.exists()) {
+  //               setLoading(false);
+  //               return;
+  //             }
+  //             // new dynamic
+  //             const data = ssh.val();
+  //             let arr: any[] = [];
+
+  //             // remove current user from userlists
+  //             Object.keys(data).forEach(
+  //               (discussion) =>
+  //                 delete data[discussion].userslist[currentUserInfo?.uid]
+  //             );
+  //             Object.keys(data).forEach((discussion) => {
+  //               const chatData: chatsId = {
+  //                 chatId: discussion,
+  //                 // only remaining node will be the other user in the discussion
+  //                 // so we're geting his details at the index 0(only one)
+  //                 avatar:
+  //                   data[discussion].userslist[
+  //                     Object.keys(data[discussion].userslist)[0]
+  //                   ].avatar,
+  //                 username:
+  //                   data[discussion].userslist[
+  //                     Object.keys(data[discussion].userslist)[0]
+  //                   ].username,
+  //                 latestMessage:
+  //                   data[discussion].messages[
+  //                     Object.keys(data[discussion].messages)[
+  //                       Object.keys(data[discussion].messages).length - 1
+  //                     ]
+  //                   ].text,
+  //                 latestMessageSenderId:
+  //                   data[discussion].messages[
+  //                     Object.keys(data[discussion].messages)[
+  //                       Object.keys(data[discussion].messages).length - 1
+  //                     ]
+  //                   ].senderId,
+  //               };
+
+  //               // to get the latest msg id in the db
+  //               // Object.keys(data[discussion].messages)[
+  //               //   Object.keys(data[discussion].messages).length - 1
+  //               // ]
+  //               // clear last user message id if from current user
+  //               if (chatData.latestMessageSenderId == currentUserInfo?.uid) {
+  //                 chatData.latestMessageSenderId = undefined;
+  //               }
+
+  //               arr.push(chatData);
+  //             });
+  //             setChatIds(arr);
+  //             console.log('ChatData:', arr);
+  //           },
+  //           (error: any) => {
+  //             setLoading(false);
+  //             console.log('@INBOX:error:', error);
+  //           }
+  //         );
+  //     };
+
+  //     fetchChats(props.currentUserInfo?.uid!);
+  //   }
+  // }, [currentUser, currentUserInfo, currentUserToken]);
+
   useEffect(() => {
-    if (currentUser && currentUserInfo && currentUserToken) {
-      const fetchChats = (currentUserId: string) => {
-        console.log('@INBOX:userID:', currentUserId);
-        // fetch this user chats
-        firebase
-          .database()
-          .ref('Chats/')
-          .on(
-            'value',
-            (ssh) => {
-              setLoading(false);
+    let channelsSub: any;
+    let massChannelsSub: any[] = [];
+    (async () => {
+      channelsSub = firebase
+        .database()
+        .ref('UserChannels')
+        .child(currentUser?.uid!)
+        .on('value', (channels) => {
+          if (channels.exists()) {
+            const temp: any = {};
+            const channelKeys = Object.keys(channels.val());
+            Bluebird.map(
+              channelKeys,
+              (channelKey, index) => {
+                const massSub = firebase
+                  .database()
+                  .ref('Chats')
+                  .child(channelKey)
+                  .orderByChild('updated')
+                  .on('value', (chats) => {
+                    const chatsVal = chats.val();
+                    let chatData: chatsId = {
+                      avatar: '',
+                      chatId: '',
+                      latestMessage: '',
+                      latestMessageSenderId: '',
+                      username: '',
+                    };
+                    if (chats.child('thread').exists()) {
+                      const threadVal = chats.child('thread').val();
+                      //
+                      chatData = threadVal;
+                      // if(chatData)
+                      chatData.avatar = 'channelKey.split("+")[0]';
+                    }
+                    temp[`${chats.key!}`] = chatData;
+                    if (index === channelKeys.length - 1) {
+                      //set loading chats done
 
-              if (!ssh.exists()) {
-                setLoading(false);
-                return;
-              }
-              // new dynamic
-              const data = ssh.val();
-              let arr: any[] = [];
+                      setChatIds(Object.values(temp));
+                      console.log('@CHAT DEBUG: ', Object.values(temp));
 
-              // remove current user from userlists
-              Object.keys(data).forEach(
-                (discussion) =>
-                  delete data[discussion].userslist[currentUserInfo?.uid]
-              );
-              Object.keys(data).forEach((discussion) => {
-                const chatData: chatsId = {
-                  chatId: discussion,
-                  // only remaining node will be the other user in the discussion
-                  // so we're geting his details at the index 0(only one)
-                  avatar:
-                    data[discussion].userslist[
-                      Object.keys(data[discussion].userslist)[0]
-                    ].avatar,
-                  username:
-                    data[discussion].userslist[
-                      Object.keys(data[discussion].userslist)[0]
-                    ].username,
-                  latestMessage:
-                    data[discussion].messages[
-                      Object.keys(data[discussion].messages)[
-                        Object.keys(data[discussion].messages).length - 1
-                      ]
-                    ].text,
-                  latestMessageSenderId:
-                    data[discussion].messages[
-                      Object.keys(data[discussion].messages)[
-                        Object.keys(data[discussion].messages).length - 1
-                      ]
-                    ].senderId,
-                };
+                      setLoading(false);
+                    }
+                  });
+                massChannelsSub.push(massSub);
+              },
+              { concurrency: channelKeys.length }
+            );
+          } else {
+            //info: no chats found
+            //set chats => []
+          }
+        });
+    })();
 
-                // to get the latest msg id in the db
-                // Object.keys(data[discussion].messages)[
-                //   Object.keys(data[discussion].messages).length - 1
-                // ]
-                // clear last user message id if from current user
-                if (chatData.latestMessageSenderId == currentUserInfo?.uid) {
-                  chatData.latestMessageSenderId = undefined;
-                }
+    return () => {
+      firebase
+        .database()
+        .ref('UserChannels')
+        .child(currentUser?.uid!)
+        .off('value', channelsSub);
+      console.log(massChannelsSub);
 
-                arr.push(chatData);
-              });
-              setChatIds(arr);
-              console.log('ChatData:', arr);
-            },
-            (error: any) => {
-              setLoading(false);
-              console.log('@INBOX:error:', error);
-            }
-          );
-      };
+      // massChannelsSub.forEach((u) => {
 
-      fetchChats(props.currentUserInfo?.uid!);
-    }
-  }, [currentUser, currentUserInfo, currentUserToken]);
+      // })
+    };
+  }, [currentUser]);
 
   if (loading) {
     return (
