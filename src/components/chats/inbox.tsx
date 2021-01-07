@@ -13,7 +13,7 @@ import ChatBox from './chatBox';
 import ChatPreview from './chatPreview';
 
 export interface chatsId {
-  chatId: string;
+  channelId: string;
   username: string;
   avatar: string;
   latestMessage: string;
@@ -68,7 +68,7 @@ const Inbox = (props: InboxProps) => {
   //             );
   //             Object.keys(data).forEach((discussion) => {
   //               const chatData: chatsId = {
-  //                 chatId: discussion,
+  //                 channelId: discussion,
   //                 // only remaining node will be the other user in the discussion
   //                 // so we're geting his details at the index 0(only one)
   //                 avatar:
@@ -121,6 +121,8 @@ const Inbox = (props: InboxProps) => {
   useEffect(() => {
     let channelsSub: any;
     let massChannelsSub: any[] = [];
+    let chatsIdsTemp: any = [];
+    if (!currentUser) return;
     (async () => {
       channelsSub = firebase
         .database()
@@ -140,26 +142,48 @@ const Inbox = (props: InboxProps) => {
                   .orderByChild('updated')
                   .on('value', (chats) => {
                     const chatsVal = chats.val();
-                    let chatData: chatsId = {
-                      avatar: '',
-                      chatId: '',
-                      latestMessage: '',
-                      latestMessageSenderId: '',
-                      username: '',
-                    };
+
                     if (chats.child('thread').exists()) {
-                      const threadVal = chats.child('thread').val();
-                      //
-                      chatData = threadVal;
-                      // if(chatData)
-                      chatData.avatar = 'channelKey.split("+")[0]';
+                      // remove current user from userslist property
+                      delete chatsVal.userslist[currentUser.uid];
+
+                      const otherUserDetails: any = Object.values(
+                        chatsVal.userslist
+                      )[0];
+                      const lastMessage: any = Object.values(
+                        chatsVal.thread
+                      ).slice(-1)[0];
+
+                      // details of the latest thread msg
+                      const chatData: chatsId = {
+                        channelId: channelKey,
+                        avatar: otherUserDetails.avatar,
+                        username: otherUserDetails.username,
+                        latestMessage: lastMessage.text,
+                        latestMessageSenderId: lastMessage.senderId,
+                      };
+
+                      // make latestMessageSenderId undefined if it's from the currentUser
+                      if (chatData.latestMessageSenderId === currentUser.uid) {
+                        chatData.latestMessageSenderId = undefined;
+                      }
+                      chatsIdsTemp.push(chatData);
+                      console.log(
+                        '@CHAT DEBUG: chats Lists',
+                        chatsVal,
+                        chatData
+                      );
+
+                      //   chatData.avatar = 'channelKey.split("+")[0]';
                     }
-                    temp[`${chats.key!}`] = chatData;
+                    // temp[`${chats.key!}`] = chatData;
+
+                    // what this index doing ?
                     if (index === channelKeys.length - 1) {
                       //set loading chats done
 
-                      setChatIds(Object.values(temp));
-                      console.log('@CHAT DEBUG: ', Object.values(temp));
+                      setChatIds(chatsIdsTemp);
+                      console.log('@CHAT DEBUG: ', chatsIdsTemp);
 
                       setLoading(false);
                     }
@@ -202,17 +226,17 @@ const Inbox = (props: InboxProps) => {
       <Row justify="center" align="top">
         <Col className="chats__list_container" span={6}>
           {chatIds &&
-            chatIds.map((chatId) => (
+            chatIds.map((channelId) => (
               <div
                 onClick={() =>
                   setCurrentChatDetails({
-                    id: chatId.chatId,
-                    username: chatId.username,
-                    avatar: chatId.avatar,
+                    id: channelId.channelId,
+                    username: channelId.username,
+                    avatar: channelId.avatar,
                   } as ICurrentChatDetails)
                 }
               >
-                <ChatPreview details={chatId} />
+                <ChatPreview details={channelId} />
               </div>
             ))}
         </Col>

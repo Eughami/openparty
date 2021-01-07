@@ -38,7 +38,7 @@ const ChatBox = (props: ChatBoxProps) => {
     const fetchChat = () =>
       firebase
         .database()
-        .ref(`Chats/${currentChatDetails.id}/messages/`)
+        .ref(`Chats/${currentChatDetails.id}/thread/`)
         .limitToLast(20)
         .on('value', (ssh) => {
           setMessages(Object.values(ssh.val()));
@@ -57,7 +57,7 @@ const ChatBox = (props: ChatBoxProps) => {
 
     firebase
       .database()
-      .ref(`/Chats/${currentChatDetails.id}/messages/`)
+      .ref(`/Chats/${currentChatDetails.id}/thread/`)
       .push(message)
       .catch((e) => console.log('Error savng to db ', e));
     setWrittenMessage('');
