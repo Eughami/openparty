@@ -12,7 +12,7 @@ const ChatPreview = (props: ChatPreviewProps) => {
   const {
     username,
     avatar,
-    chatId,
+    channelId,
     latestMessage,
     latestMessageSenderId,
   } = props.details;
