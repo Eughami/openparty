@@ -35,19 +35,25 @@ const ChatBox = (props: ChatBoxProps) => {
     currentUserToken,
   } = props;
   useEffect(() => {
+    let sub: any;
     const fetchChat = () =>
-      firebase
+      (sub = firebase
         .database()
         .ref(`Chats/${currentChatDetails.id}/thread/`)
         .limitToLast(20)
         .on('value', (ssh) => {
           setMessages(Object.values(ssh.val()));
           console.log('ChatData.inside', Object.values(ssh.val()));
-        });
+        }));
     fetchChat();
+    return () =>
+      firebase
+        .database()
+        .ref(`Chats/${currentChatDetails.id}/thread/`)
+        .off('value', sub);
   }, [currentUser, currentUserInfo, currentUserToken, currentChatDetails]);
-  console.log('@INBOX:', props.currentUserInfo?.uid);
-  const saveMesage = (msg: string) => {
+
+  const saveMessage = (msg: string) => {
     const message = {
       id: v1(),
       text: msg,
@@ -69,6 +75,7 @@ const ChatBox = (props: ChatBoxProps) => {
           Object.keys(messages).length > 0 &&
           Object.values(messages).map((message) => (
             <Row
+              key={message.id}
               justify={
                 message.senderId !== currentUserInfo?.uid ? 'start' : 'end'
               }
@@ -109,7 +116,7 @@ const ChatBox = (props: ChatBoxProps) => {
         <Col style={{ height: 'inherit' }} flex="50px">
           <Button
             style={{ height: 'inherit' }}
-            onClick={() => saveMesage(writtenMessage)}
+            onClick={() => saveMessage(writtenMessage)}
           >
             send
           </Button>

@@ -32,7 +32,7 @@ export interface ICurrentChatDetails {
   avatar: string;
 }
 const Inbox = (props: InboxProps) => {
-  const { currentUser, currentUserInfo, currentUserToken } = props;
+  const { currentUser } = props;
   const [loading, setLoading] = useState<boolean>(true);
   // new
   const [chatIds, setChatIds] = useState<chatsId[]>([]);
@@ -121,7 +121,7 @@ const Inbox = (props: InboxProps) => {
   useEffect(() => {
     let channelsSub: any;
     let massChannelsSub: any[] = [];
-    let chatsIdsTemp: any = [];
+    // let chatsIdsTemp: any = [];
     if (!currentUser) return;
     (async () => {
       channelsSub = firebase
@@ -167,7 +167,8 @@ const Inbox = (props: InboxProps) => {
                       if (chatData.latestMessageSenderId === currentUser.uid) {
                         chatData.latestMessageSenderId = undefined;
                       }
-                      chatsIdsTemp.push(chatData);
+                      // chatsIdsTemp.push(chatData);
+                      temp[`${channelKey}`] = chatData;
                       console.log(
                         '@CHAT DEBUG: chats Lists',
                         chatsVal,
@@ -182,8 +183,8 @@ const Inbox = (props: InboxProps) => {
                     if (index === channelKeys.length - 1) {
                       //set loading chats done
 
-                      setChatIds(chatsIdsTemp);
-                      console.log('@CHAT DEBUG: ', chatsIdsTemp);
+                      setChatIds(Object.values(temp));
+                      console.log('@CHAT DEBUG: ', Object.values(temp));
 
                       setLoading(false);
                     }
@@ -228,6 +229,7 @@ const Inbox = (props: InboxProps) => {
           {chatIds &&
             chatIds.map((channelId) => (
               <div
+                key={channelId.channelId}
                 onClick={() =>
                   setCurrentChatDetails({
                     id: channelId.channelId,
