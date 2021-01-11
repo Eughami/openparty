@@ -232,3 +232,6 @@ hr.light {
   height: 650px;
   border: black solid 1px;
 }
+.dynamicHeight {
+  padding: 3px;
+}
