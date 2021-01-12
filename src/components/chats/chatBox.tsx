@@ -53,6 +53,10 @@ const ChatBox = (props: ChatBoxProps) => {
         .ref(`Chats/${currentChatDetails.id}/thread/`)
         .limitToLast(messagesLimit)
         .on('value', (ssh) => {
+          if (!ssh.exists()) {
+            setMessages([]);
+            return;
+          }
           setMessages(Object.values(ssh.val()));
           console.log('ChatData.inside', Object.values(ssh.val()));
         }));
@@ -71,10 +75,17 @@ const ChatBox = (props: ChatBoxProps) => {
   ]);
 
   const saveMessage = (msg: string) => {
+    const dateObj = new Date();
+
+    const pushKey = firebase
+      .database()
+      .ref(`/Chats/${currentChatDetails.id}/thread/`)
+      .push().key!;
+
     const message = {
-      id: v1(),
+      id: pushKey,
       text: msg,
-      createdAt: new Date(),
+      created: dateObj.getTime(),
       senderId: currentUserInfo?.uid,
     };
 
@@ -83,6 +94,13 @@ const ChatBox = (props: ChatBoxProps) => {
       .ref(`/Chats/${currentChatDetails.id}/thread/`)
       .push(message)
       .catch((e) => console.log('Error saving to db ', e));
+
+    firebase
+      .database()
+      .ref(`/Chats/${currentChatDetails.id}/updated/`)
+      .set(dateObj.getTime())
+      .catch((e) => console.log('Error saving to db ', e));
+
     setWrittenMessage('');
   };
 

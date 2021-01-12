@@ -684,7 +684,7 @@ const UserProfile = (props: IUserProps) => {
                   />
                   <Row justify="start" align="middle">
                     {profileActionLoading ? (
-                      <Spin size="small" />
+                      <Spin style={{ marginRight: 10 }} size="small" />
                     ) : privacyStatus === PrivacyStatus.FOLLOWERS ? (
                       <ProfileActionUnfollow
                         style={{ marginRight: 10 }}

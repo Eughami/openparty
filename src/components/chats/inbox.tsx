@@ -18,6 +18,7 @@ export interface chatsId {
   avatar: string;
   latestMessage: string;
   latestMessageSenderId: string | undefined;
+  updated: number;
 }
 interface InboxProps extends RouteComponentProps<any> {
   setCurrentUserListener?: () => Promise<any>;
@@ -128,76 +129,107 @@ const Inbox = (props: InboxProps) => {
         .database()
         .ref('UserChannels')
         .child(currentUser?.uid!)
-        .on('value', (channels) => {
-          if (channels.exists()) {
-            const temp: any = {};
-            const channelKeys = Object.keys(channels.val());
-            Bluebird.map(
-              channelKeys,
-              (channelKey, index) => {
-                const massSub = firebase
-                  .database()
-                  .ref('Chats')
-                  .child(channelKey)
-                  .orderByChild('updated')
-                  .on('value', (chats) => {
-                    const chatsVal = chats.val();
+        .on(
+          'value',
+          (channels) => {
+            if (channels.exists()) {
+              const temp: any = {};
+              const channelKeys = Object.keys(channels.val());
+              console.log('@PRE CHAT DEBUG: ', channelKeys);
+              Bluebird.map(
+                channelKeys,
+                (channelKey, index) => {
+                  console.log('@IN CHAT DEBUG: ', channelKey, index);
+                  const massSub = firebase
+                    .database()
+                    .ref('Chats')
+                    .child(channelKey)
+                    .on(
+                      'value',
+                      (chats) => {
+                        if (!chats.exists()) {
+                          //remove old chat
+                          return;
+                        }
+                        const chatsVal = chats.val();
 
-                    if (chats.child('thread').exists()) {
-                      // remove current user from userslist property
-                      delete chatsVal.userslist[currentUser.uid];
+                        // remove current user from userslist property
+                        delete chatsVal.userslist[currentUser.uid];
 
-                      const otherUserDetails: any = Object.values(
-                        chatsVal.userslist
-                      )[0];
-                      const lastMessage: any = Object.values(
-                        chatsVal.thread
-                      ).slice(-1)[0];
+                        const otherUserDetails: any = Object.values(
+                          chatsVal.userslist
+                        )[0];
+                        if (chats.child('thread').exists()) {
+                          const lastMessage: any = Object.values(
+                            chatsVal.thread
+                          ).slice(-1)[0];
 
-                      // details of the latest thread msg
-                      const chatData: chatsId = {
-                        channelId: channelKey,
-                        avatar: otherUserDetails.avatar,
-                        username: otherUserDetails.username,
-                        latestMessage: lastMessage.text,
-                        latestMessageSenderId: lastMessage.senderId,
-                      };
+                          // details of the latest thread msg
+                          const chatData: chatsId = {
+                            channelId: channelKey,
+                            avatar: otherUserDetails.avatar,
+                            username: otherUserDetails.username,
+                            latestMessage: lastMessage.text,
+                            latestMessageSenderId: lastMessage.senderId,
+                            updated: chatsVal.updated,
+                          };
 
-                      // make latestMessageSenderId undefined if it's from the currentUser
-                      if (chatData.latestMessageSenderId === currentUser.uid) {
-                        chatData.latestMessageSenderId = undefined;
+                          // make latestMessageSenderId undefined if it's from the currentUser
+                          if (
+                            chatData.latestMessageSenderId === currentUser.uid
+                          ) {
+                            chatData.latestMessageSenderId = undefined;
+                          }
+                          // chatsIdsTemp.push(chatData);
+                          temp[`${channelKey}`] = chatData;
+
+                          //   chatData.avatar = 'channelKey.split("+")[0]';
+                        } else {
+                          temp[`${channelKey}`] = {
+                            channelId: channelKey,
+                            avatar: otherUserDetails.avatar,
+                            username: otherUserDetails.username,
+                            latestMessage: '',
+                            latestMessageSenderId: '',
+                            updated: '',
+                          };
+                        }
+                        // temp[`${chats.key!}`] = chatData;
+
+                        // what this index doing ?
+                        if (index === channelKeys.length - 1) {
+                          //set loading chats done
+
+                          setChatIds(
+                            Object.values(temp).sort(
+                              (s1: any, s2: any) => s2.updated - s1.updated
+                            ) as any
+                          );
+
+                          console.log('@CHAT DEBUG: ', Object.values(temp));
+
+                          setLoading(false);
+                        }
+                      },
+                      (error: any) => {
+                        console.log('@DB INNER CHATS ERROR:', error);
                       }
-                      // chatsIdsTemp.push(chatData);
-                      temp[`${channelKey}`] = chatData;
-                      console.log(
-                        '@CHAT DEBUG: chats Lists',
-                        chatsVal,
-                        chatData
-                      );
+                    );
+                  massChannelsSub.push(massSub);
+                },
+                { concurrency: channelKeys.length }
+              );
+            } else {
+              //info: no chats found
+              setChatIds([]);
 
-                      //   chatData.avatar = 'channelKey.split("+")[0]';
-                    }
-                    // temp[`${chats.key!}`] = chatData;
-
-                    // what this index doing ?
-                    if (index === channelKeys.length - 1) {
-                      //set loading chats done
-
-                      setChatIds(Object.values(temp));
-                      console.log('@CHAT DEBUG: ', Object.values(temp));
-
-                      setLoading(false);
-                    }
-                  });
-                massChannelsSub.push(massSub);
-              },
-              { concurrency: channelKeys.length }
-            );
-          } else {
-            //info: no chats found
-            //set chats => []
+              setLoading(false);
+            }
+          },
+          (error: any) => {
+            console.log('@DB CHATS ERROR:', error);
           }
-        });
+        );
     })();
 
     return () => {
