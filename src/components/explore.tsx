@@ -41,9 +41,12 @@ const Explore = (props: ExploreProps) => {
 
           let sets: any[] = [];
 
+          // weird logic aka get post by pack of 9
           const numberOfSets = Math.floor(res.data.length / 9);
           let index = 0;
-          while (index < numberOfSets) {
+          // even if less than 9 we still render what we get
+          // but the layout will remain the same
+          while (index <= numberOfSets) {
             sets.push(res.data.slice(index * 9, index * 9 + 9));
             index++;
           }

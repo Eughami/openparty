@@ -31,6 +31,7 @@ import {
   FireOutlined,
   NotificationOutlined,
   QuestionCircleOutlined,
+  SendOutlined,
 } from '@ant-design/icons';
 
 import OpenPartyLogo from '../images/openpaarty.logo.png';
@@ -700,6 +701,17 @@ const Header = (props: IHeaderProps) => {
                 </Col>
 
                 <Col>
+                  <Link
+                    to={{
+                      pathname: '/explore',
+                    }}
+                  >
+                    <FireOutlined
+                      style={{ fontSize: '22px', color: 'black' }}
+                    />
+                  </Link>
+                </Col>
+                <Col>
                   <Link onClick={() => setModalVisible(true)} to={{}}>
                     <Badge
                       size="small"
@@ -711,6 +723,19 @@ const Header = (props: IHeaderProps) => {
                     </Badge>
                   </Link>
                 </Col>
+
+                <Col>
+                  <Link
+                    to={{
+                      pathname: '/messages',
+                    }}
+                  >
+                    <SendOutlined
+                      rotate={-60}
+                      style={{ fontSize: '22px', color: 'black' }}
+                    />
+                  </Link>
+                </Col>
                 <Col>
                   <Link
                     to={{}}
@@ -720,17 +745,6 @@ const Header = (props: IHeaderProps) => {
                   >
                     <NotificationOutlined
                       twoToneColor="black"
-                      style={{ fontSize: '22px', color: 'black' }}
-                    />
-                  </Link>
-                </Col>
-                <Col>
-                  <Link
-                    to={{
-                      pathname: '/explore',
-                    }}
-                  >
-                    <FireOutlined
                       style={{ fontSize: '22px', color: 'black' }}
                     />
                   </Link>

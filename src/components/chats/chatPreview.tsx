@@ -15,6 +15,7 @@ const ChatPreview = (props: ChatPreviewProps) => {
     channelId,
     latestMessage,
     latestMessageSenderId,
+    updated,
   } = props.details;
   console.log('ChatData:called with', props);
   return (
@@ -34,9 +35,9 @@ const ChatPreview = (props: ChatPreviewProps) => {
             </span>
           </Col>
           <Col>
-            {/* <span style={{ fontSize: 10 }}>
-              <TimeAgo live date={new Date(timestamp)} />
-            </span> */}
+            <span style={{ fontSize: 10 }}>
+              <TimeAgo live date={new Date(updated)} />
+            </span>
           </Col>
         </Row>
       </Col>

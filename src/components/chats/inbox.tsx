@@ -31,6 +31,7 @@ export interface ICurrentChatDetails {
   id: string;
   username: string;
   avatar: string;
+  updated: number;
 }
 const Inbox = (props: InboxProps) => {
   const { currentUser } = props;
@@ -267,6 +268,7 @@ const Inbox = (props: InboxProps) => {
                     id: channelId.channelId,
                     username: channelId.username,
                     avatar: channelId.avatar,
+                    updated: channelId.updated,
                   } as ICurrentChatDetails)
                 }
               >
