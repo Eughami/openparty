@@ -1,4 +1,4 @@
-import { Col, Row, Skeleton } from 'antd';
+import { Avatar, Col, Row, Skeleton } from 'antd';
 import Bluebird from 'bluebird';
 import firebase from 'firebase';
 import React, { useEffect, useState } from 'react';
@@ -11,6 +11,7 @@ import {
 import { RegistrationObject } from '../interfaces/user.interface';
 import ChatBox from './chatBox';
 import ChatPreview from './chatPreview';
+import { ArrowLeftOutlined } from '@ant-design/icons';
 
 export interface chatsId {
   channelId: string;
@@ -41,84 +42,9 @@ const Inbox = (props: InboxProps) => {
   const [currentChatDetails, setCurrentChatDetails] = useState<
     ICurrentChatDetails | undefined
   >();
+  const [showChatMobile, setShowChatMobile] = useState<boolean>(false);
 
-  // useEffect(() => {
-  //   if (currentUser && currentUserInfo && currentUserToken) {
-  //     const fetchChats = (currentUserId: string) => {
-  //       console.log('@INBOX:userID:', currentUserId);
-  //       // fetch this user chats
-  //       firebase
-  //         .database()
-  //         .ref('Chats/')
-  //         .on(
-  //           'value',
-  //           (ssh) => {
-  //             setLoading(false);
-
-  //             if (!ssh.exists()) {
-  //               setLoading(false);
-  //               return;
-  //             }
-  //             // new dynamic
-  //             const data = ssh.val();
-  //             let arr: any[] = [];
-
-  //             // remove current user from userlists
-  //             Object.keys(data).forEach(
-  //               (discussion) =>
-  //                 delete data[discussion].userslist[currentUserInfo?.uid]
-  //             );
-  //             Object.keys(data).forEach((discussion) => {
-  //               const chatData: chatsId = {
-  //                 channelId: discussion,
-  //                 // only remaining node will be the other user in the discussion
-  //                 // so we're geting his details at the index 0(only one)
-  //                 avatar:
-  //                   data[discussion].userslist[
-  //                     Object.keys(data[discussion].userslist)[0]
-  //                   ].avatar,
-  //                 username:
-  //                   data[discussion].userslist[
-  //                     Object.keys(data[discussion].userslist)[0]
-  //                   ].username,
-  //                 latestMessage:
-  //                   data[discussion].messages[
-  //                     Object.keys(data[discussion].messages)[
-  //                       Object.keys(data[discussion].messages).length - 1
-  //                     ]
-  //                   ].text,
-  //                 latestMessageSenderId:
-  //                   data[discussion].messages[
-  //                     Object.keys(data[discussion].messages)[
-  //                       Object.keys(data[discussion].messages).length - 1
-  //                     ]
-  //                   ].senderId,
-  //               };
-
-  //               // to get the latest msg id in the db
-  //               // Object.keys(data[discussion].messages)[
-  //               //   Object.keys(data[discussion].messages).length - 1
-  //               // ]
-  //               // clear last user message id if from current user
-  //               if (chatData.latestMessageSenderId == currentUserInfo?.uid) {
-  //                 chatData.latestMessageSenderId = undefined;
-  //               }
-
-  //               arr.push(chatData);
-  //             });
-  //             setChatIds(arr);
-  //             console.log('ChatData:', arr);
-  //           },
-  //           (error: any) => {
-  //             setLoading(false);
-  //             console.log('@INBOX:error:', error);
-  //           }
-  //         );
-  //     };
-
-  //     fetchChats(props.currentUserInfo?.uid!);
-  //   }
-  // }, [currentUser, currentUserInfo, currentUserToken]);
+  const mobileToggler = () => setShowChatMobile(!showChatMobile);
 
   useEffect(() => {
     let channelsSub: any;
@@ -256,43 +182,99 @@ const Inbox = (props: InboxProps) => {
   }
 
   return (
-    <>
-      <Row justify="center" align="top">
-        <Col className="chats__list_container" span={6}>
-          {chatIds &&
-            chatIds.map((channelId) => (
-              <div
-                key={channelId.channelId}
-                onClick={() =>
-                  setCurrentChatDetails({
-                    id: channelId.channelId,
-                    username: channelId.username,
-                    avatar: channelId.avatar,
-                    updated: channelId.updated,
-                  } as ICurrentChatDetails)
-                }
-              >
-                <ChatPreview details={channelId} />
+    <Row justify="center" align="middle">
+      <Col md={24} sm={0} xs={0}>
+        {/* For Big screen Desktop */}
+        <Row justify="center" align="middle">
+          <Col className="chats__list_container" xl={6} lg={8} md={9}>
+            {chatIds &&
+              chatIds.map((channelId) => (
+                <div
+                  key={channelId.channelId}
+                  onClick={() =>
+                    setCurrentChatDetails({
+                      id: channelId.channelId,
+                      username: channelId.username,
+                      avatar: channelId.avatar,
+                      updated: channelId.updated,
+                    } as ICurrentChatDetails)
+                  }
+                >
+                  <ChatPreview details={channelId} />
+                </div>
+              ))}
+          </Col>
+          <Col span={12}>
+            {currentChatDetails !== undefined ? (
+              <div className="current__chat__container">
+                <ChatBox currentChatDetails={currentChatDetails} />
               </div>
-            ))}
-        </Col>
-        <Col span={14}>
-          {currentChatDetails !== undefined ? (
-            <ChatBox currentChatDetails={currentChatDetails} />
+            ) : (
+              // this will be the empty box (default) when no user is selected
+              <Row
+                justify="center"
+                align="middle"
+                className="empty__chat__container"
+              >
+                Start Messaging people
+              </Row>
+            )}
+          </Col>
+        </Row>
+      </Col>
+      {/* For small screen Mobile */}
+      <Col xs={24} sm={20} md={0}>
+        <Row justify="center" align="middle">
+          {showChatMobile ? (
+            currentChatDetails !== undefined && (
+              <div className="current__chat__container__mobile">
+                <Row
+                  align="middle"
+                  justify="start"
+                  className="current__chat__mobile__header"
+                >
+                  <Col offset={1}>
+                    <ArrowLeftOutlined
+                      style={{ fontSize: 22 }}
+                      onClick={mobileToggler}
+                    />
+                  </Col>
+                  <Col offset={1}>
+                    <Avatar src={currentChatDetails.avatar} size={32} />
+                  </Col>
+                  <Col offset={1}> {currentChatDetails.username}</Col>
+                </Row>
+                <ChatBox
+                  mobileToggler={mobileToggler}
+                  currentChatDetails={currentChatDetails}
+                />
+              </div>
+            )
           ) : (
-            // this will be the empty box (default) when no user is selected
-            <Row
-              justify="center"
-              align="middle"
-              className="empty__chat__container"
-            >
-              Start Messaging people
-            </Row>
+            <Col className="chats__list_container__mobile">
+              {chatIds &&
+                chatIds.map((channelId) => (
+                  <div
+                    key={channelId.channelId}
+                    onClick={() => {
+                      mobileToggler();
+
+                      setCurrentChatDetails({
+                        id: channelId.channelId,
+                        username: channelId.username,
+                        avatar: channelId.avatar,
+                        updated: channelId.updated,
+                      } as ICurrentChatDetails);
+                    }}
+                  >
+                    <ChatPreview details={channelId} />
+                  </div>
+                ))}
+            </Col>
           )}
-        </Col>
-      </Row>
-      {/* )} */}
-    </>
+        </Row>
+      </Col>
+    </Row>
   );
 };
 const mapStateToProps = (state: any) => {

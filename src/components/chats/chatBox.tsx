@@ -11,6 +11,7 @@ import { RegistrationObject } from '../interfaces/user.interface';
 import AsyncMention from '../mentions/mentions.component';
 import { ICurrentChatDetails } from './inbox';
 import { v1 } from 'uuid';
+import { ArrowLeftOutlined } from '@ant-design/icons';
 
 interface ChatBoxProps {
   currentChatDetails: ICurrentChatDetails;
@@ -19,6 +20,7 @@ interface ChatBoxProps {
   currentUser?: firebase.User;
   currentUserInfo?: RegistrationObject;
   currentUserToken?: string;
+  mobileToggler?: () => void;
 }
 interface messageInterface {
   senderId: string;
@@ -34,6 +36,7 @@ const ChatBox = (props: ChatBoxProps) => {
     currentChatDetails,
     currentUser,
     currentUserToken,
+    mobileToggler,
   } = props;
 
   const scrollToBottom = () => {
@@ -43,7 +46,9 @@ const ChatBox = (props: ChatBoxProps) => {
 
   const messagesEndRef = useRef(null);
 
-  useEffect(scrollToBottom);
+  // causing an issue with container for mobile view
+  // temporary disabled
+  // useEffect(scrollToBottom);
 
   useEffect(() => {
     let sub: any;
@@ -113,7 +118,7 @@ const ChatBox = (props: ChatBoxProps) => {
   };
 
   return (
-    <div className="current__chat__container">
+    <>
       <div onScroll={handleScroll} className="chatbox__container">
         {messages &&
           Object.keys(messages).length > 0 &&
@@ -167,7 +172,7 @@ const ChatBox = (props: ChatBoxProps) => {
           </Button>
         </Col>
       </Row>
-    </div>
+    </>
   );
 };
 

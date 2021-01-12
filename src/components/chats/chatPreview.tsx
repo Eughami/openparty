@@ -24,7 +24,7 @@ const ChatPreview = (props: ChatPreviewProps) => {
         <Avatar src={avatar} size={64} />
       </Col>
       <Col flex="auto">
-        <Row justify="space-between" align="top">
+        <Row justify="space-between" align="middle">
           <Col>
             <span>
               <strong>{username}</strong>
