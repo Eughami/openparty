@@ -48,7 +48,7 @@ const ChatBox = (props: ChatBoxProps) => {
 
   // causing an issue with container for mobile view
   // temporary disabled
-  // useEffect(scrollToBottom);
+  useEffect(scrollToBottom);
 
   useEffect(() => {
     let sub: any;
