@@ -212,17 +212,22 @@ const Activity = (props: IHeaderProps) => {
         )}
       </Row>
       {!showFollowRequest &&
-        userNotifications.length > 0 &&
-        userNotifications.map((not: any, index) => (
-          <TempHeaderNotification
-            time={not.time}
-            key={index}
-            imageUrl={not.image_url}
-            text={not.desc}
-            username={not.username}
-            link={not.ref}
-            thumbnail={not.thumbnail}
-          />
+        (userNotifications.length > 0 ? (
+          userNotifications.map((not: any, index) => (
+            <TempHeaderNotification
+              time={not.time}
+              key={index}
+              imageUrl={not.image_url}
+              text={not.desc}
+              username={not.username}
+              link={not.ref}
+              thumbnail={not.thumbnail}
+            />
+          ))
+        ) : (
+          <Row justify="center" align="middle" style={{ height: '100%' }}>
+            No Activity
+          </Row>
         ))}
       {showFollowRequest &&
         (Object.keys(followRequests).length > 0 ? (

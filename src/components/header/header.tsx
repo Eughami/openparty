@@ -778,7 +778,7 @@ const Header = (props: IHeaderProps) => {
                 </div>
               ) : (
                 <PerfectScrollbar>
-                  {userNotifications.length > 0 &&
+                  {userNotifications.length > 0 ? (
                     userNotifications.map((not: any, index) => (
                       <TempHeaderNotification
                         time={not.time}
@@ -789,7 +789,16 @@ const Header = (props: IHeaderProps) => {
                         link={not.ref}
                         thumbnail={not.thumbnail}
                       />
-                    ))}
+                    ))
+                  ) : (
+                    <Row
+                      justify="center"
+                      align="middle"
+                      style={{ height: '100%' }}
+                    >
+                      No Activity
+                    </Row>
+                  )}
                 </PerfectScrollbar>
               )}
             </Col>

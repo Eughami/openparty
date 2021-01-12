@@ -1,5 +1,5 @@
 import { Row, Col } from 'antd';
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Post } from './interfaces/user.interface';
 import { PostOverlay } from './postOverlay';
 
@@ -47,12 +47,15 @@ const ExploreLayout = (props: IExploreLayoutProps) => {
       box[i].style.height = newHeight + 'px';
     }
   }
-  window.onresize = () => {
-    console.log('RESIZED', window.innerWidth);
-    // if (window.innerWidth < 768) {
+  // window.onresize = () => {
+  //   console.log('RESIZED', window.innerWidth);
+  //   // if (window.innerWidth < 768) {
+  //   setHeight('.dynamicHeight', 1);
+  //   // }
+  // };
+  useEffect(() => {
     setHeight('.dynamicHeight', 1);
-    // }
-  };
+  }, [window.innerWidth]);
 
   return (
     <>
