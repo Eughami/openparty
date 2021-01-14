@@ -18,6 +18,10 @@ const ChatPreview = (props: ChatPreviewProps) => {
     updated,
   } = props.details;
   console.log('ChatData:called with', props);
+
+  const formatPreviewMessage = (str: string) => {
+    return str.length > 15 ? str.slice(0, 15) + '....' : str;
+  };
   return (
     <Row style={{ padding: 10 }} align="middle" justify="space-between">
       <Col flex="80px">
@@ -31,7 +35,8 @@ const ChatPreview = (props: ChatPreviewProps) => {
             </span>
             <br />
             <span>
-              {latestMessageSenderId === undefined && 'You:'} {latestMessage}
+              {latestMessageSenderId === undefined && 'You:'}{' '}
+              {formatPreviewMessage(latestMessage)}
             </span>
           </Col>
           <Col>

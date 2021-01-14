@@ -73,7 +73,7 @@ const MobileHeaderHome = () => (
     <Col>
       <Link
         to={{
-          pathname: `/`,
+          pathname: `/messages`,
         }}
         style={{ paddingRight: 15 }}
       >
@@ -252,46 +252,57 @@ const MobileHeader = (props: IMobileHeaderProps) => {
         .off('child_changed', un_sub);
   }, [props.currentUser, location, history]);
 
+  if (!(location && location.isExact)) return null;
+
   return (
-    <nav className="Nav">
-      <div className="Nav-menus">
-        {location && location.isExact ? (
-          location.path.split('/')[1] === '' ? (
-            <MobileHeaderHome />
-          ) : location.path.split('/')[1] === 'post' ? (
-            <MobileHeaderViewPost
-              currentUserPostViewing={props.currentUserPostViewing}
-              history={history}
-            />
-          ) : location.path.split('/')[1] === 'explore' ? (
-            <MobileHeaderExplore history={history} />
-          ) : location.path.split('/')[1] === 'account' &&
-            location.path.split('/')[2] === 'activity' ? (
-            <MobileHeaderActivity history={history} />
-          ) : location.path.split('/')[1] === 'account' ? (
-            <MobileHeaderAccount
-              currentUserInfo={props.currentUserInfo}
-              history={history}
-            />
-          ) : location.path.split('/')[1] === 't' ? (
-            <MobileHeaderTags history={history} />
-          ) : location.path.split('/')[1] ===
-            props.currentUserInfo?.username ? (
-            <MobileHeaderSelfUserProfile
-              currentUserInfo={props.currentUserInfo}
-              history={history}
-            />
-          ) : props.currentUserViewing ? (
-            <MobileHeaderOtherUserProfile
-              currentUserViewing={props.currentUserViewing}
-              history={history}
-            />
-          ) : (
-            <MobileHeaderHome />
-          )
-        ) : null}
-      </div>
-    </nav>
+    <>
+      {/* No header for activity and Messages */}
+      {(location.path.split('/')[1] === 'account' &&
+        location.path.split('/')[2] === 'activity') ||
+      location.path.split('/')[1] === 'messages' ? null : (
+        <div style={{ paddingBottom: '55px' }}>
+          <nav className="Nav">
+            <div className="Nav-menus">
+              {location.path.split('/')[1] === '' && <MobileHeaderHome />}
+
+              {location.path.split('/')[1] === 'post' && (
+                <MobileHeaderViewPost
+                  currentUserPostViewing={props.currentUserPostViewing}
+                  history={history}
+                />
+              )}
+
+              {location.path.split('/')[1] === 'explore' && (
+                <MobileHeaderExplore history={history} />
+              )}
+
+              {location.path.split('/')[1] === 'account' && (
+                <MobileHeaderAccount
+                  currentUserInfo={props.currentUserInfo}
+                  history={history}
+                />
+              )}
+              {location.path.split('/')[1] === 't' && (
+                <MobileHeaderTags history={history} />
+              )}
+              {location.path.split('/')[1] ===
+                props.currentUserInfo?.username && (
+                <MobileHeaderSelfUserProfile
+                  currentUserInfo={props.currentUserInfo}
+                  history={history}
+                />
+              )}
+              {props.currentUserViewing && (
+                <MobileHeaderOtherUserProfile
+                  currentUserViewing={props.currentUserViewing}
+                  history={history}
+                />
+              )}
+            </div>
+          </nav>
+        </div>
+      )}
+    </>
   );
 };
 const mapStateToProps = (state: any) => {

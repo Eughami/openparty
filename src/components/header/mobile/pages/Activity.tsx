@@ -16,6 +16,7 @@ import {
   IGNORE_FOLLOW_ENDPOINT,
 } from '../../../../service/api';
 import TimeAgo from 'react-timeago';
+import { ArrowLeftOutlined } from '@ant-design/icons';
 
 const Activity = (props: IHeaderProps) => {
   const [notificationsLoading, setNotificationsLoading] = useState<boolean>(
@@ -208,7 +209,12 @@ const Activity = (props: IHeaderProps) => {
             <Col style={{ marginLeft: 10 }}>Follow requests</Col>
           </>
         ) : (
-          <Col offset={1}>My Activity</Col>
+          <>
+            <Col offset={1}>
+              <ArrowLeftOutlined />
+            </Col>
+            <Col offset={1}>My Activity</Col>
+          </>
         )}
       </Row>
       {!showFollowRequest &&

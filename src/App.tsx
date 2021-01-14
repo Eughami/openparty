@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Switch, Route } from 'react-router-dom';
+import { Switch, Route, Redirect } from 'react-router-dom';
 import { connect } from 'react-redux';
 import {
   setCurrentUserListener,
@@ -141,7 +141,7 @@ const App = (props: IAppProps) => {
       {currentUser ? (
         <div>
           {xs ? (
-            <div style={{ paddingBottom: '60px' }}>
+            <div>
               <MobileHeader />
             </div>
           ) : (
@@ -154,6 +154,12 @@ const App = (props: IAppProps) => {
             <Route exact path="/" component={Homepage} />
             <Route exact path="/explore" component={Explore} />
             <Route exact path="/messages" component={Inbox} />
+            <Route exact path="/login" component={() => <Redirect to="/" />} />
+            <Route
+              exact
+              path="/register"
+              component={() => <Redirect to="/" />}
+            />
             <Route exact path="/:username" component={UserProfile} />
             <Route exact path="/t/:tag" component={Tags} />
             <Route exact path="/post/:postId" component={ViewPost} />
@@ -175,7 +181,8 @@ const App = (props: IAppProps) => {
       ) : (
         <Switch>
           <Route exact path="/register" component={RegistrationForm} />
-          <Route component={Login} />
+          <Route exact path="/login" component={Login} />
+          <Redirect to="/login" />
         </Switch>
       )}
     </div>
