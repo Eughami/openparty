@@ -265,6 +265,19 @@ const Header = (props: IHeaderProps) => {
                 onClick: () => setShowNotification(true),
                 style: { cursor: 'pointer' },
               });
+            } else if (ssh.child('preview').exists()) {
+              console.log('@NEW MESSAGE INCOMING: ', ssh.val());
+              notification.open({
+                message: ssh.val().preview,
+                description: ssh.val().preview,
+                icon:
+                  LIKED_POST_REACTION_ARRAY[
+                    Math.floor(Math.random() * LIKED_POST_REACTION_ARRAY.length)
+                  ],
+                placement: 'bottomRight',
+                // onClick: () => setShowNotification(true),
+                style: { cursor: 'pointer' },
+              });
             }
           }
         },
