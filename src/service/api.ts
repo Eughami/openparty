@@ -76,4 +76,7 @@ export const GET_POPULAR_TAGS = 'posts/popular/tags';
 
 export const GET_POPULAR_USERS = 'users/recommended/get-popular';
 
+export const GET_USER_FOLLOWINGS = 'users/account/following';
+
+export const GET_USER_FOLLOWERS = 'users/account/followers';
 // export const _ENDPOINT = ""
