@@ -16,7 +16,12 @@ import {
 import { onPostComment } from '../../../post/post.actions';
 import { Link, RouteComponentProps, useParams } from 'react-router-dom';
 import Axios from 'axios';
-import { API_BASE_URL, GET_ALL_POST_ENDPOINT } from '../../../../service/api';
+import {
+  API_BASE_URL,
+  EXPLORE_POSTS_ENDPOINT,
+  GET_ONE_POST,
+  POST_ROOT,
+} from '../../../../service/api';
 import TimeAgo from 'react-timeago';
 
 interface postIdInterface {
@@ -48,7 +53,7 @@ const MobileComments = (props: MobileCommentsProps) => {
   const [loadingPost, setLoadingPost] = useState<boolean>(true);
 
   const getComment = async () => {
-    await Axios.get(`${API_BASE_URL}${GET_ALL_POST_ENDPOINT}/${id}/comments`, {
+    await Axios.get(`${API_BASE_URL}${POST_ROOT}/${id}/comments`, {
       headers: {
         Authorization: `Bearer ${props.currentUserToken}`,
       },

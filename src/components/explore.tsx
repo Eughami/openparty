@@ -8,7 +8,11 @@ import {
   setCurrentUserRootDatabaseListener,
   setCurrentUserPostViewing,
 } from '../redux/user/user.actions';
-import { API_BASE_URL, GET_ALL_POST_ENDPOINT } from '../service/api';
+import {
+  API_BASE_URL,
+  EXPLORE_POSTS_ENDPOINT,
+  POST_ROOT,
+} from '../service/api';
 import ExploreLayout from './exploreLayout';
 import { LOADER_OBJECTS } from './images';
 import { Post, RegistrationObject } from './interfaces/user.interface';
@@ -30,7 +34,7 @@ const Explore = (props: ExploreProps) => {
     setLoading(true);
     // call api
     const fetchPosts = async () => {
-      await Axios(`${API_BASE_URL}${GET_ALL_POST_ENDPOINT}`, {
+      await Axios(`${API_BASE_URL}${EXPLORE_POSTS_ENDPOINT}`, {
         headers: {
           Authorization: `Bearer ${props.currentUserToken}`,
         },
@@ -82,8 +86,8 @@ const Explore = (props: ExploreProps) => {
       <Col xl={16} lg={20} md={22} sm={24} xs={24}>
         {posts &&
           Object.keys(posts).length > 0 &&
-          posts.map((post) => (
-            <ExploreLayout key={post.id} arrayOfPosts={post} />
+          posts.map((post, index) => (
+            <ExploreLayout key={index} arrayOfPosts={post} />
           ))}
         {/* <ExploreLayout arrayOfPosts={postsArray} /> */}
         {/* <ExploreLayout arrayOfPosts={postsArray} /> */}

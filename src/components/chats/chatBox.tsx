@@ -92,6 +92,7 @@ const ChatBox = (props: ChatBoxProps) => {
       text: msg,
       created: dateObj.getTime(),
       senderId: currentUserInfo?.uid,
+      // username: currentUserInfo?.username,
     };
 
     firebase

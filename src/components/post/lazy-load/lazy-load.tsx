@@ -26,7 +26,7 @@ const Image = styled.img`
   }
 `;
 
-export const LazyImage = ({ src, alt }: any) => {
+export const LazyImage = ({ src, alt, className }: any) => {
   const [imageSrc, setImageSrc] = useState(placeHolder);
   const [imageRef, setImageRef] = useState();
 
@@ -77,6 +77,7 @@ export const LazyImage = ({ src, alt }: any) => {
   }, [src, imageSrc, imageRef]);
   return (
     <Image
+      className={className}
       {...({ ref: setImageRef } as any)}
       // ref={setImageRef}
       src={imageSrc}

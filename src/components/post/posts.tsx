@@ -270,6 +270,8 @@ const Posts = (props: IPostsProps) => {
           if (ssh.exists()) {
             if (ssh.child('refresh_post').exists()) {
               setShouldRefreshPost(true);
+            } else if (ssh.child('preview').exists()) {
+              console.log('@NEW MESSAGE INCOMING: ', ssh.val());
             }
           }
         },

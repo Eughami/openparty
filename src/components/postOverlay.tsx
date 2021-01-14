@@ -3,6 +3,7 @@ import { Row, Col } from 'antd';
 
 import { CommentOutlined, HeartFilled } from '@ant-design/icons';
 import { Link } from 'react-router-dom';
+import { LazyImage } from './post/lazy-load/lazy-load';
 
 interface IPostOverlay {
   likes?: number;
@@ -15,7 +16,7 @@ interface IPostOverlay {
 export const PostOverlay = ({ url, comments, likes, imgUrl }: IPostOverlay) => (
   <div className="container hover">
     <Link to={`/post/${url}`}>
-      <img src={imgUrl} alt="Avatar" className="image" />
+      <LazyImage src={imgUrl} alt="Avatar" className="image" />
       <div className="middle">
         <div className="text">
           <Row justify="center" align="middle">

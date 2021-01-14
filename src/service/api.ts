@@ -26,7 +26,7 @@ export const DELETE_POST_ENDPOINT = 'posts/:postId';
 
 export const EDIT_POST_ENDPOINT = 'posts/:postId';
 
-export const GET_ALL_POST_ENDPOINT = 'posts';
+export const EXPLORE_POSTS_ENDPOINT = 'posts/explore';
 
 export const ADD_COMMENT_ENDPOINT = 'posts/add-comment';
 
@@ -65,6 +65,8 @@ export const UNFOLOW_REQUEST_ENDPOINT = 'users/unfollow-user';
 export const CANCEL_FOLLOW_REQUEST_ENDPOINT = 'users/cancel-follow-request';
 
 export const GET_ONE_POST = 'posts/post';
+
+export const POST_ROOT = 'posts';
 
 export const GET_MORE_POSTS_FROM_USER = 'posts/more-posts';
 
