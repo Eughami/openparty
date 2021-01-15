@@ -544,7 +544,7 @@ const Header = (props: IHeaderProps) => {
       </Modal>
       <Modal
         style={{ height: '50%' }}
-        title="Add a new post 💖"
+        title="Add a new event 💖"
         visible={postModalVisible}
         okText={null}
         onOk={() => setPostModalVisible(false)}
@@ -566,7 +566,7 @@ const Header = (props: IHeaderProps) => {
           >
             <AsyncMention
               autoSize
-              placeholder="Provide a caption for this post"
+              placeholder="Provide a caption for this event"
             />
             {/* <Input multiple placeholder="Provide a caption for this post" /> */}
           </Form.Item>

@@ -150,7 +150,7 @@ const MobileNavbar = (props: IMobileNavbarProps) => {
     <>
       <Modal
         style={{}}
-        title="Add a new post 💖"
+        title="Add a new Event 💖"
         centered
         visible={postModalVisible}
         okText={null}
@@ -173,7 +173,7 @@ const MobileNavbar = (props: IMobileNavbarProps) => {
           >
             <AsyncMention
               autoSize
-              placeholder="Provide a caption for this post"
+              placeholder="Provide a caption for this event"
             />
             {/* <Input multiple placeholder="Provide a caption for this post" /> */}
           </Form.Item>
