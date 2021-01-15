@@ -1,5 +1,14 @@
 import React, { useEffect, useState } from 'react';
-import { Row, Spin, Result, Empty, Divider, Col } from 'antd';
+import {
+  Row,
+  Spin,
+  Result,
+  Empty,
+  Divider,
+  Col,
+  notification,
+  message,
+} from 'antd';
 import firebase from 'firebase';
 import {
   Post,
@@ -140,6 +149,15 @@ const UserProfile = (props: IUserProps) => {
   }, [username, realUser, otherUserInfo, setCurrentUserViewing]);
 
   useEffect(() => {
+    let selfUserPostsSub;
+    let otherUserFollowingInfoSub: any;
+    let otherUserFollowingInfoUID: any;
+    let otherUserFollowingPostsSub;
+    let otherUserPublicInfoSub: any;
+    let otherUserPublicInfoUID: any;
+    let otherUserPublicPostsSub;
+    let isFollowingSub;
+
     const doStuff = async () => {
       if (currentUserInfo?.username === username) {
         setPosts([]);
@@ -147,7 +165,7 @@ const UserProfile = (props: IUserProps) => {
         setLoading(false);
         setSelfUser(true);
         setRealUser(true);
-        firebase
+        selfUserPostsSub = firebase
           .database()
           .ref('Postsv2')
           .child(currentUser?.uid!)
@@ -215,8 +233,9 @@ const UserProfile = (props: IUserProps) => {
                   setRequestedFollow(false);
                   setPostsDoneLoading(false);
 
+                  otherUserFollowingInfoUID = result.data.targetUid;
                   //Get data from user root profile
-                  firebase
+                  otherUserFollowingInfoSub = firebase
                     .database()
                     .ref('Users')
                     .child(result.data.targetUid)
@@ -241,6 +260,10 @@ const UserProfile = (props: IUserProps) => {
                           if (error.code === 'PERMISSION_DENIED') {
                             console.log(
                               '@DB SNAPPED FROM PRIVACY. REVERTING TO FALLBACK USER INFO'
+                            );
+
+                            message.info(
+                              `This user's has changed their privacy`
                             );
 
                             setOtherUserInfo(result.data.privateUserInfo);
@@ -302,7 +325,7 @@ const UserProfile = (props: IUserProps) => {
                         obj: { uidRef: string; postRef: string },
                         index: number
                       ) => {
-                        firebase
+                        otherUserFollowingPostsSub = firebase
                           .database()
                           .ref('Postsv2')
                           .child(obj.uidRef)
@@ -378,7 +401,7 @@ const UserProfile = (props: IUserProps) => {
                     });
                 } else {
                   //Else add listeners for any change in follow requests
-                  firebase
+                  isFollowingSub = firebase
                     .database()
                     .ref('FollowRequests')
                     .child(result.data.targetUser.uid)
@@ -405,7 +428,8 @@ const UserProfile = (props: IUserProps) => {
                   }
                   //If user's profile is open, then only show the target user's public posts and info
                   if (result.data.privacy === 'open') {
-                    firebase
+                    otherUserPublicInfoUID = result.data.privateUserInfo.uid;
+                    otherUserPublicInfoSub = firebase
                       .database()
                       .ref('Users')
                       .child(result.data.privateUserInfo.uid)
@@ -427,6 +451,10 @@ const UserProfile = (props: IUserProps) => {
                             if (error.code === 'PERMISSION_DENIED') {
                               console.log(
                                 '@DB SNAPPED FROM PRIVACY. REVERTING TO FALLBACK USER INFO'
+                              );
+
+                              message.info(
+                                `This user's has changed their privacy`
                               );
 
                               setOtherUserInfo(result.data.privateUserInfo);
@@ -463,7 +491,7 @@ const UserProfile = (props: IUserProps) => {
                           obj: { uidRef: string; postRef: string },
                           index: number
                         ) => {
-                          firebase
+                          otherUserPublicPostsSub = firebase
                             .database()
                             .ref('Postsv2')
                             .child(obj.uidRef)
@@ -571,6 +599,21 @@ const UserProfile = (props: IUserProps) => {
       }
     };
     doStuff();
+    return () => {
+      if (otherUserFollowingInfoUID)
+        firebase
+          .database()
+          .ref('Users')
+          .child(otherUserFollowingInfoUID)
+          .off('value', otherUserFollowingInfoSub);
+
+      if (otherUserPublicInfoUID)
+        firebase
+          .database()
+          .ref('Users')
+          .child(otherUserPublicInfoUID)
+          .off('value', otherUserPublicInfoSub);
+    };
   }, [
     currentUserInfo,
     currentUser,
