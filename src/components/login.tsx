@@ -1,5 +1,5 @@
-import React, { useEffect } from 'react';
-import { Form, Input, Button, message, Col } from 'antd';
+import React, { useEffect, useState } from 'react';
+import { Form, Input, Button, message, Col, Row, Divider } from 'antd';
 
 import {
   emailSignInStart,
@@ -19,17 +19,10 @@ interface IAppProps {
   currentUser?: firebase.User;
 }
 
-const layout = {
-  labelCol: { span: 8 },
-  wrapperCol: { span: 16 },
-};
-const tailLayout = {
-  wrapperCol: { offset: 8, span: 16 },
-};
-
 //TODO: ADD SIGN IN WITH USERNAME && PHONE NUMBER
 const Login = (props: IAppProps) => {
   const { currentUser } = props;
+  const [loading, setLoading] = useState<boolean>(false);
 
   console.log('LOGIN PROPS: ', props.history);
 
@@ -42,15 +35,20 @@ const Login = (props: IAppProps) => {
   // }, [currentUser, props.history]);
 
   const onFinish = (values: any) => {
+    setLoading(true);
     const key = 'loginKey';
     const { username, password } = values;
     console.log('Success:', values);
     message.loading({ content: 'Login in progres...', key });
     props.emailSignInStart!(username, password, props!.history)
       .then(() => {
+        setLoading(false);
+
         message.success({ content: 'Login successful', key });
       })
       .catch((error) => {
+        setLoading(false);
+
         message.error({ content: 'Invalid email or Password', key });
       });
   };
@@ -60,48 +58,78 @@ const Login = (props: IAppProps) => {
   };
 
   return (
-    <Col span="12"
-      style={{ marginLeft: '20%', marginRight: '20%', marginTop: '5%' }}>
-      <Form
-        name="basic"
-        initialValues={{ remember: true }}
-        onFinish={onFinish}
-        onFinishFailed={onFinishFailed}
+    <div className="login__background">
+      <Row
+        style={{ minHeight: '100vh', padding: 10 }}
+        justify="center"
+        align="middle"
       >
-        <h1 style={{ textAlign: 'center' }}>Login</h1>
-        <Form.Item
-          label="Username"
-          name="username"
-          rules={[{ required: true, message: 'Please input your username!' }]}
+        <Col
+          className="login__container"
+          xxl={{ span: 6, offset: 8 }}
+          xl={{ span: 6, offset: 8 }}
+          lg={{ span: 8, offset: 6 }}
+          md={{ span: 10, offset: 4 }}
+          sm={{ span: 12, offset: 2 }}
+          xs={{ span: 24, offset: 0 }}
         >
-          <Input />
-        </Form.Item>
+          <Form
+            layout="vertical"
+            name="basic"
+            initialValues={{ remember: true }}
+            onFinish={onFinish}
+            onFinishFailed={onFinishFailed}
+          >
+            <h1 className="login__logo">OpenPaarty</h1>
+            <Form.Item
+              label="Email"
+              name="username"
+              rules={[{ required: true, message: 'Please enter your email!' }]}
+            >
+              <Input style={{ borderRadius: 10 }} />
+            </Form.Item>
 
-        <Form.Item
-          label="Password"
-          name="password"
-          rules={[{ required: true, message: 'Please input your password!' }]}
-        >
-          <Input.Password />
-        </Form.Item>
+            <Form.Item
+              label="Password"
+              name="password"
+              rules={[
+                { required: true, message: 'Please enter your password!' },
+              ]}
+            >
+              <Input.Password style={{ borderRadius: 10 }} />
+            </Form.Item>
 
-        <Form.Item {...tailLayout}>
-          <Button type="primary" htmlType="submit">
-            Submit
-          </Button>
-        </Form.Item>
-        <Form.Item {...tailLayout}>
-          <Button type="primary" onClick={() => props.googleSignInStart!()}>
-            Login With Google
-          </Button>
-        </Form.Item>
-        <Form.Item {...tailLayout}>
-          <span>
-            Don't have an account yet? <Link to="/register">Register</Link>
-          </span>
-        </Form.Item>
-      </Form>
-    </Col>
+            <Form.Item>
+              <Button
+                style={{ borderRadius: 10 }}
+                loading={loading}
+                block
+                type="primary"
+                htmlType="submit"
+              >
+                Log In
+              </Button>
+            </Form.Item>
+            <Divider orientation="center">Or</Divider>
+            <Form.Item>
+              <Button
+                style={{ borderRadius: 10 }}
+                block
+                type="primary"
+                onClick={() => props.googleSignInStart!()}
+              >
+                Login With Google
+              </Button>
+            </Form.Item>
+            <Divider orientation="right">
+              <span style={{ fontSize: '0.8rem' }}>
+                Don't have an account yet? <Link to="/register">Register</Link>
+              </span>
+            </Divider>
+          </Form>
+        </Col>
+      </Row>
+    </div>
   );
 };
 
