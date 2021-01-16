@@ -257,3 +257,31 @@ hr.light {
     height: calc(100% - 80px);
   }
 }
+
+.user__followings__container {
+  /* border: solid #d5d5d5 1px; */
+  padding: 10px;
+}
+.user__followings__container > * {
+  padding-bottom: 5px;
+}
+
+/* Login styles */
+
+.login__background {
+  background-color: lightgrey;
+  width: 100vw;
+  min-height: 100vh;
+  height: 100%;
+}
+.login__container {
+  background-color: white;
+  border: solid #d5d5d5 1px;
+  padding: 10px;
+  border-radius: 20px;
+}
+.login__logo {
+  text-align: center;
+  font-family: Times;
+  padding-bottom: 20px;
+}

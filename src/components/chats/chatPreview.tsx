@@ -34,7 +34,7 @@ const ChatPreview = (props: ChatPreviewProps) => {
               <strong>{username}</strong>
             </span>
             <br />
-            <span>
+            <span style={latestMessageSenderId ? { fontWeight: 'bold' } : {}}>
               {latestMessageSenderId === undefined && 'You:'}{' '}
               {formatPreviewMessage(latestMessage)}
             </span>

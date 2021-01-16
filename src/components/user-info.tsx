@@ -826,6 +826,7 @@ const UserProfile = (props: IUserProps) => {
                 </Row>
 
                 <ProfileStats
+                  username={username}
                   user={currentUserInfo}
                   postsCount={currentUserInfo.posts_count}
                 />
@@ -905,6 +906,7 @@ const UserProfile = (props: IUserProps) => {
                   <>
                     <ProfileStats
                       user={otherUserInfo}
+                      username={username}
                       postsCount={(posts as Post[]).length}
                     />
                     <ProfileBio user={otherUserInfo} />
@@ -913,6 +915,7 @@ const UserProfile = (props: IUserProps) => {
                   <>
                     <ProfileStats
                       user={otherUserInfo}
+                      username={username}
                       postsCount={otherUserInfo.posts_count}
                     />
                     <ProfileBio user={otherUserInfo} />

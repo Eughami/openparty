@@ -11,6 +11,7 @@ import {
   handleCancelFollowRequest,
   handleFollowRequest,
 } from '../profile.actions';
+import { Link } from 'react-router-dom';
 
 interface IProfileActionUnfollowProps {
   selfUserInfo?: RegistrationObject;
@@ -143,13 +144,15 @@ export const ProfileActionMessage = (props: IProfileActionMessageProps) => {
   const { onConfirm, icon, title, buttonStyle } = props;
   return (
     <>
-      <Button
-        style={{ ...buttonStyle }}
-        onClick={onConfirm}
-        icon={icon || <MessageOutlined />}
-      >
-        {title || 'D.M 📧'}
-      </Button>
+      <Link to="/messages">
+        <Button
+          style={{ ...buttonStyle }}
+          onClick={onConfirm}
+          icon={icon || <MessageOutlined />}
+        >
+          {title || 'D.M 📧'}
+        </Button>
+      </Link>
     </>
   );
 };

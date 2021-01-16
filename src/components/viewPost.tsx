@@ -292,9 +292,9 @@ const ViewPost = (props: ViewPostProps) => {
             />
             <Col
               className="full__post__left__container"
-              xxl={aspectRation > 0.85 ? (aspectRation > 1.15 ? 9 : 6) : 7}
-              xl={aspectRation > 0.85 ? (aspectRation > 1.15 ? 10 : 8) : 8}
-              lg={aspectRation > 0.85 ? (aspectRation > 1.15 ? 11 : 8) : 9}
+              xxl={aspectRation > 0.85 ? (aspectRation > 1.15 ? 9 : 7) : 7}
+              xl={aspectRation > 0.85 ? (aspectRation > 1.15 ? 10 : 9) : 8}
+              lg={aspectRation > 0.85 ? (aspectRation > 1.15 ? 11 : 9) : 9}
               md={aspectRation > 0.85 ? (aspectRation > 1.15 ? 18 : 10) : 12}
               sm={aspectRation > 0.85 ? (aspectRation > 1.15 ? 20 : 16) : 18}
               xs={24}
