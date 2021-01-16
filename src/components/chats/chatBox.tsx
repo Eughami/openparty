@@ -172,7 +172,7 @@ const ChatBox = (props: ChatBoxProps) => {
           <AsyncMention
             value={writtenMessage}
             onChange={setWrittenMessage}
-            placeholder="Add a comment..."
+            placeholder="Say something..."
           />
         </Col>
         <Col style={{ height: 'inherit' }} flex="50px">
