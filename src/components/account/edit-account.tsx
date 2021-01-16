@@ -60,9 +60,9 @@ const EditAccount = (props: IEditAccountInterface) => {
             >
               <ChangePassword user={currentUser!} />
             </TabPane>
-            <TabPane tab="Notification Settings" key="3">
+            {/* <TabPane tab="Notification Settings" disabled key="3">
               Notification Settings
-            </TabPane>
+            </TabPane> */}
             <TabPane tab="Privacy" key="4">
               <EditPrivacy currentUser={currentUser!} user={currentUserInfo!} />
             </TabPane>

@@ -49,6 +49,9 @@ const Tags = (props: ITagsProps) => {
   }, [tag]);
 
   useEffect(() => {
+    let tagsPostsSub: any[] = [];
+    let tagsUidRefs: string[] = [];
+    let tagsPostRefs: string[] = [];
     const getTags = async () => {
       if (!currentUser) return;
 
@@ -70,8 +73,6 @@ const Tags = (props: ITagsProps) => {
         }
       );
 
-      console.log(result.data);
-
       if (result.data.success) {
         if (result.data.uFP.length === 0) {
           setLoading(false);
@@ -84,7 +85,7 @@ const Tags = (props: ITagsProps) => {
           .map(
             result.data.uFP,
             async (obj: { uidRef: string; postRef: string }, index: number) => {
-              firebase
+              tagsPostsSub[index] = firebase
                 .database()
                 .ref('Postsv2')
                 .child(obj.uidRef)
@@ -142,6 +143,8 @@ const Tags = (props: ITagsProps) => {
                     }
                   }
                 );
+              tagsUidRefs[index] = obj.uidRef;
+              tagsPostRefs[index] = obj.postRef;
             },
             { concurrency: result.data.uFP.length }
           )
@@ -165,7 +168,16 @@ const Tags = (props: ITagsProps) => {
 
     getTags();
 
-    // return () => localStorage.removeItem("otherUserProfileLoaded")
+    return () => {
+      tagsPostsSub.map((f, i) => {
+        if (f) {
+          const u = tagsUidRefs[i];
+          const p = tagsPostRefs[i];
+          firebase.database().ref('Postsv2').child(u).child(p).off('value', f);
+        }
+        return 200;
+      });
+    };
   }, [tag, currentUser, currentUserToken, props.setCurrentUserToken]);
 
   if (loading) {

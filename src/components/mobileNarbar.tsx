@@ -191,7 +191,7 @@ const MobileNavbar = (props: IMobileNavbarProps) => {
             </Select>
           </Form.Item>
 
-          <Form.Item
+          {/* <Form.Item
             hidden={!postStatusEligible}
             name="status"
             label={
@@ -204,7 +204,7 @@ const MobileNavbar = (props: IMobileNavbarProps) => {
             }
           >
             <Checkbox>Allow others to edit this post</Checkbox>
-          </Form.Item>
+          </Form.Item> */}
 
           <Form.Item
             name="event-date"

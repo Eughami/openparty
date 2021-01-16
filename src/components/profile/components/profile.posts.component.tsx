@@ -12,15 +12,12 @@ import {
   Row,
   Empty,
   Modal,
-  Typography,
   Select,
   DatePicker,
   message,
   Button,
   List,
-  Carousel,
   Input,
-  Popconfirm,
 } from 'antd';
 import { PostCaption } from '../../post/components/post.component.caption';
 import { PostLikesNumber } from '../../post/components/post.component.likes';
@@ -32,14 +29,7 @@ import {
 } from '../../post/components/post.component.actions';
 import { Post, RegistrationObject } from '../../interfaces/user.interface';
 import { CardMetaProps } from 'antd/lib/card';
-import {
-  EllipsisOutlined,
-  DeleteOutlined,
-  ExclamationCircleOutlined,
-  RightCircleTwoTone,
-  LeftCircleTwoTone,
-  QuestionCircleOutlined,
-} from '@ant-design/icons';
+import { EllipsisOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
 import { useHistory } from 'react-router-dom';
 import Moment from 'moment';
 import Axios from 'axios';
@@ -73,8 +63,6 @@ interface IRenderPostCardProps {
   type: 'self-user' | 'other-user';
   Meta: React.FC<CardMetaProps>;
 }
-
-const { Paragraph } = Typography;
 
 const { Option } = Select;
 
@@ -524,17 +512,19 @@ const RenderPostCard = (props: IRenderPostCardProps) => {
               hoverable
               cover={
                 <div>
-                  <img
-                    style={{
-                      objectFit: 'cover',
-                      width: '100%',
-                      height: '50vh',
-                    }}
-                    onClick={() => history.push(`/post/${post.id}`)}
-                    className="zoom"
-                    alt={post.caption}
-                    src={post.image_url![0]}
-                  />
+                  {post.image_url && (
+                    <img
+                      style={{
+                        objectFit: 'cover',
+                        width: '100%',
+                        height: '50vh',
+                      }}
+                      onClick={() => history.push(`/post/${post.id}`)}
+                      className="zoom"
+                      alt={post.caption}
+                      src={post.image_url![0]}
+                    />
+                  )}
                   {post.image_url && post.image_url.length > 1 && (
                     <span
                       style={{

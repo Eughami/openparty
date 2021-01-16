@@ -45,11 +45,13 @@ const UserSuggestions = ({ users }: any) => {
                     </Col>
                   </Row>
                 </Col>
-                {/* <Col>
-                  <Button type="primary" block>
-                    Follow
-                  </Button>
-                </Col> */}
+                <Col>
+                  <Link style={{ color: 'inherit' }} to={`/${user.username}`}>
+                    <Button type="link" block>
+                      View
+                    </Button>
+                  </Link>
+                </Col>
               </Row>
             ))
           : null

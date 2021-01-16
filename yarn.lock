@@ -1136,13 +1136,6 @@
   dependencies:
     regenerator-runtime "^0.13.4"
 
-"@babel/runtime@^7.12.1":
-  version "7.12.5"
-  resolved "https://registry.yarnpkg.com/@babel/runtime/-/runtime-7.12.5.tgz#410e7e487441e1b360c29be715d870d9b985882e"
-  integrity sha512-plcc+hbExy3McchJCEQG3knOsuh3HH+Prx1P6cLIkET/0dLuQDEnrT+s27Axgc9bqfsmNUNHfscgMUdBpC9xfg==
-  dependencies:
-    regenerator-runtime "^0.13.4"
-
 "@babel/template@^7.10.4":
   version "7.10.4"
   resolved "https://registry.yarnpkg.com/@babel/template/-/template-7.10.4.tgz#3251996c4200ebc71d1a8fc405fba940f36ba278"
@@ -2231,13 +2224,6 @@
   resolved "https://registry.yarnpkg.com/@types/q/-/q-1.5.2.tgz#690a1475b84f2a884fd07cd797c00f5f31356ea8"
   integrity sha512-ce5d3q03Ex0sy4R14722Rmt6MT07Ua+k4FwDfdcToYJcMKNtRVQvJ6JCAPdAmAnbRb6CsX6aYb9m96NGod9uTw==
 
-"@types/react-alice-carousel@^1.15.3":
-  version "1.15.3"
-  resolved "https://registry.yarnpkg.com/@types/react-alice-carousel/-/react-alice-carousel-1.15.3.tgz#e581096b3867c025bbe842e4f2af5b239dc6df62"
-  integrity sha512-3tv5HALFTjS7ixUbBzkvEn7aDqPMxoYZkcISbkV58utCUNwJDznhKC/b+qqZv4SXMdRHGT1uU0U476OduKXwwg==
-  dependencies:
-    react-alice-carousel "*"
-
 "@types/react-dom@*", "@types/react-dom@^16.9.0":
   version "16.9.8"
   resolved "https://registry.yarnpkg.com/@types/react-dom/-/react-dom-16.9.8.tgz#fe4c1e11dfc67155733dfa6aa65108b4971cb423"
@@ -2330,11 +2316,6 @@
     "@types/react-dom" "*"
     "@types/testing-library__dom" "*"
     pretty-format "^25.1.0"
-
-"@types/uuid@^8.3.0":
-  version "8.3.0"
-  resolved "https://registry.yarnpkg.com/@types/uuid/-/uuid-8.3.0.tgz#215c231dff736d5ba92410e6d602050cce7e273f"
-  integrity sha512-eQ9qFW/fhfGJF8WKHGEHZEyVWfZxrT+6CLIJGBcZPfxUh/+BnEj+UCGYMlr9qZuX/2AltsvwrGqp0LhEW8D0zQ==
 
 "@types/yargs-parser@*":
   version "15.0.0"
@@ -2771,14 +2752,6 @@ ansicolors@~0.3.2:
   version "0.3.2"
   resolved "https://registry.yarnpkg.com/ansicolors/-/ansicolors-0.3.2.tgz#665597de86a9ffe3aa9bfbe6cae5c6ea426b4979"
   integrity sha1-ZlWX3oap/+Oqm/vmyuXG6kJrSXk=
-
-antd-img-crop@^3.13.2:
-  version "3.13.2"
-  resolved "https://registry.yarnpkg.com/antd-img-crop/-/antd-img-crop-3.13.2.tgz#a406551edf0a3d5ad2a7d80bc691a0d6b7958933"
-  integrity sha512-UNCyD9KbnKFx4Lhl+eehlYIwdo8k74P4K0VWrgKTjuLr2tuWXM+UIK+L8MwUadSRfuHiSL+bWrtFaXjqYZK/CA==
-  dependencies:
-    "@babel/runtime" "^7.12.1"
-    react-easy-crop "^3.3.0"
 
 antd@^4.9.3:
   version "4.9.4"
@@ -8679,6 +8652,11 @@ lodash.camelcase@^4.3.0:
   resolved "https://registry.yarnpkg.com/lodash.camelcase/-/lodash.camelcase-4.3.0.tgz#b28aa6288a2b9fc651035c7711f65ab6190331a6"
   integrity sha1-soqmKIorn8ZRA1x3EfZathkDMaY=
 
+lodash.debounce@^4.0.8:
+  version "4.0.8"
+  resolved "https://registry.yarnpkg.com/lodash.debounce/-/lodash.debounce-4.0.8.tgz#82d79bff30a67c4005ffd5e2515300ad9ca4d7af"
+  integrity sha1-gteb/zCmfEAF/9XiUVMArZyk168=
+
 lodash.defaults@^4.2.0:
   version "4.2.0"
   resolved "https://registry.yarnpkg.com/lodash.defaults/-/lodash.defaults-4.2.0.tgz#d09178716ffea4dde9e5fb7b37f6f0802274580c"
@@ -11682,13 +11660,6 @@ re2@^1.15.0:
     nan "^2.14.2"
     node-gyp "^7.1.1"
 
-react-alice-carousel@*, react-alice-carousel@^2.1.0:
-  version "2.1.0"
-  resolved "https://registry.yarnpkg.com/react-alice-carousel/-/react-alice-carousel-2.1.0.tgz#8a9b14c37a0b88d3c53218e6fab215028592e520"
-  integrity sha512-AprO4ndVhi9aYYZ4LhTiDT/1oSMikITYG5HsHrU8FKlFN74Ph7xzi8Gm/d3QtoaWbZ2dg+B+RZw0u7z0DdQk/g==
-  dependencies:
-    vanilla-swipe "^2.2.0"
-
 react-app-polyfill@^1.0.6:
   version "1.0.6"
   resolved "https://registry.yarnpkg.com/react-app-polyfill/-/react-app-polyfill-1.0.6.tgz#890f8d7f2842ce6073f030b117de9130a5f385f0"
@@ -11700,6 +11671,13 @@ react-app-polyfill@^1.0.6:
     raf "^3.4.1"
     regenerator-runtime "^0.13.3"
     whatwg-fetch "^3.0.0"
+
+react-bottom-scroll-listener@^5.0.0:
+  version "5.0.0"
+  resolved "https://registry.yarnpkg.com/react-bottom-scroll-listener/-/react-bottom-scroll-listener-5.0.0.tgz#173ab652d2285ea8831a9b79f58d6fc70cf353d0"
+  integrity sha512-X+PE8qiTOd8H9WxrvBKG5AZFUtekWk2mR8YNXhF0Zd8HbpX8eNjPcKm4Y8EEdxmgOe6rP02r/glPI72tWNqtpw==
+  dependencies:
+    lodash.debounce "^4.0.8"
 
 react-dev-utils@^10.2.1:
   version "10.2.1"
@@ -11740,13 +11718,6 @@ react-dom@^16.14.0:
     object-assign "^4.1.1"
     prop-types "^15.6.2"
     scheduler "^0.19.1"
-
-react-easy-crop@^3.3.0:
-  version "3.3.0"
-  resolved "https://registry.yarnpkg.com/react-easy-crop/-/react-easy-crop-3.3.0.tgz#35b4cee63dbdfb0d784c06b52209f77c2ea450ff"
-  integrity sha512-3udl/ZlyHkCldtNpY0XdNNym6gugRStII7j93KXaZyVACfiMvb5WQmieGnkGIffItNQnOGQ44X1koe165rUPNQ==
-  dependencies:
-    tslib "2.0.1"
 
 react-error-overlay@^6.0.7:
   version "6.0.7"
@@ -11797,11 +11768,6 @@ react-router-dom@^5.2.0:
     react-router "5.2.0"
     tiny-invariant "^1.0.2"
     tiny-warning "^1.0.0"
-
-react-router-scroll-memory@^2.0.7:
-  version "2.0.7"
-  resolved "https://registry.yarnpkg.com/react-router-scroll-memory/-/react-router-scroll-memory-2.0.7.tgz#afd5627d5378df7c8490935c9a1585362a7c850a"
-  integrity sha512-1M7LxVBBVrE4oIS/+enQwCRdg2EapF/RnZaL2pXpPb7HVjJsI83MhMuGAzKtd1YOdB4ekwdtMX7t5T9FvQBC6Q==
 
 react-router@5.2.0:
   version "5.2.0"
@@ -13677,11 +13643,6 @@ ts-pnp@1.1.6, ts-pnp@^1.1.6:
   resolved "https://registry.yarnpkg.com/ts-pnp/-/ts-pnp-1.1.6.tgz#389a24396d425a0d3162e96d2b4638900fdc289a"
   integrity sha512-CrG5GqAAzMT7144Cl+UIFP7mz/iIhiy+xQ6GGcnjTezhALT02uPMRw7tgDSESgB5MsfKt55+GPWw4ir1kVtMIQ==
 
-tslib@2.0.1:
-  version "2.0.1"
-  resolved "https://registry.yarnpkg.com/tslib/-/tslib-2.0.1.tgz#410eb0d113e5b6356490eec749603725b021b43e"
-  integrity sha512-SgIkNheinmEBgx1IUNirK0TUD4X9yjjBRTqqjggWCU3pUEqIk3/Uwl3yRixYKT6WjQuGiwDv4NomL3wqRCj+CQ==
-
 tslib@^1.10.0, tslib@^1.8.1, tslib@^1.9.0:
   version "1.11.1"
   resolved "https://registry.yarnpkg.com/tslib/-/tslib-1.11.1.tgz#eb15d128827fbee2841549e171f45ed338ac7e35"
@@ -14028,11 +13989,6 @@ utils-merge@1.0.1:
   resolved "https://registry.yarnpkg.com/utils-merge/-/utils-merge-1.0.1.tgz#9f95710f50a267947b2ccc124741c1028427e713"
   integrity sha1-n5VxD1CiZ5R7LMwSR0HBAoQn5xM=
 
-uui@^1.0.7:
-  version "1.0.7"
-  resolved "https://registry.yarnpkg.com/uui/-/uui-1.0.7.tgz#283eab026f323a00f333e1dbcf93ce1a41a47782"
-  integrity sha512-k9l6kxVMwk02dy9axYYay5dWVF+3jfBcVpgJUj09WIcp4JSHM3JPdlcpicFTWUYryZGKryxSkS0xhtUSn2xAnw==
-
 uuid@^3.0.0, uuid@^3.3.2, uuid@^3.4.0:
   version "3.4.0"
   resolved "https://registry.yarnpkg.com/uuid/-/uuid-3.4.0.tgz#b23e4358afa8a202fe7a100af1f5f883f02007ee"
@@ -14060,11 +14016,6 @@ value-equal@^1.0.1:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/value-equal/-/value-equal-1.0.1.tgz#1e0b794c734c5c0cade179c437d356d931a34d6c"
   integrity sha512-NOJ6JZCAWr0zlxZt+xqCHNTEKOsrks2HQd4MqhP1qy4z1SkbEP467eNx6TgDKXMvUOb+OENfJCZwM+16n7fRfw==
-
-vanilla-swipe@^2.2.0:
-  version "2.3.0"
-  resolved "https://registry.yarnpkg.com/vanilla-swipe/-/vanilla-swipe-2.3.0.tgz#a2cd466aabed00c1e8abd7b69a86940bf9319516"
-  integrity sha512-4m8vZ/kckRG7RQUYNg+0lGILMHT08KEgwePlRLzediDSu7aQFBLB0V2n36vUmYqq5CVWASOzZ8zpnQFZXIbHbA==
 
 vary@~1.1.2:
   version "1.1.2"

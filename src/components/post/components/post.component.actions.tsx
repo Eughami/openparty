@@ -93,6 +93,9 @@ export const PostActionLike = (props: IPostActionLikeProps) => {
   );
 
   useEffect(() => {
+    if (!post.uid || !post.id) {
+      return;
+    }
     const un_sub = firebase
       .database()
       .ref('Postsv2')

@@ -18,6 +18,7 @@ import bluebird from 'bluebird';
 import Axios from 'axios';
 import { API_BASE_URL, GET_POPULAR_USERS } from '../../service/api';
 import UserSuggestions from '../userSuggestions';
+import { BottomScrollListener } from 'react-bottom-scroll-listener';
 
 interface IPostsProps {
   setCurrentUserListener?: () => Promise<any>;
@@ -128,6 +129,8 @@ export const awaitFillPosts = async (
   return temp;
 };
 
+const POSTS_LIMIT = 3 * 1000;
+
 const Posts = (props: IPostsProps) => {
   const { currentUser, currentUserEligiblePosts } = props;
 
@@ -146,6 +149,7 @@ const Posts = (props: IPostsProps) => {
   );
   const [loadingRecommended, setLoadingRecommended] = useState<boolean>(false);
   const [shouldRefreshPost, setShouldRefreshPost] = useState<boolean>(false);
+  const [postsLimit, setPostsLimit] = useState<number>(POSTS_LIMIT);
 
   useEffect(() => {
     if (!currentUser) return;
@@ -154,22 +158,32 @@ const Posts = (props: IPostsProps) => {
       getPopularUsers();
       return;
     }
+    // console.log(
+    //   'currentUserEligiblePosts!.splice(0, postsLimit)',
+    //   currentUserEligiblePosts!.splice(0, postsLimit)
+    // );
+
+    let homePostsSub: any[] = [];
+    let homeUidRefs: string[] = [];
+    let homePostRefs: string[] = [];
     // if (localStorage.getItem('postsSet')) return;
     // if (currentUserEligiblePosts!.length === 0) {
     //     setLoading(false);
     //     return;
     // }
+    const splicedPosts = currentUserEligiblePosts; //!.splice(0, postsLimit);
     const getEligible = async () => {
       let temp: any = {};
       await bluebird
         .map(
-          currentUserEligiblePosts!,
+          splicedPosts!,
           async (obj: { uidRef: string; postRef: string }, index: number) => {
-            firebase
+            homePostsSub[index] = firebase
               .database()
               .ref('Postsv2')
               .child(obj.uidRef)
               .child(obj.postRef)
+
               .on(
                 'value',
                 async (ssh) => {
@@ -199,7 +213,7 @@ const Posts = (props: IPostsProps) => {
                   }
 
                   if (
-                    index === currentUserEligiblePosts!.length - 1 &&
+                    index === splicedPosts!.length - 1 &&
                     !localStorage.getItem('postsSet')
                   ) {
                     setPosts(
@@ -236,8 +250,12 @@ const Posts = (props: IPostsProps) => {
                   }
                 }
               );
+            homeUidRefs[index] = obj.uidRef;
+            homePostRefs[index] = obj.postRef;
           },
-          { concurrency: currentUserEligiblePosts!.length }
+          {
+            concurrency: splicedPosts!.length,
+          }
         )
         .then(() => {
           console.log('DONE MAPPING');
@@ -255,7 +273,17 @@ const Posts = (props: IPostsProps) => {
     };
 
     getEligible();
-  }, [currentUser, currentUserEligiblePosts]);
+    return () => {
+      homePostsSub.map((f, i) => {
+        if (f) {
+          const u = homeUidRefs[i];
+          const p = homePostRefs[i];
+          firebase.database().ref('Postsv2').child(u).child(p).off('value', f);
+        }
+        return 200;
+      });
+    };
+  }, [currentUser, currentUserEligiblePosts, postsLimit]);
 
   //Set listener for every hot notification update in user's updated post
   useEffect(() => {
@@ -324,6 +352,10 @@ const Posts = (props: IPostsProps) => {
     );
   }
 
+  const callback = () => {
+    // setPostsLimit(postsLimit + 10);
+  };
+
   if (currentUserEligiblePosts === null) {
     return (
       <div style={{ textAlign: 'center' }}>
@@ -382,6 +414,7 @@ const Posts = (props: IPostsProps) => {
       )}
       {posts.length > 0 &&
         posts.map((val) => <MyPost key={val.key} post={val} />)}
+      <BottomScrollListener onBottom={callback}></BottomScrollListener>
     </div>
   );
 };

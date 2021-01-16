@@ -25,6 +25,7 @@ localStorage.removeItem('postsSet');
 localStorage.removeItem('otherUserPostsSet');
 localStorage.removeItem('publicUserPostsSet');
 localStorage.removeItem('tagPostsSet');
+localStorage.removeItem('selfUserInfoPostsSet');
 
 ReactDOM.render(
   <Provider store={store}>

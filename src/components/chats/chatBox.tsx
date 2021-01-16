@@ -10,8 +10,6 @@ import {
 import { RegistrationObject } from '../interfaces/user.interface';
 import AsyncMention from '../mentions/mentions.component';
 import { ICurrentChatDetails } from './inbox';
-import { v1 } from 'uuid';
-import { ArrowLeftOutlined } from '@ant-design/icons';
 
 interface ChatBoxProps {
   currentChatDetails: ICurrentChatDetails;
@@ -27,10 +25,12 @@ interface messageInterface {
   id: string;
   text: string;
 }
+const MESSAGES_LIMIT = 20;
 const ChatBox = (props: ChatBoxProps) => {
   const [messages, setMessages] = useState<messageInterface[]>();
   const [writtenMessage, setWrittenMessage] = useState<string>('');
-  const [messagesLimit, setMessagesLimit] = useState<number>(20);
+  const [messagesLimit, setMessagesLimit] = useState<number>(MESSAGES_LIMIT);
+  const [messagesCount, setMessagesCount] = useState<number>(0);
   const {
     currentUserInfo,
     currentChatDetails,
@@ -40,7 +40,11 @@ const ChatBox = (props: ChatBoxProps) => {
   } = props;
 
   const scrollToBottom = () => {
-    if (messagesEndRef.current && messagesEndRef && messagesLimit <= 20)
+    if (
+      messagesEndRef.current &&
+      messagesEndRef &&
+      messagesLimit <= MESSAGES_LIMIT
+    )
       (messagesEndRef.current as any)!.scrollIntoView({ behavior: 'smooth' });
   };
 
@@ -58,6 +62,7 @@ const ChatBox = (props: ChatBoxProps) => {
         .ref(`Chats/${currentChatDetails.id}/thread/`)
         .limitToLast(messagesLimit)
         .on('value', (ssh) => {
+          setMessagesCount(ssh.numChildren());
           if (!ssh.exists()) {
             setMessages([]);
             return;
@@ -66,11 +71,14 @@ const ChatBox = (props: ChatBoxProps) => {
           console.log('ChatData.inside', Object.values(ssh.val()));
         }));
     fetchChat();
-    return () =>
-      firebase
-        .database()
-        .ref(`Chats/${currentChatDetails.id}/thread/`)
-        .off('value', sub);
+    return () => {
+      if (sub) {
+        firebase
+          .database()
+          .ref(`Chats/${currentChatDetails.id}/thread/`)
+          .off('value', sub);
+      }
+    };
   }, [
     currentUser,
     currentUserInfo,
@@ -111,6 +119,9 @@ const ChatBox = (props: ChatBoxProps) => {
   };
 
   const handleScroll = (e: any) => {
+    console.log('@LIMIT ', messagesCount, messagesLimit);
+
+    if (messagesLimit > messagesCount) return;
     if (e.target.scrollTop === 0) {
       console.log('top reached');
       setMessagesLimit(messagesLimit + 5);

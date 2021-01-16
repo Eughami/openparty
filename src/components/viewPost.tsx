@@ -26,8 +26,6 @@ import PerfectScrollbar from 'react-perfect-scrollbar';
 import { Post, RegistrationObject } from './interfaces/user.interface';
 // import MyPost from './post/post';
 // import { SPRITE_IMAGE_URL } from './profile/components/profile.posts.component';
-// import AliceCarousel from 'react-alice-carousel';
-import 'react-alice-carousel/lib/alice-carousel.css';
 import { PostUser } from './post/components/post.component.user';
 import { PostActions } from './post/components/post.component.actions';
 import { PostLikes } from './post/components/post.component.likes';
@@ -141,7 +139,8 @@ const ViewPost = (props: ViewPostProps) => {
 
   const fetchPost = async (postId: string, userId: string, token: string) => {
     setLoadingPost(true);
-    firebase
+    let fvPostsSub: any;
+    fvPostsSub = firebase
       .database()
       .ref('Postsv2')
       .child(userId)
@@ -195,6 +194,16 @@ const ViewPost = (props: ViewPostProps) => {
           setPostExists(true);
         }
       );
+    return () => {
+      if (fvPostsSub) {
+        firebase
+          .database()
+          .ref('Postsv2')
+          .child(userId)
+          .child(postId)
+          .off('value', fvPostsSub);
+      }
+    };
   };
 
   useEffect(() => {

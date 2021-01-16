@@ -49,7 +49,7 @@ const Inbox = (props: InboxProps) => {
   useEffect(() => {
     let channelsSub: any;
     let massChannelsSub: any[] = [];
-    // let chatsIdsTemp: any = [];
+    let massChannelsSubChannelKey: string[] = [];
     if (!currentUser) return;
     (async () => {
       channelsSub = firebase
@@ -67,7 +67,8 @@ const Inbox = (props: InboxProps) => {
                 channelKeys,
                 (channelKey, index) => {
                   console.log('@IN CHAT DEBUG: ', channelKey, index);
-                  const massSub = firebase
+                  massChannelsSubChannelKey[index] = channelKey;
+                  massChannelsSub[index] = firebase
                     .database()
                     .ref('Chats')
                     .child(channelKey)
@@ -142,7 +143,6 @@ const Inbox = (props: InboxProps) => {
                         console.log('@DB INNER CHATS ERROR:', error);
                       }
                     );
-                  massChannelsSub.push(massSub);
                 },
                 { concurrency: channelKeys.length }
               );
@@ -160,12 +160,20 @@ const Inbox = (props: InboxProps) => {
     })();
 
     return () => {
-      firebase
-        .database()
-        .ref('UserChannels')
-        .child(currentUser?.uid!)
-        .off('value', channelsSub);
-      console.log(massChannelsSub);
+      if (channelsSub) {
+        firebase
+          .database()
+          .ref('UserChannels')
+          .child(currentUser?.uid!)
+          .off('value', channelsSub);
+      }
+      massChannelsSub.map((f, i) => {
+        if (f) {
+          const k = massChannelsSubChannelKey[i];
+          firebase.database().ref('Chats').child(k).off('value', f);
+        }
+        return 200;
+      });
 
       // massChannelsSub.forEach((u) => {
 

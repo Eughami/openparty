@@ -212,6 +212,7 @@ const MobileHeader = (props: IMobileHeaderProps) => {
         'child_changed',
         (ssh, __prevSsh) => {
           if (ssh.exists()) {
+            notification.destroy();
             if (ssh.child('desc').exists()) {
               notification.open({
                 message: ssh.val().desc,
@@ -233,7 +234,22 @@ const MobileHeader = (props: IMobileHeaderProps) => {
                   }
                 },
                 duration: 5,
-                style: { cursor: 'pointer' },
+                style: { cursor: 'pointer', width: '100vw', fontSize: 12 },
+                top: 0,
+              });
+            } else if (ssh.child('preview').exists()) {
+              console.log('@NEW MESSAGE INCOMING: ', ssh.val());
+              notification.open({
+                message: ssh.val().preview,
+                description: ssh.val().preview,
+                icon:
+                  LIKED_POST_REACTION_ARRAY[
+                    Math.floor(Math.random() * LIKED_POST_REACTION_ARRAY.length)
+                  ],
+                placement: 'bottomRight',
+                style: { cursor: 'pointer', fontSize: 12 },
+                top: 0,
+                duration: 5,
               });
             }
           }

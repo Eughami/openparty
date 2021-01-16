@@ -253,6 +253,7 @@ const Header = (props: IHeaderProps) => {
         'child_changed',
         (ssh, __prevSsh) => {
           if (ssh.exists()) {
+            notification.destroy();
             if (ssh.child('desc').exists()) {
               notification.open({
                 message: ssh.val().desc,
@@ -591,7 +592,7 @@ const Header = (props: IHeaderProps) => {
             </Select>
           </Form.Item>
 
-          <Form.Item
+          {/* <Form.Item
             hidden={!postStatusEligible}
             name="status"
             valuePropName="checked"
@@ -605,7 +606,7 @@ const Header = (props: IHeaderProps) => {
             }
           >
             <Checkbox>Allow others to edit this post</Checkbox>
-          </Form.Item>
+          </Form.Item> */}
 
           <Form.Item
             name="event-date"
