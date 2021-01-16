@@ -257,3 +257,11 @@ hr.light {
     height: calc(100% - 80px);
   }
 }
+
+.user__followings__container {
+  /* border: solid #d5d5d5 1px; */
+  padding: 10px;
+}
+.user__followings__container > * {
+  padding-bottom: 5px;
+}

@@ -95,3 +95,17 @@ export interface RegistrationObject {
   name?: string;
   alien_password?: boolean;
 }
+export interface userFollowerInterface {
+  bio: string;
+  email: string;
+  followers_count: string;
+  following_count: string;
+  gender: string;
+  image_url: string;
+  name: string;
+  phone: string;
+  privacy: string;
+  uid: string;
+  username: string;
+  website: string;
+}

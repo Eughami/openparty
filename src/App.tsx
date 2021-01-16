@@ -33,6 +33,8 @@ import MobileNavbar from './components/mobileNarbar';
 import Activity from './components/header/mobile/pages/Activity';
 import MobileComment from './components/header/mobile/pages/MobileComment';
 import Inbox from './components/chats/inbox';
+import Followers from './components/followers';
+import Followings from './components/followings';
 
 // const currentUser = true
 
@@ -161,6 +163,8 @@ const App = (props: IAppProps) => {
               component={() => <Redirect to="/" />}
             />
             <Route exact path="/:username" component={UserProfile} />
+            <Route exact path="/:username/followings" component={Followings} />
+            <Route exact path="/:username/followers" component={Followers} />
             <Route exact path="/t/:tag" component={Tags} />
             <Route exact path="/post/:postId" component={ViewPost} />
             <Route
