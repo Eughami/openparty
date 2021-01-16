@@ -31,9 +31,9 @@ interface IUserFollowingsProps {
 }
 const Followings = (props: IUserFollowingsProps) => {
   const [followingLoading, setFollowingLoading] = useState<boolean>(false);
-  const [followings, setFollowings] = useState<
-    userFollowerInterface[] | undefined
-  >(undefined);
+  const [followings, setFollowings] = useState<userFollowerInterface[] | null>(
+    null
+  );
   const { username } = props.match.params;
   console.log('@USER.Following, username', username);
   console.log('@USER.Following, token', props.currentUserToken);
@@ -73,15 +73,17 @@ const Followings = (props: IUserFollowingsProps) => {
       >
         {/* TODO. Implement Search for followings */}
         {/* <Search placeholder="Search" /> */}
-        <Divider
-          orientation="left"
-          style={{ fontWeight: 'bold', marginBottom: 20 }}
-        >
-          Followings
-        </Divider>
+        <Col sm={24} xs={0}>
+          <Divider
+            orientation="left"
+            style={{ fontWeight: 'bold', marginBottom: 20 }}
+          >
+            Followings
+          </Divider>
+        </Col>
 
         {/* Suggest User if user is not following anyone */}
-        {followings && followings.length === 0 && (
+        {!followingLoading && followings === null && (
           <span>You are not following anyone at the moment</span>
         )}
         {followingLoading ? (

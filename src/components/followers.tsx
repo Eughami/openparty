@@ -75,13 +75,15 @@ const Followers = (props: IUserFollowingsProps) => {
         {/* <Search placeholder="Search" /> */}
 
         {/* Suggest User if user is not following anyone */}
-        {followings === null && <span>No followers</span>}
-        <Divider
-          orientation="left"
-          style={{ fontWeight: 'bold', marginBottom: 20 }}
-        >
-          Followers
-        </Divider>
+        {!followingLoading && followings === null && <span>No followers</span>}
+        <Col sm={24} xs={0}>
+          <Divider
+            orientation="left"
+            style={{ fontWeight: 'bold', marginBottom: 20 }}
+          >
+            Followers
+          </Divider>
+        </Col>
         {followingLoading ? (
           <Skeleton loading={true} active avatar />
         ) : (

@@ -186,13 +186,29 @@ const MobileHeaderTags = ({ history }: IHistory) => (
   </Row>
 );
 
-const MobileHeaderActivity = ({ history }: IHistory) => (
-  <Row style={{ padding: 16 }} align="middle" justify="center">
-    {/* <Col>
-      <ArrowLeftOutlined onClick={() => history.goBack()} />
-    </Col> */}
-    <Col>
-      <span style={{ fontWeight: 600 }}> Activity </span>
+const MobileHeaderFollowers = ({ history }: IHistory) => (
+  <Row style={{ height: '100%' }} align="middle">
+    <Col offset={1}>
+      <ArrowLeftOutlined
+        style={{ fontSize: 24 }}
+        onClick={() => history.goBack()}
+      />
+    </Col>
+    <Col offset={6}>
+      <span style={{ fontWeight: 600, fontSize: 24 }}> Followers </span>
+    </Col>
+  </Row>
+);
+const MobileHeaderFollowings = ({ history }: IHistory) => (
+  <Row style={{ height: '100%' }} align="middle">
+    <Col offset={1}>
+      <ArrowLeftOutlined
+        style={{ fontSize: 24 }}
+        onClick={() => history.goBack()}
+      />
+    </Col>
+    <Col offset={6}>
+      <span style={{ fontWeight: 600, fontSize: 24 }}> Followings </span>
     </Col>
   </Row>
 );
@@ -286,12 +302,27 @@ const MobileHeader = (props: IMobileHeaderProps) => {
                 <MobileHeaderTags history={history} />
               )}
               {location.path.split('/')[1] ===
-                props.currentUserInfo?.username && (
-                <MobileHeaderSelfUserProfile
-                  currentUserInfo={props.currentUserInfo}
-                  history={history}
-                />
-              )}
+                props.currentUserInfo?.username &&
+                !location.path.split('/')[2] && (
+                  <MobileHeaderSelfUserProfile
+                    currentUserInfo={props.currentUserInfo}
+                    history={history}
+                  />
+                )}
+              {location.path.split('/')[1] &&
+                location.path.split('/')[2] === 'followers' && (
+                  <MobileHeaderFollowers
+                    currentUserInfo={props.currentUserInfo}
+                    history={history}
+                  />
+                )}
+              {location.path.split('/')[1] &&
+                location.path.split('/')[2] === 'followings' && (
+                  <MobileHeaderFollowings
+                    currentUserInfo={props.currentUserInfo}
+                    history={history}
+                  />
+                )}
               {props.currentUserViewing && (
                 <MobileHeaderOtherUserProfile
                   currentUserViewing={props.currentUserViewing}
