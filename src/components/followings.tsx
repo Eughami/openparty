@@ -41,11 +41,14 @@ const Followings = (props: IUserFollowingsProps) => {
   // fetch followings
   const getFollowings = () => {
     setFollowingLoading(true);
-    Axios.get(`${API_BASE_URL}${GET_USER_FOLLOWINGS}`, {
-      headers: {
-        Authorization: `Bearer ${props.currentUserToken}`,
-      },
-    })
+    Axios.get(
+      `${API_BASE_URL}${GET_USER_FOLLOWINGS}`.replace(':username', username),
+      {
+        headers: {
+          Authorization: `Bearer ${props.currentUserToken}`,
+        },
+      }
+    )
       .then((res: AxiosResponse) => {
         const followingsRes: userFollowerInterface[] = res.data;
         console.log('@USER FOLLOwing:', followings);

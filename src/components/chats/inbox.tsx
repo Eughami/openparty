@@ -42,6 +42,10 @@ const Inbox = (props: InboxProps) => {
   const [currentChatDetails, setCurrentChatDetails] = useState<
     ICurrentChatDetails | undefined
   >();
+  const [entryChatDetails, setEntryChatDetails] = useState<
+    ICurrentChatDetails | undefined
+  >();
+
   const [showChatMobile, setShowChatMobile] = useState<boolean>(false);
 
   const mobileToggler = () => setShowChatMobile(!showChatMobile);
@@ -50,6 +54,7 @@ const Inbox = (props: InboxProps) => {
     let channelsSub: any;
     let massChannelsSub: any[] = [];
     let massChannelsSubChannelKey: string[] = [];
+    let chatsSet = false;
     if (!currentUser) return;
     (async () => {
       channelsSub = firebase
@@ -124,10 +129,20 @@ const Inbox = (props: InboxProps) => {
                         }
                         // temp[`${chats.key!}`] = chatData;
 
-                        // what this index doing ?
-                        if (index === channelKeys.length - 1) {
-                          //set loading chats done
+                        if (localStorage.getItem('chatsSet')) {
+                          setChatIds(
+                            Object.values(temp).sort(
+                              (s1: any, s2: any) => s2.updated - s1.updated
+                            ) as any
+                          );
 
+                          setLoading(false);
+                        }
+
+                        if (
+                          index === channelKeys.length - 1 &&
+                          !localStorage.getItem('chatsSet')
+                        ) {
                           setChatIds(
                             Object.values(temp).sort(
                               (s1: any, s2: any) => s2.updated - s1.updated
@@ -137,7 +152,25 @@ const Inbox = (props: InboxProps) => {
                           console.log('@CHAT DEBUG: ', Object.values(temp));
 
                           setLoading(false);
+
+                          localStorage.setItem('chatsSet', 'true');
                         }
+
+                        // what this index doing ?
+                        // if (chatsSet /* index === channelKeys.length - 1 */) {
+                        //   //set loading chats done
+
+                        //   setChatIds(
+                        //     Object.values(temp).sort(
+                        //       (s1: any, s2: any) => s2.updated - s1.updated
+                        //     ) as any
+                        //   );
+
+                        //   console.log('@CHAT DEBUG: ', Object.values(temp));
+
+                        //   setLoading(false);
+                        //   chatsSet = true;
+                        // }
                       },
                       (error: any) => {
                         console.log('@DB INNER CHATS ERROR:', error);
@@ -160,6 +193,8 @@ const Inbox = (props: InboxProps) => {
     })();
 
     return () => {
+      localStorage.removeItem('chatsSet');
+      localStorage.removeItem('entryChatSet');
       if (channelsSub) {
         firebase
           .database()
@@ -181,11 +216,154 @@ const Inbox = (props: InboxProps) => {
     };
   }, [currentUser]);
 
+  useEffect(() => {
+    if (chatIds.length === 0) return;
+    const e = localStorage.getItem('entryChatSet');
+    const u = currentUser?.uid;
+    const c = chatIds.filter(
+      (chat) => chat.channelId === `${e}+${u}` || chat.channelId === `${u}+${e}`
+    )[0];
+
+    if (c) {
+      // setEntryChatDetails(c)
+      // mobileToggler();
+      setShowChatMobile(true);
+      setEntryChatDetails({
+        id: c.channelId,
+        username: c.username,
+        avatar: c.avatar,
+        updated: c.updated,
+      });
+
+      // mobileToggler();
+    }
+  }, [chatIds]);
+
+  console.log('@C: ', entryChatDetails);
+
+  // useEffect(() => {
+  //   // if(!loading) {
+
+  //   // }
+  //   if (
+  //     localStorage.getItem('entryChatSet') &&
+  //     localStorage.getItem('chatsSet') &&
+  //     !loading
+  //   ) {
+  //     const e = localStorage.getItem('entryChatSet');
+  //     const u = currentUser?.uid;
+  //     const c = chatIds.filter(
+  //       (chat) =>
+  //         chat.channelId === `${e}+${u}` || chat.channelId === `${u}+${e}`
+  //     )[0];
+
+  //     if (c) {
+  //       console.log('@STEPS: ', e, c, u);
+
+  //       setEntryChatDetails({
+  //         id: c.channelId,
+  //         username: c.username,
+  //         avatar: c.avatar,
+  //         updated: c.updated,
+  //       } as ICurrentChatDetails);
+  //     }
+  //   }
+  // }, [loading, chatIds]);
+
   if (loading) {
     return (
       <Col offset={6} span={12} style={{ paddingTop: '100px' }}>
         <Skeleton avatar active paragraph={{ rows: 4 }} />
       </Col>
+    );
+  }
+
+  if (entryChatDetails) {
+    return (
+      <Row justify="center" align="middle">
+        <Col md={24} sm={0} xs={0}>
+          {/* For Big screen Desktop */}
+          <Row justify="center" align="middle">
+            <Col className="chats__list_container" xl={6} lg={8} md={9}>
+              {chatIds &&
+                chatIds.map((channelId) => (
+                  <div
+                    key={channelId.channelId}
+                    onClick={() => {
+                      setCurrentChatDetails({
+                        id: channelId.channelId,
+                        username: channelId.username,
+                        avatar: channelId.avatar,
+                        updated: channelId.updated,
+                      });
+                      setEntryChatDetails(undefined);
+                      localStorage.removeItem('entryChatSet');
+                    }}
+                  >
+                    <ChatPreview details={channelId} />
+                  </div>
+                ))}
+            </Col>
+            <Col span={12}>
+              <div className="current__chat__container">
+                <ChatBox currentChatDetails={entryChatDetails} />
+              </div>
+            </Col>
+          </Row>
+        </Col>
+        {/* For small screen Mobile */}
+        <Col xs={24} sm={20} md={0}>
+          <Row justify="center" align="middle">
+            {showChatMobile ? (
+              <div className="current__chat__container__mobile">
+                <Row
+                  align="middle"
+                  justify="start"
+                  className="current__chat__mobile__header"
+                >
+                  <Col offset={1}>
+                    <ArrowLeftOutlined
+                      style={{ fontSize: 22 }}
+                      onClick={mobileToggler}
+                    />
+                  </Col>
+                  <Col offset={1}>
+                    <Avatar src={entryChatDetails.avatar} size={32} />
+                  </Col>
+                  <Col offset={1}> {entryChatDetails.username}</Col>
+                </Row>
+                <ChatBox
+                  mobileToggler={mobileToggler}
+                  currentChatDetails={entryChatDetails}
+                />
+              </div>
+            ) : (
+              <Col className="chats__list_container__mobile">
+                {chatIds &&
+                  chatIds.map((channelId) => (
+                    <div
+                      key={channelId.channelId}
+                      onClick={() => {
+                        mobileToggler();
+
+                        setCurrentChatDetails({
+                          id: channelId.channelId,
+                          username: channelId.username,
+                          avatar: channelId.avatar,
+                          updated: channelId.updated,
+                        });
+                        setEntryChatDetails(undefined);
+                        localStorage.removeItem('entryChatSet');
+                      }}
+                    >
+                      <ChatPreview details={channelId} />
+                    </div>
+                  ))}
+              </Col>
+            )}
+          </Row>
+        </Col>
+      </Row>
     );
   }
 

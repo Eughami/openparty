@@ -1,6 +1,138 @@
 {
   "rules": {
-    ".read": "true",  // 2020-11-16
-    ".write": "true",  // 2020-11-16
+    ".read": false,
+    ".write": false,
+    "Credentials": {
+      ".read": false,
+      ".write": false
+    },
+    "Chats": {
+      "$channel_id": {
+        ".write": false,
+        ".read": "root.child('UserChannels').child(auth.uid).exists()",
+        "updated": {
+          ".write": "root.child('UserChannels').child(auth.uid).exists()"
+        },
+        "userslist": {
+          ".read": "root.child('UserChannels').child(auth.uid).exists()"
+        },
+        "thread": {
+          ".write": "root.child('UserChannels').child(auth.uid).exists()",
+          ".read": "root.child('UserChannels').child(auth.uid).exists()"
+        }
+      }
+    },
+    "UserChannels": {
+      ".write": false,
+      "$uid": {
+        ".read": "auth.uid === $uid"
+      }
+    },
+    "FollowRequests": {
+      ".write": false,
+      "$uid": {
+        ".read": "auth.uid === $uid",
+        "$otherUid": {
+          ".write": false,
+          ".read": "auth.uid === $uid || auth.uid === $otherUid"
+        }
+      }
+    },
+    "Followers": {
+      "$uid": {
+        ".read": "auth.uid === $uid",
+        ".write": false
+      }
+    },
+    "Following": {
+      ".indexOn": "uid",
+      "$uid": {
+        ".read": "auth.uid === $uid",
+        ".write": false
+      }
+    },
+    "Notifications": {
+      "$uid": {
+        ".read": "auth.uid === $uid",
+        ".write": false
+      }
+    },
+    "PostIds": {
+      ".read": false,
+      ".write": false
+    },
+    "Postsv2": {
+      "$uid": {
+        ".indexOn": "privacy",
+        ".write": "auth.uid === $uid",
+        ".read": "auth.uid === $uid",
+        "$postId": {
+          ".read": "(auth.uid === $uid) || (root.child('Followers').child($uid).child(auth.uid).exists() || root.child('Postsv2').child($uid).child($postId).child('privacy').val() === 'open' && root.child('Postsv2').child($uid).child($postId).child('privacy').val() !== 'hard-closed')",
+          "likes": {
+            "$otherUid": {
+              ".read": "(auth.uid === $uid) || (root.child('Followers').child($uid).child($otherUid).exists() || root.child('Postsv2').child($uid).child($postId).child('privacy').val() === 'open' && root.child('Postsv2').child($uid).child($postId).child('privacy').val() !== 'hard-closed')",
+              ".write": "(auth.uid === $uid) || (root.child('Followers').child($uid).child($otherUid).exists() || root.child('Postsv2').child($uid).child($postId).child('privacy').val() === 'open' && root.child('Postsv2').child($uid).child($postId).child('privacy').val() !== 'hard-closed')"
+            }
+          },
+          "comments": {
+            ".read": "(auth.uid === $uid) || (root.child('Followers').child($uid).child(auth.uid).exists() || root.child('Postsv2').child($uid).child($postId).child('privacy').val() === 'open' && root.child('Postsv2').child($uid).child($postId).child('privacy').val() !== 'hard-closed')",
+            ".write": false
+          }
+        }
+      }
+      // "$uid": {
+      //   ".indexOn": "privacy",
+      //   ".write": "auth.uid === $uid",
+      //   // ".read": "auth.uid === $uid || root.child('Users').child($uid).child('privacy').val() === 'Public' || root.child('Followers').child($uid).child(auth.uid).exists() ",
+      //   "$postId": {
+      //     // ".read": false,
+      //     ".read": "(auth.uid === $uid) || (root.child('Followers').child($uid).child(auth.uid).exists() || root.child('Postsv2').child($uid).child($postId).child('privacy').val() === 'open' && root.child('Postsv2').child($uid).child($postId).child('privacy').val() !== 'hard-closed')",
+      //     "likes": {
+      //     	"$otherUid": {
+      //         ".read": "(auth.uid === $uid) || (root.child('Followers').child($uid).child($otherUid).exists() || root.child('Postsv2').child($uid).child($postId).child('privacy').val() === 'open' && root.child('Postsv2').child($uid).child($postId).child('privacy').val() !== 'hard-closed')",
+      //         ".write": "(auth.uid === $uid) || (root.child('Followers').child($uid).child($otherUid).exists() || root.child('Postsv2').child($uid).child($postId).child('privacy').val() === 'open' && root.child('Postsv2').child($uid).child($postId).child('privacy').val() !== 'hard-closed')",
+      //       },
+      //     },
+      //     "comments": {
+      // ".read": "(auth.uid === $uid) || (root.child('Followers').child($uid).child(auth.uid).exists() || root.child('Postsv2').child($uid).child($postId).child('privacy').val() === 'open' && root.child('Postsv2').child($uid).child($postId).child('privacy').val() !== 'hard-closed')",
+      //       ".write": false,
+      //     },
+      //   },
+      // },
+    },
+    "Users": {
+      ".indexOn": ["posts_count", "followers_count"],
+      "$uid": {
+        // ".write": "auth.uid === $uid",
+        ".read": "(auth.uid === $uid) || (root.child('Followers').child($uid).child(auth.uid).exists() || root.child('Users').child($uid).child('privacy').val() === 'Public' && root.child('Users').child($uid).child('privacy').val() !== 'Private' )",
+        "uid": {
+          ".read": false,
+          ".write": false
+        },
+        // "email": {
+        // ".read":
+        // },
+        // followers_count:
+        // 1
+        // following_count:
+        // 1
+        "image_url": {
+          ".read": "auth !== null",
+          ".write": "auth.uid === $uid"
+        }
+        // 2
+        // prefix:
+        // "+00"
+        // uid:
+        // "xheGJ09pCVQc42DZjIZR9TUO3a23"
+        // updatedAt:
+        // 1609353091570
+        // username:
+        // "blake5"
+      }
+    },
+    "TopTags": {
+      ".indexOn": "count"
+    }
   }
 }

@@ -27,6 +27,8 @@ interface messageInterface {
 }
 const MESSAGES_LIMIT = 20;
 const ChatBox = (props: ChatBoxProps) => {
+  console.log('CHAT BOX START', props);
+
   const [messages, setMessages] = useState<messageInterface[]>();
   const [writtenMessage, setWrittenMessage] = useState<string>('');
   const [messagesLimit, setMessagesLimit] = useState<number>(MESSAGES_LIMIT);

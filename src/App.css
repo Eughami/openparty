@@ -199,6 +199,7 @@ hr.light {
   border: rgba(239, 239, 239) solid 1px;
   background-color: azure;
   height: 600px;
+  overflow-y: scroll;
 }
 .user__msg__container {
   background-color: aqua;

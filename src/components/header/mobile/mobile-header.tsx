@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import './mobile-header.css';
-import { Col, Row, Input, Dropdown, Menu, notification } from 'antd';
+import { Col, Row, Input, Dropdown, Menu, notification, message } from 'antd';
 import {
   MessageOutlined,
   ArrowLeftOutlined,
@@ -250,23 +250,31 @@ const MobileHeader = (props: IMobileHeaderProps) => {
                   }
                 },
                 duration: 5,
-                style: { cursor: 'pointer', width: '100vw', fontSize: 12 },
+                style: { cursor: 'pointer', fontSize: 12 },
                 top: 0,
               });
             } else if (ssh.child('preview').exists()) {
               console.log('@NEW MESSAGE INCOMING: ', ssh.val());
-              notification.open({
-                message: ssh.val().preview,
-                description: ssh.val().preview,
-                icon:
-                  LIKED_POST_REACTION_ARRAY[
-                    Math.floor(Math.random() * LIKED_POST_REACTION_ARRAY.length)
-                  ],
-                placement: 'bottomRight',
-                style: { cursor: 'pointer', fontSize: 12 },
-                top: 0,
-                duration: 5,
+              message.destroy();
+              message.info({
+                icon: null,
+                // LIKED_POST_REACTION_ARRAY[
+                //   Math.floor(Math.random() * LIKED_POST_REACTION_ARRAY.length)
+                // ],
+                content: ssh.val().preview,
               });
+              // notification.open({
+              //   message: ssh.val().preview,
+              //   // description: ssh.val().preview,
+              //   icon:
+              //     LIKED_POST_REACTION_ARRAY[
+              //       Math.floor(Math.random() * LIKED_POST_REACTION_ARRAY.length)
+              //     ],
+              //   placement: 'bottomRight',
+              //   style: { cursor: 'pointer', fontSize: 12 },
+              //   // top: 0,
+              //   duration: 5,
+              // });
             }
           }
         },

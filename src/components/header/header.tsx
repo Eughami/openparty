@@ -270,7 +270,7 @@ const Header = (props: IHeaderProps) => {
               console.log('@NEW MESSAGE INCOMING: ', ssh.val());
               notification.open({
                 message: ssh.val().preview,
-                description: ssh.val().preview,
+                // description: ssh.val().preview,
                 icon:
                   LIKED_POST_REACTION_ARRAY[
                     Math.floor(Math.random() * LIKED_POST_REACTION_ARRAY.length)

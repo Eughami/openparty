@@ -274,6 +274,7 @@ const Posts = (props: IPostsProps) => {
 
     getEligible();
     return () => {
+      localStorage.removeItem('postsSet');
       homePostsSub.map((f, i) => {
         if (f) {
           const u = homeUidRefs[i];

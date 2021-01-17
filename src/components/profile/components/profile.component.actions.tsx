@@ -141,10 +141,10 @@ interface IProfileActionMessageProps {
 }
 
 export const ProfileActionMessage = (props: IProfileActionMessageProps) => {
-  const { onConfirm, icon, title, buttonStyle } = props;
+  const { onConfirm, icon, title, buttonStyle, otherUserInfo } = props;
   return (
     <>
-      <Link to="/messages">
+      <Link to={`/messages?e=${otherUserInfo.uid}`}>
         <Button
           style={{ ...buttonStyle }}
           onClick={onConfirm}

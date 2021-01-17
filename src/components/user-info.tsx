@@ -29,7 +29,11 @@ import {
   ProfileActionCancelFollowRequest,
   ProfileActionEdit,
 } from './profile/components/profile.component.actions';
-import { API_BASE_URL, CAN_USER_VIEW_PROFILE_ENDPOINT } from '../service/api';
+import {
+  API_BASE_URL,
+  CAN_USER_VIEW_PROFILE_ENDPOINT,
+  INIT_CHAT,
+} from '../service/api';
 import { ProfileRootPosts } from './profile/components/profile.component.posts';
 import './user-info.style.css';
 import { Link } from 'react-router-dom';
@@ -137,17 +141,19 @@ const UserProfile = (props: IUserProps) => {
 
   useEffect(() => {
     if (realUser) {
+      setCurrentUserViewing!(otherUserInfo);
       document.title = `Open Party • @${username}`;
     } else {
       document.title = `Open Party • Content Not Available`;
-    }
+    } //clean up
+    return () => setCurrentUserViewing!(null);
   }, [username, realUser, otherUserInfo]);
 
-  useEffect(() => {
-    setCurrentUserViewing!(otherUserInfo);
-    //clean up
-    return () => setCurrentUserViewing!(null);
-  }, []);
+  // useEffect(() => {
+  //   setCurrentUserViewing!(otherUserInfo);
+  //   //clean up
+  //   return () => setCurrentUserViewing!(null);
+  // }, []);
 
   useEffect(() => {
     let selfUserPostsSub: any;
@@ -897,6 +903,18 @@ const UserProfile = (props: IUserProps) => {
                       />
                     )}
                     <ProfileActionMessage
+                      onConfirm={() => {
+                        axios.post(
+                          `${API_BASE_URL}${INIT_CHAT}`,
+                          { targetUid: otherUserInfo.uid },
+                          {
+                            headers: {
+                              authorization: `Bearer ${currentUserToken}`,
+                            },
+                          }
+                        );
+                        localStorage.setItem('entryChatSet', otherUserInfo.uid);
+                      }}
                       selfUserInfo={currentUserInfo!}
                       otherUserInfo={otherUserInfo}
                     />
