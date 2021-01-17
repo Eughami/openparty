@@ -19,6 +19,7 @@ import Axios from 'axios';
 import { API_BASE_URL, GET_POPULAR_USERS } from '../../service/api';
 import UserSuggestions from '../userSuggestions';
 import { BottomScrollListener } from 'react-bottom-scroll-listener';
+import { Link } from 'react-router-dom';
 
 interface IPostsProps {
   setCurrentUserListener?: () => Promise<any>;
@@ -368,6 +369,9 @@ const Posts = (props: IPostsProps) => {
         <br />
         No post to show here. Follow people to see their posts here.
         <br />
+        <Link to="/explore">
+          <Button type="link">Explore posts</Button>
+        </Link>
         {/* <p style={{ textAlign: 'left' }}> Popular suggestions </p> */}
         {loadingRecommended && (
           <Col offset={6} span={12}>

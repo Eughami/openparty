@@ -74,6 +74,7 @@ const App = (props: IAppProps) => {
         .then(async (currentUser: any) => {
           if (currentUser && !currentUserToken) {
             await setCurrentUserToken!(currentUser);
+            await setCurrentUserToken!(currentUser);
 
             // await setCurrentUserRootDatabaseListener!(currentUser.uid);
 
