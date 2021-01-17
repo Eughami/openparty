@@ -365,6 +365,7 @@ const Posts = (props: IPostsProps) => {
           alt="empty"
           src={require('../images/lonely.png')}
         />
+        {getPopularUsers()}
         <br />
         No post to show here. Follow people to see their posts here.
         <br />

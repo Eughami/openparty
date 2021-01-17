@@ -235,7 +235,7 @@ const RegistrationForm = ({ emailSignInStart, signUpStart, history }: any) => {
 
             <Divider orientation="right">
               <span style={{ fontSize: '0.8rem' }}>
-                Already have an account ?<Link to="/login">Login</Link>
+                Already have an account ?<Link to="/login"> Login</Link>
               </span>
             </Divider>
           </Form>
