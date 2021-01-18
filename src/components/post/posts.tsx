@@ -13,6 +13,7 @@ import {
   setCurrentUserEligiblePosts,
   setCurrentUserListener,
   setCurrentUserRootDatabaseListener,
+  setCurrentUserToken,
 } from '../../redux/user/user.actions';
 import bluebird from 'bluebird';
 import Axios from 'axios';
@@ -133,7 +134,7 @@ export const awaitFillPosts = async (
 const POSTS_LIMIT = 3 * 1000;
 
 const Posts = (props: IPostsProps) => {
-  const { currentUser, currentUserEligiblePosts } = props;
+  const { currentUser, currentUserEligiblePosts, currentUserToken } = props;
 
   console.log('CARDS.TSX PROPS: ', props);
 
@@ -156,7 +157,6 @@ const Posts = (props: IPostsProps) => {
     if (!currentUser) return;
     if (currentUserEligiblePosts === null) {
       setLoading(false);
-      getPopularUsers();
       return;
     }
     // console.log(
@@ -317,32 +317,37 @@ const Posts = (props: IPostsProps) => {
         .off('child_changed', un_sub);
   }, [props.currentUser]);
 
-  // fetch mos popular users
-  const getPopularUsers = async () => {
-    setLoadingRecommended(true);
-    await Axios.get(`${API_BASE_URL}${GET_POPULAR_USERS}`, {
-      headers: {
-        Authorization: `Bearer ${props.currentUserToken}`,
-      },
-    })
-      .then((res) => {
-        console.log('New popular endpoint', res.data);
-        setLoadingRecommended(false);
-        if (res.data === null) {
-          return;
-        }
-        setSuggestedUsers(res.data);
-        // setComments(res.data);
-        // setPostExists(true);
-        // setLoadingPost(false);
+  useEffect(() => {
+    // fetch mos popular users
+    const getPopularUsers = async () => {
+      const token = await currentUser?.getIdToken();
+      console.log('New popular endpoint: token', token);
+      setLoadingRecommended(true);
+      Axios.get(`${API_BASE_URL}${GET_POPULAR_USERS}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       })
-      .catch((e) => {
-        setLoadingRecommended(false);
-        console.log('@GET POST ERROR: ', e);
-        // setPostExists(false);
-        // setLoadingPost(false);
-      });
-  };
+        .then((res) => {
+          console.log('New popular endpoint', res.data);
+          setLoadingRecommended(false);
+          if (res.data === null) {
+            return;
+          }
+          setSuggestedUsers(res.data);
+          // setComments(res.data);
+          // setPostExists(true);
+          // setLoadingPost(false);
+        })
+        .catch((e) => {
+          setLoadingRecommended(false);
+          console.log('New popular endpoint. @GET POST ERROR: ', e);
+          // setPostExists(false);
+          // setLoadingPost(false);
+        });
+    };
+    getPopularUsers();
+  }, [currentUser]);
 
   if (loading) {
     return (
