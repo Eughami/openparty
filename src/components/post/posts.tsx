@@ -27,6 +27,8 @@ interface IPostsProps {
   setCurrentUserRootDatabaseListener?: (uid: string) => Promise<any>;
   setCurrentUserEligiblePosts?: (currentUser: firebase.User) => Promise<any>;
   currentUser?: firebase.User;
+  setCurrentUserToken?: (currentUser: firebase.User) => Promise<string | null>;
+
   currentUserInfo?: RegistrationObject;
   fromProfile?: boolean;
   currentUserEligiblePosts?: Array<any>;
@@ -134,7 +136,12 @@ export const awaitFillPosts = async (
 const POSTS_LIMIT = 3 * 1000;
 
 const Posts = (props: IPostsProps) => {
-  const { currentUser, currentUserEligiblePosts, currentUserToken } = props;
+  const {
+    currentUser,
+    currentUserEligiblePosts,
+    currentUserToken,
+    setCurrentUserToken,
+  } = props;
 
   console.log('CARDS.TSX PROPS: ', props);
 
@@ -159,6 +166,7 @@ const Posts = (props: IPostsProps) => {
       setLoading(false);
       return;
     }
+    setCurrentUserToken!(currentUser);
     // console.log(
     //   'currentUserEligiblePosts!.splice(0, postsLimit)',
     //   currentUserEligiblePosts!.splice(0, postsLimit)
@@ -320,12 +328,12 @@ const Posts = (props: IPostsProps) => {
   useEffect(() => {
     // fetch mos popular users
     const getPopularUsers = async () => {
-      const token = await currentUser?.getIdToken();
-      console.log('New popular endpoint: token', token);
+      // const token = await currentUser?.getIdToken();
+      console.log('New popular endpoint: token', currentUserToken);
       setLoadingRecommended(true);
       Axios.get(`${API_BASE_URL}${GET_POPULAR_USERS}`, {
         headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${currentUserToken}`,
         },
       })
         .then((res) => {
@@ -347,7 +355,7 @@ const Posts = (props: IPostsProps) => {
         });
     };
     getPopularUsers();
-  }, [currentUser]);
+  }, [currentUserToken]);
 
   if (loading) {
     return (
@@ -441,6 +449,8 @@ const mapStateToProps = (state: any) => {
 const mapDispatchToProps = (dispatch: any) => {
   return {
     setCurrentUserListener: () => dispatch(setCurrentUserListener()),
+    setCurrentUserToken: (currentUser: firebase.User) =>
+      dispatch(setCurrentUserToken(currentUser)),
     setCurrentUserRootDatabaseListener: (uid: string) =>
       dispatch(setCurrentUserRootDatabaseListener(uid)),
     setCurrentUserEligiblePosts: (currentUser: firebase.User) =>
