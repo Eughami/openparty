@@ -286,3 +286,6 @@ hr.light {
   font-family: Times;
   padding-bottom: 20px;
 }
+.menu__dropdown:hover {
+  cursor: pointer !important;
+}

@@ -337,7 +337,7 @@ const Header = (props: IHeaderProps) => {
     // console.log('click', e);
   };
 
-  const menu = (props: IHeaderProps) => (
+  const menu = (
     // <div className="profile__dropdown">
     <Menu onClick={handleMenuClick}>
       <Menu.Item key="1" icon={<UserOutlined />}>
@@ -763,20 +763,18 @@ const Header = (props: IHeaderProps) => {
                     />
                   </Link>
                 </Col>
-                <Col>
-                  <Link to={{}}>
-                    <Dropdown
-                      overlay={menu(props)}
-                      placement="bottomCenter"
-                      arrow
-                      // trigger={['click']}
-                    >
-                      <Avatar
-                        style={{ fontSize: '22px' }}
-                        src={props.currentUserInfo?.image_url}
-                      />
-                    </Dropdown>
-                  </Link>
+                <Col className="menu__dropdown">
+                  <Dropdown
+                    overlay={menu}
+                    placement="bottomCenter"
+                    arrow
+                    // trigger={['click']}
+                  >
+                    <Avatar
+                      style={{ fontSize: '22px' }}
+                      src={props.currentUserInfo?.image_url}
+                    />
+                  </Dropdown>
                 </Col>
               </Space>
             </Row>
