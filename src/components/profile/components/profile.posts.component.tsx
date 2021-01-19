@@ -286,7 +286,7 @@ const RenderPostCard = (props: IRenderPostCardProps) => {
             <Button
               onClick={() =>
                 fallbackCopyTextToClipboard(
-                  `http://localhost:3000/post/${post.id}`
+                  `https://openpaarty.web.app/post/${post.id}`
                 )
               }
               style={{ fontWeight: 'bold' }}
@@ -334,7 +334,7 @@ const RenderPostCard = (props: IRenderPostCardProps) => {
           <Button
             onClick={() =>
               fallbackCopyTextToClipboard(
-                `http://localhost:3000/post/${post.id}`
+                `https://openpaarty.web.app/post/${post.id}`
               )
             }
             style={{ fontWeight: 'bold' }}

@@ -96,14 +96,14 @@ const RegistrationForm = ({ emailSignInStart, signUpStart, history }: any) => {
             form={form}
             name="register"
             onFinish={onFinish}
-            initialValues={{
-              email: 'imamosi5034@gmail.com',
-              password: '123456',
-              confirm: '123456',
-              username: 'testwe12c',
-              phone: '5423299865',
-              prefix: '90',
-            }}
+            // initialValues={{
+            //   email: 'imamosi5034@gmail.com',
+            //   password: '123456',
+            //   confirm: '123456',
+            //   username: 'testwe12c',
+            //   phone: '5423299865',
+            //   prefix: '90',
+            // }}
           >
             <h1 className="login__logo">OpenPaarty</h1>
             <Form.Item
