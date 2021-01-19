@@ -7,6 +7,7 @@ import {
   setCurrentUserFollowingChangedListener,
   setCurrentUserEligiblePosts,
   setCurrentUserToken,
+  setCurrentUserEligiblePostsListener,
 } from './redux/user/user.actions';
 
 import './App.css';
@@ -35,16 +36,22 @@ import MobileComment from './components/header/mobile/pages/MobileComment';
 import Inbox from './components/chats/inbox';
 import Followers from './components/followers';
 import Followings from './components/followings';
+import { QueryClient, QueryClientProvider } from 'react-query';
 
 // const currentUser = true
 
 const { useBreakpoint } = Grid;
+
+const queryClient = new QueryClient();
 
 interface IAppProps {
   setCurrentUserListener?: () => Promise<any>;
   setCurrentUserRootDatabaseListener?: (uid: string) => Promise<any>;
   setCurrentUserFollowingChangedListener?: (
     uid: string,
+    uFP: Array<{ postRef: string; uidRef: string; username: string }>
+  ) => Promise<any>;
+  setCurrentUserEligiblePostsListener?: (
     uFP: Array<{ postRef: string; uidRef: string; username: string }>
   ) => Promise<any>;
   setCurrentUserEligiblePosts?: (currentUser: firebase.User) => Promise<any>;
@@ -63,6 +70,7 @@ const App = (props: IAppProps) => {
     setCurrentUserFollowingChangedListener,
     setCurrentUserEligiblePosts,
     setCurrentUserToken,
+    setCurrentUserEligiblePostsListener,
     currentUserToken,
   } = props;
 
@@ -73,7 +81,6 @@ const App = (props: IAppProps) => {
       setCurrentUserListener!()
         .then(async (currentUser: any) => {
           if (currentUser && !currentUserToken) {
-            await setCurrentUserToken!(currentUser);
             await setCurrentUserToken!(currentUser);
 
             // await setCurrentUserRootDatabaseListener!(currentUser.uid);
@@ -99,11 +106,18 @@ const App = (props: IAppProps) => {
   ]);
 
   useEffect(() => {
+    if (currentUserToken === null) {
+      setCurrentUserToken!(currentUser!);
+    }
+  }, [currentUser, currentUserToken]);
+
+  useEffect(() => {
     if (!currentUserInfo && currentUser) {
       setCurrentUserRootDatabaseListener!(currentUser.uid);
       setCurrentUserEligiblePosts!(currentUser).then(
         (uFP: Array<{ postRef: string; uidRef: string; username: string }>) => {
           setCurrentUserFollowingChangedListener!(currentUser.uid, uFP);
+          setCurrentUserEligiblePostsListener!(uFP);
         }
       );
     }
@@ -113,6 +127,7 @@ const App = (props: IAppProps) => {
     currentUser,
     setCurrentUserEligiblePosts,
     setCurrentUserFollowingChangedListener,
+    setCurrentUserEligiblePostsListener,
   ]);
 
   console.log('APP.TSX PROPS:  ', props);
@@ -139,57 +154,67 @@ const App = (props: IAppProps) => {
 
   return (
     <div className="App">
-      {loadingCredentialsError.error &&
-        message.warning('An error ocurred...', 10)}
-      {currentUser ? (
-        <div>
-          {xs ? (
-            <div>
-              <MobileHeader />
-            </div>
-          ) : (
-            <div style={{ paddingBottom: '60px' }}>
-              <Header />
-            </div>
-          )}
+      <QueryClientProvider client={queryClient}>
+        {loadingCredentialsError.error &&
+          message.warning('An error ocurred...', 10)}
+        {currentUser ? (
+          <div>
+            {xs ? (
+              <div>
+                <MobileHeader />
+              </div>
+            ) : (
+              <div style={{ paddingBottom: '60px' }}>
+                <Header />
+              </div>
+            )}
 
+            <Switch>
+              <Route exact path="/" component={Homepage} />
+              <Route exact path="/explore" component={Explore} />
+              <Route exact path="/messages" component={Inbox} />
+              <Route
+                exact
+                path="/login"
+                component={() => <Redirect to="/" />}
+              />
+              <Route
+                exact
+                path="/register"
+                component={() => <Redirect to="/" />}
+              />
+              <Route exact path="/:username" component={UserProfile} />
+              <Route
+                exact
+                path="/:username/followings"
+                component={Followings}
+              />
+              <Route exact path="/:username/followers" component={Followers} />
+              <Route exact path="/t/:tag" component={Tags} />
+              <Route exact path="/post/:postId" component={ViewPost} />
+              <Route
+                exact
+                path="/post/:postId/comments"
+                component={MobileComment}
+              />
+              <Route exact path="/account/edit" component={EditAccount} />
+              <Route exact path="/account/activity" component={Activity} />
+            </Switch>
+            {/* here the mobile navbar */}
+            {xs && currentUserInfo && (
+              <div style={{ paddingTop: 60 }}>
+                <MobileNavbar />
+              </div>
+            )}
+          </div>
+        ) : (
           <Switch>
-            <Route exact path="/" component={Homepage} />
-            <Route exact path="/explore" component={Explore} />
-            <Route exact path="/messages" component={Inbox} />
-            <Route exact path="/login" component={() => <Redirect to="/" />} />
-            <Route
-              exact
-              path="/register"
-              component={() => <Redirect to="/" />}
-            />
-            <Route exact path="/:username" component={UserProfile} />
-            <Route exact path="/:username/followings" component={Followings} />
-            <Route exact path="/:username/followers" component={Followers} />
-            <Route exact path="/t/:tag" component={Tags} />
-            <Route exact path="/post/:postId" component={ViewPost} />
-            <Route
-              exact
-              path="/post/:postId/comments"
-              component={MobileComment}
-            />
-            <Route exact path="/account/edit" component={EditAccount} />
-            <Route exact path="/account/activity" component={Activity} />
+            <Route exact path="/register" component={RegistrationForm} />
+            <Route exact path="/login" component={Login} />
+            <Redirect to="/login" />
           </Switch>
-          {/* here the mobile navbar */}
-          {xs && currentUserInfo && (
-            <div style={{ paddingTop: 60 }}>
-              <MobileNavbar />
-            </div>
-          )}
-        </div>
-      ) : (
-        <Switch>
-          <Route exact path="/register" component={RegistrationForm} />
-          <Route exact path="/login" component={Login} />
-          <Redirect to="/login" />
-        </Switch>
-      )}
+        )}
+      </QueryClientProvider>
     </div>
   );
 };
@@ -213,6 +238,10 @@ const mapDispatchToProps = (dispatch: any) => {
       uid: string,
       uFP: Array<{ postRef: string; uidRef: string; username: string }>
     ) => dispatch(setCurrentUserFollowingChangedListener(uid, uFP)),
+    setCurrentUserEligiblePostsListener: (
+      uFP: Array<{ postRef: string; uidRef: string; username: string }>
+    ) => dispatch(setCurrentUserEligiblePostsListener(uFP)),
+
     setCurrentUserEligiblePosts: (currentUser: firebase.User) =>
       dispatch(setCurrentUserEligiblePosts(currentUser)),
   };

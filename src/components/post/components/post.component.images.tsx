@@ -31,10 +31,10 @@ export const PostImages = (props: IPostImagesProps) => {
       >
         {props.post.image_url?.map((url, idx) => (
           <Row className="Post-image" justify="center" align="middle" key={idx}>
-            <LazyImage
-              // style={{
-              //   height: imageHeight ? `${imageHeight}px` : 'auto',
-              // }}
+            <img
+              style={{
+                height: imageHeight ? `${imageHeight}px` : 'auto',
+              }}
               alt={props.post.caption}
               src={url}
             />

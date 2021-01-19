@@ -16,6 +16,7 @@ import {
 import ExploreLayout from './exploreLayout';
 import { LOADER_OBJECTS } from './images';
 import { Post, RegistrationObject } from './interfaces/user.interface';
+import { useQuery } from 'react-query';
 
 interface ExploreProps extends RouteComponentProps<any> {
   setCurrentUserListener?: () => Promise<any>;
@@ -26,11 +27,46 @@ interface ExploreProps extends RouteComponentProps<any> {
   currentUserToken?: string;
 }
 
+const fetchPosts = async (currentUserToken: string) => {
+  return Axios(`${API_BASE_URL}${EXPLORE_POSTS_ENDPOINT}`, {
+    headers: {
+      Authorization: `Bearer ${currentUserToken}`,
+    },
+  })
+    .then((res) => {
+      console.log('@EXPLORE:', res.data, Object.keys(res.data).length);
+
+      let sets: any[] = [];
+
+      // weird logic aka get post by pack of 9
+      const numberOfSets = Math.floor(res.data.length / 9);
+      let index = 0;
+      // even if less than 9 we still render what we get
+      // but the layout will remain the same
+      while (index <= numberOfSets) {
+        sets.push(res.data.slice(index * 9, index * 9 + 9));
+        index++;
+      }
+      console.log('@EXPLORE:', sets);
+
+      return sets;
+    })
+    .catch((e) => {
+      console.log('@EXPLORE ERROR:', e);
+    });
+};
+
 const Explore = (props: ExploreProps) => {
   const [loading, setLoading] = useState<boolean>(true);
   // array of array of posts
   const [posts, setPosts] = useState<any[] | undefined>(undefined);
+  const { data, status } = useQuery('explore', () =>
+    fetchPosts(props.currentUserToken!)
+  );
+  console.log('@RQ', data);
+
   useEffect(() => {
+    return;
     setLoading(true);
     // call api
     const fetchPosts = async () => {
@@ -66,7 +102,7 @@ const Explore = (props: ExploreProps) => {
     fetchPosts();
     // setTimeout(() => setLoading(false), 2000);
   }, [props.currentUserToken]);
-  if (loading) {
+  if (status === 'loading') {
     return (
       <div style={{ textAlign: 'center' }}>
         {/* <Spin size="small" />
@@ -81,14 +117,17 @@ const Explore = (props: ExploreProps) => {
     );
   }
 
+  //TODO: check if status === error
+
   return (
     <Row justify="center" className="explore__container">
       <Col xl={16} lg={20} md={22} sm={24} xs={24}>
-        {posts &&
-          Object.keys(posts).length > 0 &&
-          posts.map((post, index) => (
-            <ExploreLayout key={index} arrayOfPosts={post} />
-          ))}
+        {data
+          ? Object.keys(data).length > 0 &&
+            data.map((post: any, index: number) => (
+              <ExploreLayout key={index} arrayOfPosts={post} />
+            ))
+          : null}
         {/* <ExploreLayout arrayOfPosts={postsArray} /> */}
         {/* <ExploreLayout arrayOfPosts={postsArray} /> */}
       </Col>

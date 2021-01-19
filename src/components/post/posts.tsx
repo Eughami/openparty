@@ -20,6 +20,7 @@ import { API_BASE_URL, GET_POPULAR_USERS } from '../../service/api';
 import UserSuggestions from '../userSuggestions';
 import { BottomScrollListener } from 'react-bottom-scroll-listener';
 import { Link } from 'react-router-dom';
+import { useQuery } from 'react-query';
 
 interface IPostsProps {
   setCurrentUserListener?: () => Promise<any>;
@@ -29,7 +30,9 @@ interface IPostsProps {
   currentUserInfo?: RegistrationObject;
   fromProfile?: boolean;
   currentUserEligiblePosts?: Array<any>;
+  currentUserActualEligiblePosts?: Array<any>;
   currentUserToken?: string;
+  currentUserActualEligiblePostsLoading?: boolean;
 }
 
 /**
@@ -130,12 +133,46 @@ export const awaitFillPosts = async (
   return temp;
 };
 
+const getPopularUsers = async (
+  currentUserToken: string
+): Promise<RegistrationObject[]> => {
+  return Axios.get(`${API_BASE_URL}${GET_POPULAR_USERS}`, {
+    headers: {
+      Authorization: `Bearer ${currentUserToken}`,
+    },
+  })
+    .then((res) => {
+      console.log('New popular endpoint', res.data);
+      if (res.data === null) {
+        return [];
+      }
+      return res.data;
+    })
+    .catch((e) => {
+      console.log('@GET POST ERROR: ', e);
+      return [];
+    });
+};
+
 const POSTS_LIMIT = 3 * 1000;
 
 const Posts = (props: IPostsProps) => {
+  const {
+    data: suggestedUsers,
+    status: loadingRecommended,
+  } = useQuery('popular-users', () => getPopularUsers(props.currentUserToken!));
+
+  // const {
+  //   refetch,
+  //   data: posts,
+  //   status: postsStatus,
+  // } = useQuery('eligible-posts', () =>
+  //   props.setCurrentUserEligiblePosts!(props.currentUser!)
+  // );
+
   const { currentUser, currentUserEligiblePosts } = props;
 
-  console.log('CARDS.TSX PROPS: ', props);
+  console.log('CARDS.TSX PROPS.REDUX: ', props.currentUserActualEligiblePosts);
 
   const [loading, setLoading] = useState<boolean>(
     localStorage.getItem('postsSet') === null
@@ -145,147 +182,149 @@ const Posts = (props: IPostsProps) => {
     false
   );
   const [posts, setPosts] = useState<Array<any>>([]);
-  const [suggestedUsers, setSuggestedUsers] = useState<RegistrationObject[]>(
-    []
-  );
-  const [loadingRecommended, setLoadingRecommended] = useState<boolean>(false);
+  // const [suggestedUsers, setSuggestedUsers] = useState<RegistrationObject[]>(
+  //   []
+  // );
+  // const [loadingRecommended, setLoadingRecommended] = useState<boolean>(false);
   const [shouldRefreshPost, setShouldRefreshPost] = useState<boolean>(false);
   const [postsLimit, setPostsLimit] = useState<number>(POSTS_LIMIT);
 
-  useEffect(() => {
-    if (!currentUser) return;
-    if (currentUserEligiblePosts === null) {
-      setLoading(false);
-      getPopularUsers();
-      return;
-    }
-    // console.log(
-    //   'currentUserEligiblePosts!.splice(0, postsLimit)',
-    //   currentUserEligiblePosts!.splice(0, postsLimit)
-    // );
+  // useEffect(() => {
+  //   // return;
+  //   if (!currentUser) return;
+  //   if (currentUserEligiblePosts === null) {
+  //     setLoading(false);
+  //     // getPopularUsers();
+  //     return;
+  //   }
+  //   if (localStorage.getItem('postsSet') !== null) return;
+  //   // console.log(
+  //   //   'currentUserEligiblePosts!.splice(0, postsLimit)',
+  //   //   currentUserEligiblePosts!.splice(0, postsLimit)
+  //   // );
 
-    let homePostsSub: any[] = [];
-    let homeUidRefs: string[] = [];
-    let homePostRefs: string[] = [];
-    // if (localStorage.getItem('postsSet')) return;
-    // if (currentUserEligiblePosts!.length === 0) {
-    //     setLoading(false);
-    //     return;
-    // }
-    const splicedPosts = currentUserEligiblePosts; //!.splice(0, postsLimit);
-    const getEligible = async () => {
-      let temp: any = {};
-      await bluebird
-        .map(
-          splicedPosts!,
-          async (obj: { uidRef: string; postRef: string }, index: number) => {
-            homePostsSub[index] = firebase
-              .database()
-              .ref('Postsv2')
-              .child(obj.uidRef)
-              .child(obj.postRef)
+  //   let homePostsSub: any[] = [];
+  //   let homeUidRefs: string[] = [];
+  //   let homePostRefs: string[] = [];
+  //   // if (localStorage.getItem('postsSet')) return;
+  //   // if (currentUserEligiblePosts!.length === 0) {
+  //   //     setLoading(false);
+  //   //     return;
+  //   // }
+  //   const splicedPosts = currentUserEligiblePosts; //!.splice(0, postsLimit);
+  //   const getEligible = async () => {
+  //     let temp: any = {};
+  //     await bluebird
+  //       .map(
+  //         splicedPosts!,
+  //         async (obj: { uidRef: string; postRef: string }, index: number) => {
+  //           homePostsSub[index] = firebase
+  //             .database()
+  //             .ref('Postsv2')
+  //             .child(obj.uidRef)
+  //             .child(obj.postRef)
 
-              .on(
-                'value',
-                async (ssh) => {
-                  //No need to check post privacy again because all posts we have access to are here?
-                  if (!ssh.exists()) {
-                    return;
-                  }
-                  temp[`${obj.uidRef + obj.postRef}`] = ssh.val();
-                  temp[`${obj.uidRef + obj.postRef}`].key = `${
-                    obj.uidRef + obj.postRef
-                  }`;
+  //             .on(
+  //               'value',
+  //               async (ssh) => {
+  //                 //No need to check post privacy again because all posts we have access to are here?
+  //                 if (!ssh.exists()) {
+  //                   return;
+  //                 }
+  //                 temp[`${obj.uidRef + obj.postRef}`] = ssh.val();
+  //                 temp[`${obj.uidRef + obj.postRef}`].key = `${
+  //                   obj.uidRef + obj.postRef
+  //                 }`;
 
-                  if (localStorage.getItem('postsSet')) {
-                    console.log('@LOC STORR');
+  //                 if (localStorage.getItem('postsSet')) {
+  //                   console.log('@LOC STORR');
 
-                    temp[`${obj.uidRef + obj.postRef}`] = ssh.val();
-                    temp[`${obj.uidRef + obj.postRef}`].key = `${
-                      obj.uidRef + obj.postRef
-                    }`;
+  //                   temp[`${obj.uidRef + obj.postRef}`] = ssh.val();
+  //                   temp[`${obj.uidRef + obj.postRef}`].key = `${
+  //                     obj.uidRef + obj.postRef
+  //                   }`;
 
-                    setPosts(
-                      Object.values(temp).sort(
-                        (s1: any, s2: any) => s2.date_of_post - s1.date_of_post
-                      )
-                    );
-                    setLoading(false);
-                  }
+  //                   setPosts(
+  //                     Object.values(temp).sort(
+  //                       (s1: any, s2: any) => s2.date_of_post - s1.date_of_post
+  //                     )
+  //                   );
+  //                   setLoading(false);
+  //                 }
 
-                  if (
-                    index === splicedPosts!.length - 1 &&
-                    !localStorage.getItem('postsSet')
-                  ) {
-                    setPosts(
-                      Object.values(temp).sort(
-                        (s1: any, s2: any) => s2.date_of_post - s1.date_of_post
-                      )
-                    );
+  //                 if (
+  //                   index === splicedPosts!.length - 1 &&
+  //                   !localStorage.getItem('postsSet')
+  //                 ) {
+  //                   setPosts(
+  //                     Object.values(temp).sort(
+  //                       (s1: any, s2: any) => s2.date_of_post - s1.date_of_post
+  //                     )
+  //                   );
 
-                    // console.log(
-                    //   '@POSTS DEBUG: ',
-                    //   Object.values(temp).sort(
-                    //     (s1: any, s2: any) => s2.date_of_post - s1.date_of_post
-                    //   )
-                    // );
+  //                   // console.log(
+  //                   //   '@POSTS DEBUG: ',
+  //                   //   Object.values(temp).sort(
+  //                   //     (s1: any, s2: any) => s2.date_of_post - s1.date_of_post
+  //                   //   )
+  //                   // );
 
-                    // Object.values(temp).map((temp: any) => {
-                    //     return console.log("THIS@TEMP: ", temp.date_of_post);
+  //                   // Object.values(temp).map((temp: any) => {
+  //                   //     return console.log("THIS@TEMP: ", temp.date_of_post);
 
-                    // })
+  //                   // })
 
-                    localStorage.setItem('postsSet', 'true');
+  //                   localStorage.setItem('postsSet', 'true');
 
-                    setLoading(false);
-                  }
-                },
-                (error: any) => {
-                  console.log('@SSH ERROR: ', error);
-                  if (error.code) {
-                    if (error.code === 'PERMISSION_DENIED') {
-                      // delete temp[lastKey];
-                      // setPosts(Object.values(temp));
-                      //TODO: Maybe show 'post not available message'?
-                    }
-                  }
-                }
-              );
-            homeUidRefs[index] = obj.uidRef;
-            homePostRefs[index] = obj.postRef;
-          },
-          {
-            concurrency: splicedPosts!.length,
-          }
-        )
-        .then(() => {
-          console.log('DONE MAPPING');
-          // setTimeout(() => {
-          //     setLoading(false)
+  //                   setLoading(false);
+  //                 }
+  //               },
+  //               (error: any) => {
+  //                 console.log('@SSH ERROR: ', error);
+  //                 if (error.code) {
+  //                   if (error.code === 'PERMISSION_DENIED') {
+  //                     // delete temp[lastKey];
+  //                     // setPosts(Object.values(temp));
+  //                     //TODO: Maybe show 'post not available message'?
+  //                   }
+  //                 }
+  //               }
+  //             );
+  //           homeUidRefs[index] = obj.uidRef;
+  //           homePostRefs[index] = obj.postRef;
+  //         },
+  //         {
+  //           concurrency: splicedPosts!.length,
+  //         }
+  //       )
+  //       .then(() => {
+  //         console.log('DONE MAPPING');
+  //         // setTimeout(() => {
+  //         //     setLoading(false)
 
-          // }, 1000);
-          // setLoading(false)
-        });
+  //         // }, 1000);
+  //         // setLoading(false)
+  //       });
 
-      // setTimeout(() => {
-      //     setLoading(false)
+  //     // setTimeout(() => {
+  //     //     setLoading(false)
 
-      // }, 1000);
-    };
+  //     // }, 1000);
+  //   };
 
-    getEligible();
-    return () => {
-      localStorage.removeItem('postsSet');
-      homePostsSub.map((f, i) => {
-        if (f) {
-          const u = homeUidRefs[i];
-          const p = homePostRefs[i];
-          firebase.database().ref('Postsv2').child(u).child(p).off('value', f);
-        }
-        return 200;
-      });
-    };
-  }, [currentUser, currentUserEligiblePosts, postsLimit]);
+  //   getEligible();
+  //   return () => {
+  //     // localStorage.removeItem('postsSet');
+  //     homePostsSub.map((f, i) => {
+  //       if (f) {
+  //         const u = homeUidRefs[i];
+  //         const p = homePostRefs[i];
+  //         firebase.database().ref('Postsv2').child(u).child(p).off('value', f);
+  //       }
+  //       return 200;
+  //     });
+  //   };
+  // }, [currentUser, currentUserEligiblePosts, postsLimit]);
 
   //Set listener for every hot notification update in user's updated post
   useEffect(() => {
@@ -318,33 +357,33 @@ const Posts = (props: IPostsProps) => {
   }, [props.currentUser]);
 
   // fetch mos popular users
-  const getPopularUsers = async () => {
-    setLoadingRecommended(true);
-    await Axios.get(`${API_BASE_URL}${GET_POPULAR_USERS}`, {
-      headers: {
-        Authorization: `Bearer ${props.currentUserToken}`,
-      },
-    })
-      .then((res) => {
-        console.log('New popular endpoint', res.data);
-        setLoadingRecommended(false);
-        if (res.data === null) {
-          return;
-        }
-        setSuggestedUsers(res.data);
-        // setComments(res.data);
-        // setPostExists(true);
-        // setLoadingPost(false);
-      })
-      .catch((e) => {
-        setLoadingRecommended(false);
-        console.log('@GET POST ERROR: ', e);
-        // setPostExists(false);
-        // setLoadingPost(false);
-      });
-  };
+  // const getPopularUsers = async () => {
+  //   setLoadingRecommended(true);
+  //   await Axios.get(`${API_BASE_URL}${GET_POPULAR_USERS}`, {
+  //     headers: {
+  //       Authorization: `Bearer ${props.currentUserToken}`,
+  //     },
+  //   })
+  //     .then((res) => {
+  //       console.log('New popular endpoint', res.data);
+  //       setLoadingRecommended(false);
+  //       if (res.data === null) {
+  //         return;
+  //       }
+  //       setSuggestedUsers(res.data);
+  //       // setComments(res.data);
+  //       // setPostExists(true);
+  //       // setLoadingPost(false);
+  //     })
+  //     .catch((e) => {
+  //       setLoadingRecommended(false);
+  //       console.log('@GET POST ERROR: ', e);
+  //       // setPostExists(false);
+  //       // setLoadingPost(false);
+  //     });
+  // };
 
-  if (loading) {
+  if (props.currentUserActualEligiblePostsLoading) {
     return (
       <Col offset={6} span={12}>
         {[1, 1, 1, 1].map((_, index) => (
@@ -373,14 +412,14 @@ const Posts = (props: IPostsProps) => {
           <Button type="link">Explore posts</Button>
         </Link>
         {/* <p style={{ textAlign: 'left' }}> Popular suggestions </p> */}
-        {loadingRecommended && (
+        {loadingRecommended === 'loading' && (
           <Col offset={6} span={12}>
             {[1, 1, 1, 1].map((_, index) => (
               <Skeleton key={index} avatar active paragraph={{ rows: 4 }} />
             ))}
           </Col>
         )}
-        {Object.keys(suggestedUsers).length > 0 && (
+        {Object.keys(suggestedUsers || {}).length > 0 && (
           <UserSuggestions users={suggestedUsers} />
         )}
       </div>
@@ -417,8 +456,11 @@ const Posts = (props: IPostsProps) => {
           </Affix>
         </Col>
       )}
-      {posts.length > 0 &&
-        posts.map((val) => <MyPost key={val.key} post={val} />)}
+      {props.currentUserActualEligiblePosts &&
+        props.currentUserActualEligiblePosts.length > 0 &&
+        props.currentUserActualEligiblePosts.map((val) => (
+          <MyPost key={val.key} post={val} />
+        ))}
       <BottomScrollListener onBottom={callback}></BottomScrollListener>
     </div>
   );
@@ -429,7 +471,10 @@ const mapStateToProps = (state: any) => {
     currentUser: state.user.currentUser,
     currentUserInfo: state.user.userInfo,
     currentUserEligiblePosts: state.user.currentUserEligiblePosts,
+    currentUserActualEligiblePosts: state.user.currentUserActualEligiblePosts,
     currentUserToken: state.user.currentUserToken,
+    currentUserActualEligiblePostsLoading:
+      state.user.currentUserActualEligiblePostsLoading,
   };
 };
 

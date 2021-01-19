@@ -12,6 +12,7 @@ import {
   GET_USER_ELIGIBLE_POST_ENDPOINT,
   REGISTRATION_ENDPOINT,
 } from '../../service/api';
+import bluebird from 'bluebird';
 // import _ from 'lodash';
 
 export const googleSignInStart = () => (dispatch: any) =>
@@ -228,6 +229,101 @@ export const setCurrentUserEligiblePosts = (currentUser: firebase.User) => (
         payload: result.data.uFP,
       });
       resolve(result.data.uFP);
+    } catch (error) {
+      reject(error);
+    }
+  });
+
+export const setCurrentUserEligiblePostsListener = (
+  posts: Array<{ postRef: string; uidRef: string; username: string }>
+) => (dispatch: (arg0: { type: string; payload?: any }) => void) =>
+  new Promise(async (resolve, reject) => {
+    try {
+      let temp: any = {};
+      return bluebird
+        .map(
+          posts,
+          async (obj, index: number) => {
+            firebase
+              .database()
+              .ref('Postsv2')
+              .child(obj.uidRef)
+              .child(obj.postRef)
+
+              .on(
+                'value',
+                async (ssh) => {
+                  //No need to check post privacy again because all posts we have access to are here?
+                  if (!ssh.exists()) {
+                    return;
+                  }
+                  temp[`${obj.uidRef + obj.postRef}`] = ssh.val();
+                  temp[`${obj.uidRef + obj.postRef}`].key = `${
+                    obj.uidRef + obj.postRef
+                  }`;
+
+                  // if (localStorage.getItem('postsSet')) {
+                  //   temp[`${obj.uidRef + obj.postRef}`] = ssh.val();
+                  //   temp[`${obj.uidRef + obj.postRef}`].key = `${
+                  //     obj.uidRef + obj.postRef
+                  //   }`;
+
+                  //   const cachedPosts = Object.values(temp).sort(
+                  //     (s1: any, s2: any) => s2.date_of_post - s1.date_of_post
+                  //   );
+                  //   dispatch({
+                  //     type:
+                  //       UserActionTypes.SET_CURRENT_USER_ELIGIBLE_POSTS_LISTENER,
+                  //     payload: cachedPosts,
+                  //   });
+                  //   resolve(cachedPosts);
+                  // }
+
+                  if (
+                    index ===
+                    posts.length - 1
+                    // &&  !localStorage.getItem('postsSet')
+                  ) {
+                    const cachedPosts = Object.values(temp).sort(
+                      (s1: any, s2: any) => s2.date_of_post - s1.date_of_post
+                    );
+                    dispatch({
+                      type:
+                        UserActionTypes.SET_CURRENT_USER_ELIGIBLE_POSTS_LISTENER,
+                      payload: cachedPosts,
+                    });
+                    resolve(cachedPosts);
+                  }
+                },
+                (error: any) => {
+                  console.log('@SSH ERROR: ', error);
+                  if (error.code) {
+                    if (error.code === 'PERMISSION_DENIED') {
+                      // delete temp[lastKey];
+                      // setPosts(Object.values(temp));
+                      //TODO: Maybe show 'post not available message'?
+                    }
+                  }
+                }
+              );
+          },
+          {
+            concurrency: posts.length,
+          }
+        )
+        .then(() => {
+          console.log('DONE MAPPING');
+        });
+    } catch (error) {
+      reject(error);
+    }
+  });
+
+export const setCurrentUserActivityListener = () => (
+  dispatch: (arg0: { type: string; payload?: any }) => void
+) =>
+  new Promise(async (resolve, reject) => {
+    try {
     } catch (error) {
       reject(error);
     }

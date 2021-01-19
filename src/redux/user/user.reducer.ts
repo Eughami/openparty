@@ -9,9 +9,11 @@ interface LocalUserState {
   currentUser: firebase.User | null;
   userInfo: RegistrationObject | null;
   currentUserEligiblePosts: Array<any>;
+  currentUserActualEligiblePosts: Array<any>;
   currentUserToken: string | null;
   currentUserViewing: RegistrationObject | null;
   currentUserPostViewing: Post | null;
+  currentUserActualEligiblePostsLoading: boolean;
   error: any | null;
 }
 const INITIAL_STATE: LocalUserState = {
@@ -19,9 +21,11 @@ const INITIAL_STATE: LocalUserState = {
   error: null,
   userInfo: null,
   currentUserEligiblePosts: [],
+  currentUserActualEligiblePosts: [],
   currentUserToken: null,
   currentUserPostViewing: null,
   currentUserViewing: null,
+  currentUserActualEligiblePostsLoading: true,
 };
 
 const userReducer = (
@@ -79,6 +83,12 @@ const userReducer = (
       return {
         ...state,
         currentUserPostViewing: action.payload,
+      };
+    case UserActionTypes.SET_CURRENT_USER_ELIGIBLE_POSTS_LISTENER:
+      return {
+        ...state,
+        currentUserActualEligiblePosts: action.payload,
+        currentUserActualEligiblePostsLoading: false,
       };
 
     default:
