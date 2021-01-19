@@ -13,6 +13,7 @@ import {
   setCurrentUserEligiblePosts,
   setCurrentUserListener,
   setCurrentUserRootDatabaseListener,
+  setCurrentUserToken,
 } from '../../redux/user/user.actions';
 import bluebird from 'bluebird';
 import Axios from 'axios';
@@ -27,6 +28,8 @@ interface IPostsProps {
   setCurrentUserRootDatabaseListener?: (uid: string) => Promise<any>;
   setCurrentUserEligiblePosts?: (currentUser: firebase.User) => Promise<any>;
   currentUser?: firebase.User;
+  setCurrentUserToken?: (currentUser: firebase.User) => Promise<string | null>;
+
   currentUserInfo?: RegistrationObject;
   fromProfile?: boolean;
   currentUserEligiblePosts?: Array<any>;
@@ -481,6 +484,8 @@ const mapStateToProps = (state: any) => {
 const mapDispatchToProps = (dispatch: any) => {
   return {
     setCurrentUserListener: () => dispatch(setCurrentUserListener()),
+    setCurrentUserToken: (currentUser: firebase.User) =>
+      dispatch(setCurrentUserToken(currentUser)),
     setCurrentUserRootDatabaseListener: (uid: string) =>
       dispatch(setCurrentUserRootDatabaseListener(uid)),
     setCurrentUserEligiblePosts: (currentUser: firebase.User) =>

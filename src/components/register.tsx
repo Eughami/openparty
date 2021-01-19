@@ -52,19 +52,18 @@ const RegistrationForm = ({ emailSignInStart, signUpStart, history }: any) => {
 
   const onFinish = async (object: RegistrationObject) => {
     setRegisterWorking(true);
-    const key = 'registerKey';
-    message.loading({ content: 'Sign up in progress...', key }, 0);
+    message.loading('Sign up in progress...', 0);
     try {
       const registerResponse = await signUpStart(object, history);
       console.log(registerResponse);
       message.destroy();
-      message.loading({ content: 'Sign up success, Auto Login...', key });
+      message.loading('Sign up success, Auto Login...');
       emailSignInStart(object.email, object.password, history);
       setRegisterWorking(false);
     } catch (error) {
       console.log('REGISTRATION FAILED', error);
       message.destroy();
-      message.error({ content: error, key });
+      message.error(error);
       setRegisterWorking(false);
     }
   };
@@ -97,14 +96,14 @@ const RegistrationForm = ({ emailSignInStart, signUpStart, history }: any) => {
             form={form}
             name="register"
             onFinish={onFinish}
-            // initialValues={{
-            //   email: 'imamosi50@gmail.com',
-            //   password: '123456',
-            //   confirm: '123456',
-            //   username: 'eughami',
-            //   phone: '5423269865',
-            //   prefix: '90',
-            // }}
+            initialValues={{
+              email: 'imamosi5034@gmail.com',
+              password: '123456',
+              confirm: '123456',
+              username: 'testwe12c',
+              phone: '5423299865',
+              prefix: '90',
+            }}
           >
             <h1 className="login__logo">OpenPaarty</h1>
             <Form.Item
@@ -235,7 +234,7 @@ const RegistrationForm = ({ emailSignInStart, signUpStart, history }: any) => {
 
             <Divider orientation="right">
               <span style={{ fontSize: '0.8rem' }}>
-                Already have an account ?<Link to="/login">Login</Link>
+                Already have an account ?<Link to="/login"> Login</Link>
               </span>
             </Divider>
           </Form>
