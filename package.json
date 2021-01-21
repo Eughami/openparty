@@ -48,7 +48,7 @@
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "deploy": "set \"GENERATE_SOURCEMAP=false\" &&  react-scripts build && firebase deploy",
-    "restore": "cd node_modules/react-popupbox/ && touch index.d.ts && echo const S;export const PopupboxManager;export const PopupboxContainer;export default S; >> index.d.ts && cd .. && cd react-bottom-scroll-listener/dist/ && rm -rf index.d.ts && touch index.d.ts && echo export const BottomScrollListener; export const useBottomScrollListener; export const BottomScrollListenerProps; export default d; >> index.d.ts && cd ..   "
+    "restore": "cd node_modules/react-popupbox/ && touch index.d.ts && echo \"const S;export const PopupboxManager;export const PopupboxContainer;export default S;\" >> index.d.ts && cd .. && cd react-bottom-scroll-listener/dist/ && rm -rf index.d.ts && touch index.d.ts && echo \"export const BottomScrollListener; export const useBottomScrollListener; export const BottomScrollListenerProps; export default d;\" >> index.d.ts && cd ..  "
   },
   "eslintConfig": {
     "extends": "react-app"
