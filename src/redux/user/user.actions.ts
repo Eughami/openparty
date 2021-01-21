@@ -239,6 +239,18 @@ export const setCurrentUserEligiblePostsListener = (
 ) => (dispatch: (arg0: { type: string; payload?: any }) => void) =>
   new Promise(async (resolve, reject) => {
     try {
+      if (!posts) {
+        return dispatch({
+          type: UserActionTypes.SET_CURRENT_USER_ELIGIBLE_POSTS_LISTENER,
+          payload: [],
+        });
+      }
+      if (posts.length === 0) {
+        return dispatch({
+          type: UserActionTypes.SET_CURRENT_USER_ELIGIBLE_POSTS_LISTENER,
+          payload: [],
+        });
+      }
       let temp: any = {};
       return bluebird
         .map(

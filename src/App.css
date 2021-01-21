@@ -12,6 +12,11 @@
   .ant-picker-dropdown-placement-topLeft {
     width: 100%;
   } */
+  input,
+  select,
+  textarea {
+    font-size: 16px;
+  }
 }
 
 .ant-carousel .slick-prev {
