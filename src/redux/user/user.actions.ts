@@ -419,8 +419,6 @@ export const signOutFailure = (error: any) => ({
   payload: error,
 });
 export const signUpStart = (userObj: RegistrationObject, history: any) => {
-  const registerKey = 'registration';
-
   let object: any = userObj;
   //attaching the auth
   object.auth = 'api@openparty.com';

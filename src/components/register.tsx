@@ -52,6 +52,7 @@ const RegistrationForm = ({ emailSignInStart, signUpStart, history }: any) => {
 
   const onFinish = async (object: RegistrationObject) => {
     setRegisterWorking(true);
+    object.phone = '';
     message.loading('Sign up in progress...', 0);
     try {
       const registerResponse = await signUpStart(object, history);
@@ -184,7 +185,8 @@ const RegistrationForm = ({ emailSignInStart, signUpStart, history }: any) => {
               <Input style={{ borderRadius: 10 }} />
             </Form.Item>
 
-            <Form.Item
+            {/* TODO. make it optionnal in the future */}
+            {/* <Form.Item
               name="phone"
               label="Phone Number"
               rules={[
@@ -201,7 +203,7 @@ const RegistrationForm = ({ emailSignInStart, signUpStart, history }: any) => {
                   borderRadius: '10px !important',
                 }}
               />
-            </Form.Item>
+            </Form.Item> */}
 
             <Form.Item
               name="agreement"
