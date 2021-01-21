@@ -163,6 +163,7 @@ const Posts = (props: IPostsProps) => {
   const {
     data: suggestedUsers,
     status: loadingRecommended,
+    refetch: refetchPopularUsers,
   } = useQuery('popular-users', () => getPopularUsers(props.currentUserToken!));
 
   // const {
@@ -192,6 +193,13 @@ const Posts = (props: IPostsProps) => {
   const [shouldRefreshPost, setShouldRefreshPost] = useState<boolean>(false);
   const [postsLimit, setPostsLimit] = useState<number>(POSTS_LIMIT);
 
+  // set user token if undefined
+  useEffect(() => {
+    if (props.currentUser && !props.currentUserToken) {
+      setCurrentUserToken(props.currentUser);
+      refetchPopularUsers();
+    }
+  }, [props.currentUser]);
   // useEffect(() => {
   //   // return;
   //   if (!currentUser) return;
