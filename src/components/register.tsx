@@ -121,7 +121,15 @@ const RegistrationForm = ({ emailSignInStart, signUpStart, history }: any) => {
                 },
               ]}
             >
-              <Input style={{ borderRadius: 10 }} />
+              <Input
+                onChange={(value) => {
+                  const newVal = value.target.value.trim();
+                  form.setFieldsValue({
+                    email: newVal,
+                  });
+                }}
+                style={{ borderRadius: 10 }}
+              />
             </Form.Item>
 
             <Form.Item
@@ -182,7 +190,15 @@ const RegistrationForm = ({ emailSignInStart, signUpStart, history }: any) => {
                 },
               ]}
             >
-              <Input style={{ borderRadius: 10 }} />
+              <Input
+                onChange={(value) => {
+                  const newVal = value.target.value.trim();
+                  form.setFieldsValue({
+                    username: newVal,
+                  });
+                }}
+                style={{ borderRadius: 10 }}
+              />
             </Form.Item>
 
             {/* TODO. make it optionnal in the future */}
