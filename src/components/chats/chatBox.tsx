@@ -179,6 +179,7 @@ const ChatBox = (props: ChatBoxProps) => {
         </Col>
         <Col style={{ height: 'inherit' }} flex="50px">
           <Button
+            disabled={writtenMessage === ''}
             style={{ height: 'inherit' }}
             onClick={() => saveMessage(writtenMessage)}
           >

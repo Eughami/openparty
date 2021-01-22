@@ -545,7 +545,7 @@ const Header = (props: IHeaderProps) => {
       </Modal>
       <Modal
         style={{ height: '50%' }}
-        title="Add a new event 💖"
+        title="Add a new event 🔥"
         visible={postModalVisible}
         okText={null}
         onOk={() => setPostModalVisible(false)}

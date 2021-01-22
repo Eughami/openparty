@@ -150,7 +150,7 @@ const MobileNavbar = (props: IMobileNavbarProps) => {
     <>
       <Modal
         style={{}}
-        title="Add a new Event 💖"
+        title="Add a new Event 🔥"
         centered
         visible={postModalVisible}
         okText={null}
