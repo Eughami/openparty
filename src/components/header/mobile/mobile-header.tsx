@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import './mobile-header.css';
 import { Col, Row, Input, Dropdown, Menu, notification, message } from 'antd';
 import {
@@ -16,7 +16,7 @@ import { Post, RegistrationObject } from '../../interfaces/user.interface';
 import firebase from 'firebase';
 import { Link, useHistory, useLocation, useRouteMatch } from 'react-router-dom';
 import { LIKED_POST_REACTION_ARRAY } from '../header';
-
+import AsyncMention from '../../mentions/mentions.component';
 const { Search } = Input;
 
 interface IMobileHeaderProps {
@@ -99,14 +99,23 @@ const MobileHeaderViewPost = ({
   </Row>
 );
 
-const MobileHeaderExplore = ({ history }: IHistory) => (
-  <Row style={{ padding: 16 }} align="middle" justify="center">
-    <Col>
-      <Search placeholder="Search" />
-    </Col>
-  </Row>
-);
-
+const MobileHeaderExplore = ({ history }: IHistory) => {
+  const [searchQuery, setSearchQuery] = useState('');
+  return (
+    <Row style={{ padding: 16 }} align="middle" justify="center">
+      <Col>
+        <AsyncMention
+          placeholder="Search for username or tag..."
+          hasRouting
+          value={searchQuery}
+          onChange={(v: string) => setSearchQuery(v)}
+          prefix={['#', '@']}
+        />
+        {/* <Search placeholder="Search" /> */}
+      </Col>
+    </Row>
+  );
+};
 const MobileHeaderAccount = ({ history, currentUserInfo }: IHistory) => (
   <Row style={{ padding: 16 }} align="middle" justify="space-between">
     <Col>

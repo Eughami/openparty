@@ -116,6 +116,7 @@ const Header = (props: IHeaderProps) => {
   );
   const [followRequests, setFollowRequests] = useState([]);
   const [userNotifications, setUserNotifications] = useState([]);
+  const [searchQuery, setSearchQuery] = useState('');
   const [form] = Form.useForm();
 
   //Set listener for active follow requests
@@ -693,7 +694,14 @@ const Header = (props: IHeaderProps) => {
             </Link>
           </Col>
           <Col xl={{ span: 4 }} md={{ span: 6 }} xs={{ span: 0 }}>
-            <Search style={{ width: '80%' }} placeholder="Search" />
+            <AsyncMention
+              placeholder="Search for username or tag..."
+              hasRouting
+              value={searchQuery}
+              onChange={(v: string) => setSearchQuery(v)}
+              prefix={['#', '@']}
+            />
+            {/* <Search style={{ width: '80%' }} placeholder="Search" /> */}
           </Col>
           <Col
             lg={{ span: 7, offset: 1 }}

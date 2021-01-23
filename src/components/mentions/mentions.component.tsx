@@ -3,7 +3,11 @@ import { Mentions } from 'antd';
 import debounce from 'lodash/debounce';
 import './mentions.style.css';
 import reactStringReplace from 'react-string-replace';
-import { API_BASE_URL_OPEN, SEARCH_USER_ENDPOINT } from '../../service/api';
+import {
+  API_BASE_URL_OPEN,
+  SEARCH_TAGS_ENDPOINT,
+  SEARCH_USER_ENDPOINT,
+} from '../../service/api';
 import { Link } from 'react-router-dom';
 
 const { Option } = Mentions;
@@ -76,6 +80,8 @@ interface IMentionsProps {
   value?: string;
   onChange?: any;
   border?: string;
+  hasRouting?: boolean;
+  prefix?: string[];
 }
 
 interface IMentionsState {
@@ -97,17 +103,48 @@ class AsyncMention extends React.Component<IMentionsProps, IMentionsState> {
     };
   }
 
-  onSearch = (search: string) => {
+  onSearch = (search: string, prefix?: string) => {
     this.setState({ search, loading: !!search, users: [] });
-    this.loadGithubUsers(search);
+    this.loadGithubUsers(search, prefix);
   };
 
-  loadGithubUsers(key: string) {
+  loadGithubUsers(key: string, prefix?: string) {
     if (!key) {
       this.setState({
         users: [],
       });
       return;
+    }
+
+    if (this.props.prefix) {
+      if (prefix === '@') {
+        return fetch(
+          //   `http://localhost:5000/openpaarty/us-central1/api1/v1/users?username=${key}`
+          `${API_BASE_URL_OPEN}${SEARCH_USER_ENDPOINT}?username=${key}`
+        )
+          .then((res) => res.json())
+          .then(({ list = [] }) => {
+            const { search } = this.state;
+            if (search !== key) return;
+
+            this.setState({
+              users: list.slice(0, 10),
+              loading: false,
+            });
+          });
+      } else if (prefix === '#') {
+        return fetch(`${API_BASE_URL_OPEN}${SEARCH_TAGS_ENDPOINT}?tag=${key}`)
+          .then((res) => res.json())
+          .then(({ list = [] }) => {
+            const { search } = this.state;
+            if (search !== key) return;
+
+            this.setState({
+              users: list.slice(0, 10),
+              loading: false,
+            });
+          });
+      }
     }
 
     fetch(
@@ -142,15 +179,25 @@ class AsyncMention extends React.Component<IMentionsProps, IMentionsState> {
         }}
         loading={loading}
         onSearch={this.onSearch}
+        prefix={this.props.prefix}
       >
-        {users.map(({ username, image_url: avatar }) => (
+        {users.map(({ username, image_url: avatar, type }) => (
           <Option
             className="antd-demo-dynamic-option"
             key={username}
             value={username}
           >
-            <img src={avatar} alt={username} />
-            <span>{username}</span>
+            {this.props.hasRouting ? (
+              <Link to={type === 'tag' ? `/t/${username}` : `/${username}`}>
+                <img src={avatar} alt={username} />
+                <span>{username}</span>
+              </Link>
+            ) : (
+              <>
+                <img src={avatar} alt={username} />
+                <span>{username}</span>
+              </>
+            )}
           </Option>
         ))}
       </Mentions>
