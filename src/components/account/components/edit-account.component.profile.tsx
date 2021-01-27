@@ -414,7 +414,14 @@ export const EditProfile = (props: IEditProfileInterface) => {
             },
           ]}
         >
-          <Input />
+          <Input
+            onChange={(value) => {
+              const newVal = value.target.value.trim();
+              form.setFieldsValue({
+                username: newVal,
+              });
+            }}
+          />
         </Form.Item>
         <Form.Item
           name="email"
@@ -430,7 +437,14 @@ export const EditProfile = (props: IEditProfileInterface) => {
             },
           ]}
         >
-          <Input />
+          <Input
+            onChange={(value) => {
+              const newVal = value.target.value.trim();
+              form.setFieldsValue({
+                email: newVal,
+              });
+            }}
+          />
         </Form.Item>
         <Form.Item
           rules={[
@@ -447,12 +461,12 @@ export const EditProfile = (props: IEditProfileInterface) => {
         <Form.Item
           name="phone"
           label="Phone Number"
-          rules={[
-            {
-              required: true,
-              message: 'Please input your phone number!',
-            },
-          ]}
+          // rules={[
+          //   {
+          //     required: true,
+          //     message: 'Please input your phone number!',
+          //   },
+          // ]}
         >
           <Input
             addonBefore={prefixSelector}
