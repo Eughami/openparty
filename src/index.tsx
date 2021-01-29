@@ -29,7 +29,7 @@ localStorage.removeItem('tagPostsSet');
 localStorage.removeItem('selfUserInfoPostsSet');
 
 // remove logger from production
-if (process.env.NODE_ENV === 'development') {
+if (process.env.NODE_ENV === 'production') {
   CleanConsole.init({
     clearOnInit: true,
   });
