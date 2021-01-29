@@ -1274,6 +1274,11 @@
     enabled "2.0.x"
     kuler "^2.0.0"
 
+"@eaboy/clean-console@^1.0.4":
+  version "1.0.4"
+  resolved "https://registry.yarnpkg.com/@eaboy/clean-console/-/clean-console-1.0.4.tgz#f283ec0e48fe8c1c6602713a865d9d86cafd8e8a"
+  integrity sha512-ePqxMOebrsQW87lVBHKkrE2P0xle0dvnc1xedqx2GFsiEmKkRzyKtCPs436Kh2PgStmY1ebPfwUAmRAv3mf7MA==
+
 "@emotion/is-prop-valid@^0.8.8":
   version "0.8.8"
   resolved "https://registry.yarnpkg.com/@emotion/is-prop-valid/-/is-prop-valid-0.8.8.tgz#db28b1c4368a259b60a97311d6a952d4fd01ac1a"

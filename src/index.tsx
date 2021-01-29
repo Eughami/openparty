@@ -9,6 +9,7 @@ import store from './redux/store';
 // import ScrollMemory from 'react-router-scroll-memory';
 
 import firebase from 'firebase';
+import { CleanConsole } from '@eaboy/clean-console';
 
 firebase.initializeApp({
   apiKey: 'AIzaSyAqmmh2U3EF0D5H7cU_gtUDGua6J-pJmT8',
@@ -26,6 +27,13 @@ localStorage.removeItem('otherUserPostsSet');
 localStorage.removeItem('publicUserPostsSet');
 localStorage.removeItem('tagPostsSet');
 localStorage.removeItem('selfUserInfoPostsSet');
+
+// remove logger from production
+if (process.env.NODE_ENV === 'development') {
+  CleanConsole.init({
+    clearOnInit: true,
+  });
+}
 
 ReactDOM.render(
   <Provider store={store}>
