@@ -1,4 +1,4 @@
-import { Button, Col, Result, Row, Skeleton } from 'antd';
+import { Button, Col, List, Result, Row, Skeleton } from 'antd';
 import Avatar from 'antd/lib/avatar/avatar';
 import React, { useEffect, useState } from 'react';
 import AsyncMention, {
@@ -18,11 +18,15 @@ import { Link, RouteComponentProps, useParams } from 'react-router-dom';
 import Axios from 'axios';
 import {
   API_BASE_URL,
+  DELETE_COMMENT_ENDPOINT,
   EXPLORE_POSTS_ENDPOINT,
   GET_ONE_POST,
   POST_ROOT,
 } from '../../../../service/api';
 import TimeAgo from 'react-timeago';
+import { EllipsisOutlined } from '@ant-design/icons';
+import { PopupboxContainer, PopupboxManager } from 'react-popupbox';
+import { DeleteCommentRequest } from '../../../interfaces/interface';
 
 interface postIdInterface {
   postId: string;
@@ -115,6 +119,64 @@ const MobileComments = (props: MobileCommentsProps) => {
     }
   };
 
+  const showCommentOptions = (commentId: string, userId: string) => {
+    const postData: DeleteCommentRequest = {
+      commentId,
+      postId: id,
+    };
+    const dataSource = [
+      <Button style={{ fontWeight: 'bold' }} block type="link" danger>
+        Report
+      </Button>,
+
+      <Button
+        onClick={() => PopupboxManager.close()}
+        style={{ fontWeight: 'bold' }}
+        block
+        type="link"
+      >
+        Cancel
+      </Button>,
+    ];
+    userId === currentUserInfo?.uid &&
+      dataSource.unshift(
+        <Button
+          onClick={() => {
+            Axios({
+              url: `${API_BASE_URL}${DELETE_COMMENT_ENDPOINT}`,
+              method: 'POST',
+              headers: {
+                Authorization: `Bearer ${currentUserToken}`,
+              },
+              data: postData,
+            })
+              .then((res) => {
+                getComment();
+                console.log(res.data);
+              })
+              .catch((e) => console.log('@DELETE_COMMENT: ERROR: ', e));
+            PopupboxManager.close();
+          }}
+          style={{ fontWeight: 'bold' }}
+          block
+          type="link"
+          danger
+        >
+          Delete Comment
+        </Button>
+      );
+    const content = (
+      <List
+        size="small"
+        header={null}
+        footer={null}
+        dataSource={dataSource}
+        renderItem={(item) => <List.Item>{item}</List.Item>}
+      />
+    );
+    PopupboxManager.open({ content });
+  };
+
   if (loadingPost) {
     return (
       <Col offset={6} span={12} style={{ paddingTop: '100px' }}>
@@ -140,6 +202,7 @@ const MobileComments = (props: MobileCommentsProps) => {
 
   return (
     <div style={{ width: '100%', height: '100%' }}>
+      <PopupboxContainer />
       <Row align="middle" justify="center">
         <Col span={2}>
           <Avatar src={currentUser?.photoURL} />
@@ -184,47 +247,61 @@ const MobileComments = (props: MobileCommentsProps) => {
           comments.length === 0 ? (
             <span>No Comments</span>
           ) : (
-            <div
-              style={{
-                padding: '10px',
-              }}
-            >
+            <>
               {comments.map((comment, index) => (
-                <Row key={index} justify="start" align="middle">
-                  {/* <Col xl={2} lg={3} sm={2} xs={3}> */}
-                  <span style={{ width: '32px' }}>
-                    <Avatar
-                      alt="user avatar"
-                      src={comment.user.image_url}
-                      size={32}
-                    />
-                  </span>
-                  <div
-                    className="comment__container"
-                    style={{ overflowX: 'hidden', paddingLeft: 12 }}
-                  >
-                    <Link
-                      to={{
-                        pathname: `/${comment.user.username}`,
-                      }}
+                <div
+                  style={{
+                    padding: '10px',
+                    width: '100%',
+                  }}
+                >
+                  <Row key={index} justify="space-between" align="middle">
+                    {/* <Col xl={2} lg={3} sm={2} xs={3}> */}
+                    <span style={{ width: '32px' }}>
+                      <Avatar
+                        alt="user avatar"
+                        src={comment.user.image_url}
+                        size={32}
+                      />
+                    </span>
+                    <div
+                      className="comment__container"
+                      style={{ overflowX: 'hidden', paddingLeft: 12 }}
                     >
-                      <span
-                        style={{
-                          fontWeight: 600,
-                          color: 'rgba(var(--i1d,38,38,38),1)',
+                      <Link
+                        to={{
+                          pathname: `/${comment.user.username}`,
                         }}
                       >
-                        {comment.user.username}{' '}
-                      </span>
-                    </Link>
-                    {replaceAtMentionsWithLinks2(comment.comment)}
-                    <p style={{ color: 'rgba(var(--f52,142,142,142),1)' }}>
-                      • <TimeAgo date={new Date(comment.timestamp)}></TimeAgo>
-                    </p>
-                  </div>
-                </Row>
+                        <span
+                          style={{
+                            fontWeight: 600,
+                            color: 'rgba(var(--i1d,38,38,38),1)',
+                          }}
+                        >
+                          {comment.user.username}{' '}
+                        </span>
+                      </Link>
+                      {replaceAtMentionsWithLinks2(comment.comment)}
+                      <p style={{ color: 'rgba(var(--f52,142,142,142),1)' }}>
+                        • <TimeAgo date={new Date(comment.timestamp)}></TimeAgo>
+                      </p>
+                    </div>
+                    <Row align="middle">
+                      <EllipsisOutlined
+                        style={{ fontSize: 20 }}
+                        onClick={() => {
+                          return showCommentOptions(
+                            comment.id,
+                            comment.user.user_id
+                          );
+                        }}
+                      />
+                    </Row>
+                  </Row>
+                </div>
               ))}
-            </div>
+            </>
           )
         ) : null}
       </Row>

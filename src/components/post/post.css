@@ -140,6 +140,7 @@
 
 /* Mobile comment  */
 .mobile__comments__container {
+  width: 100%;
   margin-top: 10px;
   background-color: rgba(239, 239, 239);
   border-top: rgba(239, 239, 239) solid 1px;
