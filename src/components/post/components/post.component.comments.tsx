@@ -8,7 +8,11 @@ import { EllipsisOutlined } from '@ant-design/icons';
 import { PopupboxContainer, PopupboxManager } from 'react-popupbox';
 import Axios from 'axios';
 import { API_BASE_URL, DELETE_COMMENT_ENDPOINT } from '../../../service/api';
-import { DeleteCommentRequest } from '../../interfaces/interface';
+import {
+  DeleteCommentRequest,
+  EditCommentRequest,
+} from '../../interfaces/interface';
+import EditComment from '../../editComment';
 interface IPostCommentsProps {
   post: Post;
   full: boolean;
@@ -19,11 +23,34 @@ interface IPostCommentsProps {
 export const PostComments = (props: IPostCommentsProps) => {
   const { post, full, currentUserId, token } = props;
 
-  const showCommentOptions = (commentId: string, userId: string) => {
+  const showCommentOptions = (
+    commentId: string,
+    userId: string,
+    oldCommentValue: string
+  ) => {
+    //  edit comment request
+    const editData: EditCommentRequest = {
+      commentId,
+      postId: post.id,
+      content: oldCommentValue,
+    };
+
+    // Edit Comment content
+    const editComment = (
+      <EditComment
+        cancelFunc={PopupboxManager.close}
+        editData={editData}
+        token={token!}
+      />
+    );
+
+    // delete comment request
     const postData: DeleteCommentRequest = {
       commentId,
       postId: post.id,
     };
+
+    // Comment options
     const dataSource = [
       <Button style={{ fontWeight: 'bold' }} block type="link" danger>
         Report
@@ -38,6 +65,7 @@ export const PostComments = (props: IPostCommentsProps) => {
         Cancel
       </Button>,
     ];
+
     userId === currentUserId &&
       dataSource.unshift(
         <Button
@@ -50,7 +78,9 @@ export const PostComments = (props: IPostCommentsProps) => {
               },
               data: postData,
             })
-              .then((res) => console.log(res.data))
+              .then((res) => {
+                console.log(res.data);
+              })
               .catch((e) => console.log('@DELETE_COMMENT: ERROR: ', e));
             PopupboxManager.close();
           }}
@@ -60,8 +90,19 @@ export const PostComments = (props: IPostCommentsProps) => {
           danger
         >
           Delete Comment
+        </Button>,
+        <Button
+          style={{ fontWeight: 'bold' }}
+          block
+          type="link"
+          onClick={() => {
+            PopupboxManager.update({ content: editComment });
+          }}
+        >
+          Edit Comment
         </Button>
       );
+
     const content = (
       <List
         size="small"
@@ -125,7 +166,8 @@ export const PostComments = (props: IPostCommentsProps) => {
                         onClick={() => {
                           return showCommentOptions(
                             comment.id,
-                            comment.user.user_id
+                            comment.user.user_id,
+                            comment.comment
                           );
                         }}
                       />

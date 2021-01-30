@@ -294,3 +294,13 @@ hr.light {
 .menu__dropdown:hover {
   cursor: pointer !important;
 }
+.edit_comment__input {
+  width: 100%;
+}
+.edit__comment__container {
+  padding: 10px;
+}
+
+.edit__comment__container > * {
+  padding: 5px;
+}

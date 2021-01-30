@@ -89,7 +89,7 @@ export const handlePostLike = async (
               image_url: currentUser?.photoURL!,
             })
             .then(() => {
-              message.success('You 💖 this post');
+              // message.success('You 💖 this post');
               setUserLikePost(true);
             })
             .catch(() => {

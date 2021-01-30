@@ -161,3 +161,9 @@ export interface DeleteCommentRequest {
   postId: string;
   commentId: string;
 }
+
+export interface EditCommentRequest {
+  postId: string;
+  commentId: string;
+  content: string;
+}

@@ -1,4 +1,4 @@
-import { Button, Col, List, Result, Row, Skeleton } from 'antd';
+import { Button, Col, Input, List, Result, Row, Skeleton } from 'antd';
 import Avatar from 'antd/lib/avatar/avatar';
 import React, { useEffect, useState } from 'react';
 import AsyncMention, {
@@ -26,7 +26,11 @@ import {
 import TimeAgo from 'react-timeago';
 import { EllipsisOutlined } from '@ant-design/icons';
 import { PopupboxContainer, PopupboxManager } from 'react-popupbox';
-import { DeleteCommentRequest } from '../../../interfaces/interface';
+import {
+  DeleteCommentRequest,
+  EditCommentRequest,
+} from '../../../interfaces/interface';
+import EditComment from '../../../editComment';
 
 interface postIdInterface {
   postId: string;
@@ -119,11 +123,35 @@ const MobileComments = (props: MobileCommentsProps) => {
     }
   };
 
-  const showCommentOptions = (commentId: string, userId: string) => {
+  const showCommentOptions = (
+    commentId: string,
+    userId: string,
+    oldCommentValue: string
+  ) => {
+    //  edit comment request
+    const editData: EditCommentRequest = {
+      commentId,
+      postId: id,
+      content: oldCommentValue,
+    };
+
+    // Edit Comment content
+    const editComment = (
+      <EditComment
+        cancelFunc={PopupboxManager.close}
+        editData={editData}
+        token={currentUserToken!}
+        refetch={getComment}
+      />
+    );
+
+    // delete comment request
     const postData: DeleteCommentRequest = {
       commentId,
       postId: id,
     };
+
+    // Comment options
     const dataSource = [
       <Button style={{ fontWeight: 'bold' }} block type="link" danger>
         Report
@@ -138,6 +166,7 @@ const MobileComments = (props: MobileCommentsProps) => {
         Cancel
       </Button>,
     ];
+
     userId === currentUserInfo?.uid &&
       dataSource.unshift(
         <Button
@@ -163,8 +192,19 @@ const MobileComments = (props: MobileCommentsProps) => {
           danger
         >
           Delete Comment
+        </Button>,
+        <Button
+          style={{ fontWeight: 'bold' }}
+          block
+          type="link"
+          onClick={() => {
+            PopupboxManager.update({ content: editComment });
+          }}
+        >
+          Edit Comment
         </Button>
       );
+
     const content = (
       <List
         size="small"
@@ -248,8 +288,9 @@ const MobileComments = (props: MobileCommentsProps) => {
             <span>No Comments</span>
           ) : (
             <>
-              {comments.map((comment, index) => (
+              {comments.map((comm, index) => (
                 <div
+                  key={index}
                   style={{
                     padding: '10px',
                     width: '100%',
@@ -260,7 +301,7 @@ const MobileComments = (props: MobileCommentsProps) => {
                     <span style={{ width: '32px' }}>
                       <Avatar
                         alt="user avatar"
-                        src={comment.user.image_url}
+                        src={comm.user.image_url}
                         size={32}
                       />
                     </span>
@@ -270,7 +311,7 @@ const MobileComments = (props: MobileCommentsProps) => {
                     >
                       <Link
                         to={{
-                          pathname: `/${comment.user.username}`,
+                          pathname: `/${comm.user.username}`,
                         }}
                       >
                         <span
@@ -279,12 +320,12 @@ const MobileComments = (props: MobileCommentsProps) => {
                             color: 'rgba(var(--i1d,38,38,38),1)',
                           }}
                         >
-                          {comment.user.username}{' '}
+                          {comm.user.username}{' '}
                         </span>
                       </Link>
-                      {replaceAtMentionsWithLinks2(comment.comment)}
+                      {replaceAtMentionsWithLinks2(comm.comment)}
                       <p style={{ color: 'rgba(var(--f52,142,142,142),1)' }}>
-                        • <TimeAgo date={new Date(comment.timestamp)}></TimeAgo>
+                        • <TimeAgo date={new Date(comm.timestamp)}></TimeAgo>
                       </p>
                     </div>
                     <Row align="middle">
@@ -292,8 +333,9 @@ const MobileComments = (props: MobileCommentsProps) => {
                         style={{ fontSize: 20 }}
                         onClick={() => {
                           return showCommentOptions(
-                            comment.id,
-                            comment.user.user_id
+                            comm.id,
+                            comm.user.user_id,
+                            comm.comment
                           );
                         }}
                       />
