@@ -1,18 +1,81 @@
 import React from 'react';
 import { Post, Comment } from '../../interfaces/user.interface';
-import { Avatar, Col, Row } from 'antd';
+import { Avatar, Button, Col, List, Row } from 'antd';
 import { Link } from 'react-router-dom';
 import { replaceAtMentionsWithLinks2 } from '../../mentions/mentions.component';
 import TimeAgo from 'react-timeago';
+import { EllipsisOutlined } from '@ant-design/icons';
+import { PopupboxContainer, PopupboxManager } from 'react-popupbox';
+import Axios from 'axios';
+import { API_BASE_URL, DELETE_COMMENT_ENDPOINT } from '../../../service/api';
+import { DeleteCommentRequest } from '../../interfaces/interface';
 interface IPostCommentsProps {
   post: Post;
   full: boolean;
+  currentUserId?: string;
+  token?: string;
 }
 
 export const PostComments = (props: IPostCommentsProps) => {
-  const { post, full } = props;
+  const { post, full, currentUserId, token } = props;
+
+  const showCommentOptions = (commentId: string, userId: string) => {
+    const postData: DeleteCommentRequest = {
+      commentId,
+      postId: post.id,
+    };
+    const dataSource = [
+      <Button style={{ fontWeight: 'bold' }} block type="link" danger>
+        Report
+      </Button>,
+
+      <Button
+        onClick={() => PopupboxManager.close()}
+        style={{ fontWeight: 'bold' }}
+        block
+        type="link"
+      >
+        Cancel
+      </Button>,
+    ];
+    userId === currentUserId &&
+      dataSource.unshift(
+        <Button
+          onClick={() => {
+            Axios({
+              url: `${API_BASE_URL}${DELETE_COMMENT_ENDPOINT}`,
+              method: 'POST',
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+              data: postData,
+            })
+              .then((res) => console.log(res.data))
+              .catch((e) => console.log('@DELETE_COMMENT: ERROR: ', e));
+            PopupboxManager.close();
+          }}
+          style={{ fontWeight: 'bold' }}
+          block
+          type="link"
+          danger
+        >
+          Delete Comment
+        </Button>
+      );
+    const content = (
+      <List
+        size="small"
+        header={null}
+        footer={null}
+        dataSource={dataSource}
+        renderItem={(item) => <List.Item>{item}</List.Item>}
+      />
+    );
+    PopupboxManager.open({ content });
+  };
   return (
     <>
+      <PopupboxContainer />
       {post.comments && (
         <>
           {full ? (
@@ -24,7 +87,7 @@ export const PostComments = (props: IPostCommentsProps) => {
                     padding: '10px',
                   }}
                 >
-                  <Row justify="start" align="middle">
+                  <Row justify="space-between" align="middle">
                     {/* <Col xl={2} lg={3} sm={2} xs={3}> */}
                     <span style={{ width: '32px' }}>
                       <Avatar
@@ -56,6 +119,19 @@ export const PostComments = (props: IPostCommentsProps) => {
                         • <TimeAgo date={new Date(comment.timestamp)}></TimeAgo>
                       </p>
                     </div>
+                    <Row align="middle">
+                      <EllipsisOutlined
+                        style={{ fontSize: 20 }}
+                        onClick={() => {
+                          return showCommentOptions(
+                            comment.id,
+                            comment.user.user_id
+                          );
+                        }}
+                      />
+                    </Row>
+                    {/* <span style={{ width: '32px' }}>
+                    </span> */}
                   </Row>
                 </div>
               )

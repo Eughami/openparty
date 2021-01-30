@@ -85,7 +85,10 @@
   border-bottom: #f1e6e6 solid 1px;
 }
 .comment__container {
-  width: calc(100% - 40px);
+  width: calc(100% - 60px);
+}
+.comment__options__container {
+  width: 20px;
 }
 .container {
   width: 100%;

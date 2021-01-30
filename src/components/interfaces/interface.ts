@@ -156,3 +156,8 @@ interface AddCommentRequest {
   };
   comment: string;
 }
+
+export interface DeleteCommentRequest {
+  postId: string;
+  commentId: string;
+}

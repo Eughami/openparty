@@ -91,7 +91,12 @@ const Post = (props: IPostProps) => {
         <PostLikes post={props.post} />
         <PostTagsComponent post={props.post} />
         <PostCaption post={props.post} />
-        <PostComments post={props.post} full={false} />
+        <PostComments
+          currentUserId={currentUserInfo?.uid}
+          token={currentUserToken}
+          post={props.post}
+          full={false}
+        />
       </div>
       <Row>
         <Row style={{ flex: 1 }} className="post__add__comment">

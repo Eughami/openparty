@@ -285,7 +285,7 @@ const ViewPost = (props: ViewPostProps) => {
           <Row justify="center" align="middle" className="full__page__post">
             <Col
               lg={24}
-              md={aspectRation > 1 ? 0 : 24}
+              md={aspectRation > 1.15 ? 0 : 24}
               sm={0}
               xs={0}
               style={{ height: '50px', width: '100%' }}
@@ -299,7 +299,7 @@ const ViewPost = (props: ViewPostProps) => {
               sm={aspectRation > 0.85 ? (aspectRation > 1.15 ? 20 : 16) : 18}
               xs={24}
             >
-              <Col lg={0} md={aspectRation > 1 ? 24 : 0} sm={24}>
+              <Col lg={0} md={aspectRation > 1.15 ? 24 : 0} sm={24}>
                 <div
                   className="full__post__avatar__container"
                   style={{ borderRight: '#f1e6e6 solid 1px' }}
@@ -350,7 +350,7 @@ const ViewPost = (props: ViewPostProps) => {
               xs={24}
             >
               {/* hide on small size screen */}
-              <Col lg={24} md={aspectRation > 1 ? 0 : 24} sm={0} xs={0}>
+              <Col lg={24} md={aspectRation > 1.15 ? 0 : 24} sm={0} xs={0}>
                 <div className="full__post__avatar__container">
                   <PostUser currentUser={currentUser!} post={post!} />
                 </div>
@@ -371,7 +371,12 @@ const ViewPost = (props: ViewPostProps) => {
                   }}
                 >
                   <PerfectScrollbar>
-                    <PostComments full={true} post={post!} />
+                    <PostComments
+                      currentUserId={currentUserInfo?.uid}
+                      token={currentUserToken}
+                      full={true}
+                      post={post!}
+                    />
                   </PerfectScrollbar>
                 </div>
                 <div className="full__page__post__actions__container">
@@ -432,7 +437,7 @@ const ViewPost = (props: ViewPostProps) => {
                 </Row>
               </Col>
               {/* show on small size screen */}
-              <Col lg={0} md={aspectRation > 1 ? 24 : 0} sm={24}>
+              <Col lg={0} md={aspectRation > 1.15 ? 24 : 0} sm={24}>
                 <div style={{ height: '100%', padding: 10 }}>
                   <Row justify="start" align="top">
                     <Col span={12}>
@@ -487,11 +492,21 @@ const ViewPost = (props: ViewPostProps) => {
                   </Col>
                 </Row>
                 <div className="full__post__comments__container">
-                  <PostComments full={false} post={post!} />
+                  <PostComments
+                    currentUserId={currentUserInfo?.uid}
+                    token={currentUserToken}
+                    full={false}
+                    post={post!}
+                  />
                 </div>
               </Col>
 
-              <Col lg={24} md={aspectRation > 1 ? 0 : 24} sm={0} xs={0}></Col>
+              <Col
+                lg={24}
+                md={aspectRation > 1.15 ? 0 : 24}
+                sm={0}
+                xs={0}
+              ></Col>
             </Col>
           </Row>
           <Row justify="center">
