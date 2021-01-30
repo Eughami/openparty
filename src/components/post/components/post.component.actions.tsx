@@ -4,7 +4,7 @@ import { Post } from '../../interfaces/user.interface';
 import { Row } from 'antd';
 import {
   ShareAltOutlined,
-  HeartTwoTone,
+  FireTwoTone,
   CommentOutlined,
 } from '@ant-design/icons';
 import { handlePostLike } from '../post.actions';
@@ -53,7 +53,7 @@ export const PostActions = (props: IPostActionsProps) => {
   return (
     <Row className="post__clikes__and__comments" align="middle">
       <span style={{ fontSize: '25px' }}>
-        <HeartTwoTone
+        <FireTwoTone
           onClick={() =>
             handlePostLike(
               setUserLikePost,
@@ -120,7 +120,7 @@ export const PostActionLike = (props: IPostActionLikeProps) => {
 
   return (
     <span style={{ fontSize: '25px' }}>
-      <HeartTwoTone
+      <FireTwoTone
         onClick={() =>
           handlePostLike(
             setUserLikePost,

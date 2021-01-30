@@ -1,7 +1,7 @@
 import React from 'react';
 import { Row, Col } from 'antd';
 
-import { CommentOutlined, HeartFilled } from '@ant-design/icons';
+import { CommentOutlined, FireFilled } from '@ant-design/icons';
 import { Link } from 'react-router-dom';
 import { LazyImage } from './post/lazy-load/lazy-load';
 
@@ -21,7 +21,7 @@ export const PostOverlay = ({ url, comments, likes, imgUrl }: IPostOverlay) => (
         <div className="text">
           <Row justify="center" align="middle">
             <Col>
-              <HeartFilled />
+              <FireFilled />
               <span style={{ marginLeft: 5 }}> {likes ? likes : '0'} </span>
             </Col>
             <Col style={{ marginLeft: 20 }}>

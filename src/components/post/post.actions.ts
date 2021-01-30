@@ -49,7 +49,7 @@ export const handlePostLike = async (
       .child(currentUser?.uid!)
       .remove()
       .then(() => {
-        message.success('You dislike this post');
+        // message.success('You dislike this post');
         setUserLikePost(false);
       })
       .catch(() => {
