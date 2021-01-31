@@ -100,6 +100,7 @@ const ViewPost = (props: ViewPostProps) => {
     timestamp: 0,
     user: { image_url: '', user_id: '', username: '' },
   });
+  const { xs } = useBreakpoint();
 
   const {
     currentUser,
@@ -313,11 +314,11 @@ const ViewPost = (props: ViewPostProps) => {
             />
             <Col
               className="full__post__left__container"
-              xxl={aspectRation > 0.85 ? (aspectRation > 1.15 ? 9 : 7) : 7}
-              xl={aspectRation > 0.85 ? (aspectRation > 1.15 ? 10 : 9) : 8}
+              xxl={aspectRation > 0.85 ? (aspectRation > 1.15 ? 9 : 6) : 7}
+              xl={aspectRation > 0.85 ? (aspectRation > 1.15 ? 10 : 8) : 8}
               lg={aspectRation > 0.85 ? (aspectRation > 1.15 ? 11 : 9) : 9}
-              md={aspectRation > 0.85 ? (aspectRation > 1.15 ? 18 : 10) : 12}
-              sm={aspectRation > 0.85 ? (aspectRation > 1.15 ? 20 : 16) : 18}
+              md={aspectRation > 0.85 ? (aspectRation > 1.15 ? 18 : 12) : 12}
+              sm={aspectRation > 0.85 ? (aspectRation > 1.15 ? 20 : 15) : 18}
               xs={24}
             >
               <Col lg={0} md={aspectRation > 1.15 ? 24 : 0} sm={24}>
@@ -339,16 +340,18 @@ const ViewPost = (props: ViewPostProps) => {
                       <img
                         style={{
                           objectFit: 'cover',
-                          minHeight:
-                            aspectRation > 0.85
-                              ? aspectRation > 1.15
-                                ? 400
-                                : 500
-                              : 600,
-                          height:
-                            initImageDim.height / 2 <= 400
+                          minHeight: xs
+                            ? 'auto'
+                            : aspectRation > 0.85
+                            ? aspectRation > 1.15
                               ? 400
-                              : initImageDim.height / 2,
+                              : 500
+                            : 600,
+                          height: xs
+                            ? 'auto'
+                            : initImageDim.height / 2 <= 400
+                            ? 400
+                            : initImageDim.height / 2,
                           maxHeight: 600,
                           width: '100%',
                         }}
@@ -366,7 +369,7 @@ const ViewPost = (props: ViewPostProps) => {
               xxl={aspectRation > 0.85 ? (aspectRation > 1.15 ? 7 : 5) : 6}
               xl={aspectRation > 0.85 ? (aspectRation > 1.15 ? 8 : 7) : 8}
               lg={aspectRation > 0.85 ? (aspectRation > 1.15 ? 9 : 7) : 9}
-              md={aspectRation > 0.85 ? (aspectRation > 1.15 ? 18 : 9) : 12}
+              md={aspectRation > 0.85 ? (aspectRation > 1.15 ? 18 : 11) : 12}
               sm={aspectRation > 0.85 ? (aspectRation > 1.15 ? 20 : 15) : 18}
               xs={24}
             >
