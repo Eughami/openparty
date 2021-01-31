@@ -7,7 +7,7 @@ const middleWares = [];
 middleWares.push(thunk);
 
 // remove logger from production
-if (process.env.NODE_ENV === 'production') {
+if (process.env.NODE_ENV === 'development') {
   middleWares.push(logger);
 }
 

@@ -1,8 +1,10 @@
-import { Row, Col, Avatar } from 'antd';
-import React from 'react';
+import { Row, Col, Avatar, Grid } from 'antd';
+import React, { useEffect } from 'react';
+import { connect, useDispatch } from 'react-redux';
 import { Link } from 'react-router-dom';
 import TimeAgo from 'react-timeago';
 
+const { useBreakpoint } = Grid;
 interface INotificationProps {
   imageUrl: string;
   text: string;
@@ -12,12 +14,32 @@ interface INotificationProps {
   time: number;
   imageSize?: number;
   style?: React.CSSProperties;
+  commentId: string;
 }
 
 const TempHeaderNotification = (props: INotificationProps) => {
-  const { imageUrl, text, imageSize, username, link, thumbnail, time } = props;
+  const dispatch = useDispatch();
+  const { xs } = useBreakpoint();
+
+  const {
+    imageUrl,
+    text,
+    imageSize,
+    username,
+    link,
+    thumbnail,
+    time,
+    commentId,
+  } = props;
+
   return (
     <Row
+      onClick={() => {
+        dispatch({
+          type: 'SET_NOTIFICATION_ID',
+          payload: commentId,
+        });
+      }}
       style={{ borderBottom: '1px solid #e6e6e6' }}
       justify="start"
       align="middle"
@@ -36,7 +58,14 @@ const TempHeaderNotification = (props: INotificationProps) => {
       >
         <Link
           style={{ color: 'rgba(var(--i1d,38,38,38),1)', fontWeight: 600 }}
-          to={thumbnail ? `/post/${link}` : `/${link}`}
+          to={
+            thumbnail
+              ? // TODO. find a better way of identifying when a notificatio is a comment
+                xs && text.includes('comment')
+                ? `/post/${link}/comments`
+                : `/post/${link}`
+              : `/${link}`
+          }
         >
           <span>
             {`${text.length > 50 ? text.substring(0, 50) + '...' : text}`}{' '}
@@ -60,5 +89,4 @@ const TempHeaderNotification = (props: INotificationProps) => {
     </Row>
   );
 };
-
 export default TempHeaderNotification;

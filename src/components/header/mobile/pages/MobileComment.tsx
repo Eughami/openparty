@@ -42,10 +42,13 @@ interface MobileCommentsProps extends RouteComponentProps<any> {
   currentUser?: firebase.User;
   currentUserInfo?: RegistrationObject;
   currentUserToken?: string;
+  commentId?: string;
 }
 
 const MobileComments = (props: MobileCommentsProps) => {
   console.log('mobile props:', props);
+  const { currentUser, currentUserInfo, currentUserToken, commentId } = props;
+
   const { postId: id }: postIdInterface = useParams();
   const [postExists, setPostExists] = useState<boolean>(true);
   const [postCommentLoading, setPostCommentLoading] = useState<boolean>(false);
@@ -59,6 +62,32 @@ const MobileComments = (props: MobileCommentsProps) => {
     user: { image_url: '', user_id: '', username: '' },
   });
   const [loadingPost, setLoadingPost] = useState<boolean>(true);
+
+  // scroll to that comment if coming from notification
+  const scrollToTargetAdjusted = (elementId: string) => {
+    console.log('This is the id:', elementId);
+
+    var element = document.getElementById('-MSOQAz5G5OZzxOF3W7x');
+    console.log('This is the element :', element);
+    var headerOffset = 55;
+    // skip if element is not found
+    if (!element) return;
+
+    var elementPosition = element.getBoundingClientRect().top;
+    var offsetPosition = elementPosition - headerOffset;
+
+    window.scrollTo({
+      top: offsetPosition,
+      behavior: 'smooth',
+    });
+
+    // make background blink with some css or vanilla js
+
+    element.style.backgroundColor = '#fc9';
+    setTimeout(() => (element!.style.backgroundColor = 'transparent'), 500);
+    setTimeout(() => (element!.style.backgroundColor = '#fc9'), 1000);
+    setTimeout(() => (element!.style.backgroundColor = 'transparent'), 1500);
+  };
 
   const getComment = async () => {
     await Axios.get(`${API_BASE_URL}${POST_ROOT}/${id}/comments`, {
@@ -75,6 +104,12 @@ const MobileComments = (props: MobileCommentsProps) => {
         }
         setComments(res.data);
         setPostExists(true);
+
+        console.log('This is the comment id:', commentId);
+        // TODO. Fix this . can't find the comment as soon as we get a response since it's not rendered on the screen
+        if (commentId) {
+          setTimeout(() => scrollToTargetAdjusted(commentId), 500);
+        }
         setLoadingPost(false);
       })
       .catch((e) => {
@@ -89,8 +124,6 @@ const MobileComments = (props: MobileCommentsProps) => {
 
     getComment();
   }, [props.currentUserToken, props.currentUserInfo, id]);
-
-  const { currentUser, currentUserInfo, currentUserToken } = props;
 
   const resetCommentForm = () =>
     setComment({
@@ -243,7 +276,7 @@ const MobileComments = (props: MobileCommentsProps) => {
   return (
     <div style={{ width: '100%', height: '100%' }}>
       <PopupboxContainer />
-      <Row align="middle" justify="center">
+      <Row align="middle" justify="center" style={{ padding: 8 }}>
         <Col span={2}>
           <Avatar src={currentUser?.photoURL} />
         </Col>
@@ -290,6 +323,7 @@ const MobileComments = (props: MobileCommentsProps) => {
             <>
               {comments.map((comm, index) => (
                 <div
+                  id={comm.id}
                   key={index}
                   style={{
                     padding: '10px',
@@ -356,6 +390,7 @@ const mapStateToProps = (state: any) => {
     currentUser: state.user.currentUser,
     currentUserInfo: state.user.userInfo,
     currentUserToken: state.user.currentUserToken,
+    commentId: state.user.commentId,
   };
 };
 

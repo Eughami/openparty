@@ -217,6 +217,7 @@ const Header = (props: IHeaderProps) => {
                 ].ref = notification.val().follow_requests.ref;
               }
             });
+            console.log('Notiification is ', temp);
 
             setUserNotifications(
               []
@@ -822,6 +823,7 @@ const Header = (props: IHeaderProps) => {
                         username={not.username}
                         link={not.ref}
                         thumbnail={not.thumbnail}
+                        commentId={not.commentId}
                       />
                     ))
                   ) : (

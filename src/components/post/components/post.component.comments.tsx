@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Post, Comment } from '../../interfaces/user.interface';
 import { Avatar, Button, Col, List, Row } from 'antd';
 import { Link } from 'react-router-dom';
@@ -123,6 +123,7 @@ export const PostComments = (props: IPostCommentsProps) => {
             Object.values(post.comments).map(
               (comment: Comment, index: number) => (
                 <div
+                  id={comment.id}
                   key={index}
                   style={{
                     padding: '10px',

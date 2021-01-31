@@ -15,6 +15,7 @@ interface LocalUserState {
   currentUserPostViewing: Post | null;
   currentUserActualEligiblePostsLoading: boolean;
   error: any | null;
+  commentId: null | string;
 }
 const INITIAL_STATE: LocalUserState = {
   currentUser: null,
@@ -26,6 +27,7 @@ const INITIAL_STATE: LocalUserState = {
   currentUserPostViewing: null,
   currentUserViewing: null,
   currentUserActualEligiblePostsLoading: true,
+  commentId: null,
 };
 
 const userReducer = (
@@ -38,6 +40,16 @@ const userReducer = (
         ...state,
         currentUser: action.payload,
         error: null,
+      };
+    case UserActionTypes.SET_NOTIFICATION_ID:
+      return {
+        ...state,
+        commentId: action.payload,
+      };
+    case UserActionTypes.CLEAR_NOTIFICATION_ID:
+      return {
+        ...state,
+        commentId: null,
       };
     case UserActionTypes.SIGN_OUT_SUCCESS:
       return {

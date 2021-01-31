@@ -228,6 +228,7 @@ const Activity = (props: IHeaderProps) => {
               username={not.username}
               link={not.ref}
               thumbnail={not.thumbnail}
+              commentId={not.commentId}
             />
           ))
         ) : (

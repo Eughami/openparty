@@ -56,6 +56,7 @@ interface ViewPostProps extends RouteComponentProps<any> {
   post: PostInterface;
   fullPage: boolean;
   postUrl?: string;
+  commentId?: string;
 }
 
 interface ProbeResult {
@@ -106,6 +107,7 @@ const ViewPost = (props: ViewPostProps) => {
     currentUserToken,
     fullPage,
     setCurrentUserPostViewing,
+    commentId,
   } = props;
 
   const resetCommentForm = () =>
@@ -136,6 +138,22 @@ const ViewPost = (props: ViewPostProps) => {
       setComment({ ...comment, comment: '' });
     }
   };
+
+  // scroll to comment if user is coming from notification
+  function scrollToTargetAdjusted(elementId: string) {
+    var element = document.getElementById(elementId);
+    // skip if element is not found
+    if (!element) return;
+
+    element.scrollIntoView(false);
+
+    // make the background blinking with some css
+
+    element.style.backgroundColor = '#fc9';
+    setTimeout(() => (element!.style.backgroundColor = 'transparent'), 500);
+    setTimeout(() => (element!.style.backgroundColor = '#fc9'), 1000);
+    setTimeout(() => (element!.style.backgroundColor = 'transparent'), 1500);
+  }
 
   const fetchPost = async (postId: string, userId: string, token: string) => {
     setLoadingPost(true);
@@ -170,6 +188,9 @@ const ViewPost = (props: ViewPostProps) => {
               setPost(ssh.val());
               setPostExists(true);
               setLoadingPost(false);
+              if (commentId) {
+                scrollToTargetAdjusted(commentId);
+              }
               Axios.post(
                 `${API_BASE_URL}${GET_MORE_POSTS_FROM_USER}`,
                 {
@@ -541,6 +562,7 @@ const mapStateToProps = (state: any) => {
     currentUser: state.user.currentUser,
     currentUserInfo: state.user.userInfo,
     currentUserToken: state.user.currentUserToken,
+    commentId: state.user.commentId,
   };
 };
 
