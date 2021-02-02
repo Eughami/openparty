@@ -87,7 +87,7 @@ const Post = (props: IPostProps) => {
 
       <div style={{ padding: 16 }}>
         <PostActions currentUser={currentUser!} post={props.post} />
-        <PostEventTime post={props.post} />
+        {/* <PostEventTime post={props.post} /> */}
         <PostLikes post={props.post} />
         <PostTagsComponent post={props.post} />
         <PostCaption post={props.post} />
@@ -99,7 +99,7 @@ const Post = (props: IPostProps) => {
         />
       </div>
       <Row>
-        <Row style={{ flex: 1 }} className="post__add__comment">
+        <Row style={{ flex: 1, height: 40, border: 'none' }}>
           <AsyncMention
             value={comment.comment}
             onChange={handleCommentChange}
@@ -119,7 +119,7 @@ const Post = (props: IPostProps) => {
             ).finally(() => resetCommentForm())
           }
           disabled={comment.comment.length === 0}
-          style={{ height: 50 }}
+          style={{ height: 40 }}
         >
           Post
         </Button>

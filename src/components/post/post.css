@@ -61,7 +61,7 @@
   border-left: #f1e6e6 solid 1px;
 }
 .full__page__post__actions__container {
-  padding: 16px;
+  padding: 8px 0 8px 8px;
   height: 140px;
   width: 100%;
   overflow: auto;

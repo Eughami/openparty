@@ -3,7 +3,7 @@ import { Col, Row, Tooltip } from 'antd';
 import { Link } from 'react-router-dom';
 import { Post } from '../../interfaces/user.interface';
 import { LockTwoTone } from '@ant-design/icons';
-import { PostTime } from './post.component.post-time';
+import { PostEventTime } from './post.component.event-time';
 
 interface IPostUserProps {
   post: Post;
@@ -18,7 +18,7 @@ export const PostUser = (props: IPostUserProps) => {
     <header style={{ ...style, height: '100%' }}>
       <Row align="middle" justify="start" className="Post-user">
         <Col
-          xl={{ span: 11, offset: 1 }}
+          xl={{ span: 9, offset: 1 }}
           lg={{ span: 9, offset: 1 }}
           sm={{ span: 10, offset: 1 }}
           xs={{ span: 10, offset: 1 }}
@@ -39,13 +39,14 @@ export const PostUser = (props: IPostUserProps) => {
           </Link>
         </Col>
         <Col
-          xl={{ span: 7, offset: 1 }}
+          xl={{ span: 9, offset: 1 }}
           lg={{ span: 9, offset: 1 }}
           sm={{ span: 10, offset: 1 }}
           xs={{ span: 10, offset: 1 }}
+          style={{ height: 28 }}
         >
-          <span style={{ fontWeight: 'bold' }}>
-            <PostTime post={post} />
+          <span style={{ fontWeight: 'bold', fontSize: 12 }}>
+            <PostEventTime post={post} />
           </span>
         </Col>
         <Col

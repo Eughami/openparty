@@ -406,18 +406,15 @@ const ViewPost = (props: ViewPostProps) => {
                 <div className="full__page__post__actions__container">
                   <PerfectScrollbar>
                     <Row justify="start" align="top">
-                      <Col span={14}>
+                      <Col span={24}>
                         <PostActions currentUser={currentUser!} post={post} />
-                      </Col>
-                      <Col span={10}>
-                        <PostEventTime post={post} />
                       </Col>
                     </Row>
                     <Row>
                       <Col span={8}>
                         <PostLikes post={post} />
                       </Col>
-                      <Col span={16}>
+                      <Col span={24}>
                         <PostTags post={post} />
                       </Col>
                       <Row>
@@ -464,18 +461,15 @@ const ViewPost = (props: ViewPostProps) => {
               <Col lg={0} md={aspectRation > 1.15 ? 24 : 0} sm={24}>
                 <div style={{ height: '100%', padding: 10 }}>
                   <Row justify="start" align="top">
-                    <Col span={12}>
+                    <Col span={24}>
                       <PostActions currentUser={currentUser!} post={post} />
-                    </Col>
-                    <Col span={12}>
-                      <PostEventTime post={post} />
                     </Col>
                   </Row>
                   <Row>
                     <Col span={8}>
                       <PostLikes post={post} />
                     </Col>
-                    <Col span={16}>
+                    <Col span={24}>
                       <PostTags post={post} />
                     </Col>
                     <Row>

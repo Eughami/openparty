@@ -304,3 +304,9 @@ hr.light {
 .edit__comment__container > * {
   padding: 5px;
 }
+.post__time {
+  width: 100%;
+  font-size: 10px;
+  text-transform: uppercase;
+  color: rgba(142, 142, 142);
+}
