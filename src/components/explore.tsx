@@ -1,4 +1,4 @@
-import { Col, Row } from 'antd';
+import { Col, Row, Skeleton, Spin } from 'antd';
 import Axios from 'axios';
 import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
@@ -65,55 +65,26 @@ const Explore = (props: ExploreProps) => {
   );
   console.log('@RQ', data);
 
-  useEffect(() => {
-    return;
-    setLoading(true);
-    // call api
-    const fetchPosts = async () => {
-      await Axios(`${API_BASE_URL}${EXPLORE_POSTS_ENDPOINT}`, {
-        headers: {
-          Authorization: `Bearer ${props.currentUserToken}`,
-        },
-      })
-        .then((res) => {
-          setLoading(false);
-          console.log('@EXPLORE:', res.data, Object.keys(res.data).length);
-
-          let sets: any[] = [];
-
-          // weird logic aka get post by pack of 9
-          const numberOfSets = Math.floor(res.data.length / 9);
-          let index = 0;
-          // even if less than 9 we still render what we get
-          // but the layout will remain the same
-          while (index <= numberOfSets) {
-            sets.push(res.data.slice(index * 9, index * 9 + 9));
-            index++;
-          }
-          console.log('@EXPLORE:', sets);
-
-          setPosts(sets);
-        })
-        .catch((e) => {
-          setLoading(false);
-          console.log('@EXPLORE ERROR:', e);
-        });
-    };
-    fetchPosts();
-    // setTimeout(() => setLoading(false), 2000);
-  }, [props.currentUserToken]);
   if (status === 'loading') {
     return (
-      <div style={{ textAlign: 'center' }}>
-        {/* <Spin size="small" />
-        <p>Loading your stuff...</p> */}
-        <img
+      <Row justify="center" style={{ paddingTop: 60 }}>
+        {/* <div className="page__global__loader"> */}
+        {[1, 1, 1, 1].map((_, index) => (
+          <Col span={9} offset={1}>
+            <Skeleton key={index} avatar active paragraph={{ rows: 4 }} />
+          </Col>
+        ))}
+        {/* <Spin size="large" /> */}
+
+        {/* <img
           height="200"
           width="100"
-          src={LOADER_OBJECTS.LOADING_GEARS_01}
+          // use party icons
+          src={LOADER_OBJECTS.LOADING_PULSE_01}
           alt="LOADING"
-        />
-      </div>
+        /> */}
+        {/* </div> */}
+      </Row>
     );
   }
 

@@ -1,5 +1,14 @@
 import React, { useEffect, useState } from 'react';
-import { Row, Spin, Result, Empty, Divider, Col, message } from 'antd';
+import {
+  Row,
+  Spin,
+  Result,
+  Empty,
+  Divider,
+  Col,
+  message,
+  Skeleton,
+} from 'antd';
 import firebase from 'firebase';
 import {
   Post,
@@ -790,14 +799,20 @@ const UserProfile = (props: IUserProps) => {
 
   if (loading) {
     return (
-      <div style={{ textAlign: 'center' }}>
-        {/* <Spin size="small" /> */}
-        <img
+      <div className="page__global__loader">
+        <Row style={{ paddingTop: 60 }} justify="center"></Row>
+        <Col span={12}>
+          <Skeleton avatar active paragraph={{ rows: 4 }} />
+        </Col>
+        {/* <Spin size="large" /> */}
+
+        {/* <img
           height="200"
           width="100"
-          src={LOADER_OBJECTS.LOADING_GEARS_01}
+          // party icons
+          src={LOADER_OBJECTS.LOADING_PULSE_01}
           alt="LOADING"
-        />
+        /> */}
       </div>
     );
   }
@@ -988,11 +1003,7 @@ const UserProfile = (props: IUserProps) => {
               )} */}
             </div>
           </div>
-        ) : (
-          <div style={{ textAlign: 'center', marginTop: '15%' }}>
-            <Spin size="large" />
-          </div>
-        )}
+        ) : null}
       </Col>
       <BottomScrollListener onBottom={callback}></BottomScrollListener>
     </Row>

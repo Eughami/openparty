@@ -18,7 +18,7 @@ import RegistrationForm from './components/register';
 import UserProfile from './components/user-info';
 import Tags from './components/tags';
 import { RegistrationObject } from './components/interfaces/user.interface';
-import { Grid, message } from 'antd';
+import { Grid, message, Row, Spin } from 'antd';
 import Header from './components/header/header';
 import MobileHeader from './components/header/mobile/mobile-header';
 import ProfileUI from './components/test';
@@ -139,15 +139,15 @@ const App = (props: IAppProps) => {
 
   if (loadingCredentials) {
     return (
-      <div style={{ textAlign: 'center' }}>
-        {/* <Spin size="small" />
-        <p>Loading your stuff...</p> */}
-        <img
+      <div className="global__loader__container">
+        <Spin size="large" />
+        {/* <img
           height="200"
           width="100"
-          src={LOADER_OBJECTS.LOADING_PINKY_PIG_01}
+          // use party icons
+          src={LOADER_OBJECTS.LOADING_PULSE_01}
           alt="LOADING"
-        />
+        /> */}
       </div>
     );
   }

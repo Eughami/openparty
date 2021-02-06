@@ -310,3 +310,17 @@ hr.light {
   text-transform: uppercase;
   color: rgba(142, 142, 142);
 }
+.global__loader__container {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.page__global__loader {
+  width: 100vw;
+  height: calc(100vh - 60px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
