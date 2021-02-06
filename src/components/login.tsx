@@ -14,7 +14,7 @@ interface IAppProps {
     password: string,
     history: any
   ) => Promise<any>;
-  googleSignInStart?: () => Promise<any>;
+  googleSignInStart?: (history: any) => Promise<any>;
   history?: any;
   currentUser?: firebase.User;
 }
@@ -116,7 +116,7 @@ const Login = (props: IAppProps) => {
                 style={{ borderRadius: 10 }}
                 block
                 type="primary"
-                onClick={() => props.googleSignInStart!()}
+                onClick={() => props.googleSignInStart!(props.history)}
               >
                 Login With Google
               </Button>
@@ -136,7 +136,7 @@ const Login = (props: IAppProps) => {
 const mapDispatchToProps = (dispatch: any) => ({
   emailSignInStart: (email: string, password: string, history: any) =>
     dispatch(emailSignInStart({ email, password }, history)),
-  googleSignInStart: () => dispatch(googleSignInStart()),
+  googleSignInStart: (history: any) => dispatch(googleSignInStart(history)),
 });
 
 const mapStateToProps = (state: any) => {

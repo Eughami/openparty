@@ -55,7 +55,7 @@ const RegistrationForm = ({ emailSignInStart, signUpStart, history }: any) => {
     object.phone = '';
     message.loading('Sign up in progress...', 0);
     try {
-      const registerResponse = await signUpStart(object, history);
+      const registerResponse = await signUpStart(object);
       console.log(registerResponse);
       message.destroy();
       message.loading('Sign up success, Auto Login...');
@@ -265,8 +265,7 @@ const RegistrationForm = ({ emailSignInStart, signUpStart, history }: any) => {
 const mapsDispatchToProps = (dispatch: any) => ({
   emailSignInStart: (email: string, password: string, history: any) =>
     dispatch(emailSignInStart({ email, password }, history)),
-  signUpStart: (regObj: any, history: any) =>
-    dispatch(signUpStart(regObj, history)),
+  signUpStart: (regObj: any) => dispatch(signUpStart(regObj)),
 });
 
 export default connect(null, mapsDispatchToProps)(RegistrationForm);

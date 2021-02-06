@@ -52,12 +52,7 @@ const userReducer = (
         commentId: null,
       };
     case UserActionTypes.SIGN_OUT_SUCCESS:
-      return {
-        ...state,
-        currentUser: null,
-        userInfo: null,
-        error: null,
-      };
+      return INITIAL_STATE;
     case UserActionTypes.SET_CURRENT_USER:
       return {
         ...state,

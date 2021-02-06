@@ -15,7 +15,7 @@ import {
 import bluebird from 'bluebird';
 // import _ from 'lodash';
 
-export const googleSignInStart = () => (dispatch: any) =>
+export const googleSignInStart = (history: any) => (dispatch: any) =>
   new Promise(async (resolve, reject) => {
     dispatch({ type: UserActionTypes.GOOGLE_SIGN_IN_START });
     try {
@@ -30,8 +30,20 @@ export const googleSignInStart = () => (dispatch: any) =>
             reject('Unknown error occurred');
             return;
           }
+          // does not matter what's next user is logged in at this point
 
           const token = await user.user.getIdToken();
+
+          // set tbe user token
+          dispatch({
+            type: UserActionTypes.SET_CURRENT_USER_TOKEN,
+            payload: token,
+          });
+
+          // check for RAL
+          const RAL = localStorage.getItem('RAL');
+          console.log('Google login RAL', RAL);
+          RAL ? history.replace(RAL) : history.replace('/');
 
           const requestOptions: RequestInit = {
             method: 'POST',
@@ -53,6 +65,7 @@ export const googleSignInStart = () => (dispatch: any) =>
                     type: UserActionTypes.SIGN_IN_SUCCESS,
                     payload: user.user,
                   });
+
                   resolve(user.user);
                 })
                 .catch((error) => {
@@ -88,7 +101,10 @@ export const signInFailure = (error: any) => ({
 });
 
 export const emailSignInStart = (
-  emailAndPassword: { email: string; password: string },
+  emailAndPassword: {
+    email: string;
+    password: string;
+  },
   history: any
 ) => (dispatch: (arg0: { type: string; payload?: any }) => void) =>
   new Promise((resolve, reject) => {
@@ -101,13 +117,29 @@ export const emailSignInStart = (
           emailAndPassword.email,
           emailAndPassword.password
         )
-        .then((user) => {
+        .then(async (user) => {
+          if (!user.user) {
+            dispatch({ type: UserActionTypes.SIGN_IN_FAILURE });
+            reject('Unknown error occurred');
+            return;
+          }
+
+          const token = await user.user.getIdToken();
+
+          // set the user token
+          dispatch({
+            type: UserActionTypes.SET_CURRENT_USER_TOKEN,
+            payload: token,
+          });
+
           dispatch({
             type: UserActionTypes.SIGN_IN_SUCCESS,
             payload: user.user,
           });
           resolve(user);
-          history.replace('/');
+          // check for RAL
+          const RAL = localStorage.getItem('RAL');
+          RAL ? history.replace(RAL) : history.replace('/');
         })
         .catch((error) => {
           dispatch({ type: UserActionTypes.SIGN_IN_FAILURE, payload: error });
@@ -418,7 +450,7 @@ export const signOutFailure = (error: any) => ({
   type: UserActionTypes.SIGN_OUT_FAILURE,
   payload: error,
 });
-export const signUpStart = (userObj: RegistrationObject, history: any) => {
+export const signUpStart = (userObj: RegistrationObject) => {
   let object: any = userObj;
   //attaching the auth
   object.auth = 'api@openparty.com';
