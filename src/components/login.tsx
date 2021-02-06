@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Form, Input, Button, message, Col, Row, Divider } from 'antd';
+import { Form, Input, Button, message, Col, Row, Divider, Alert } from 'antd';
 
 import {
   emailSignInStart,
@@ -17,6 +17,7 @@ interface IAppProps {
   googleSignInStart?: (history: any) => Promise<any>;
   history?: any;
   currentUser?: firebase.User;
+  unauthogin?: boolean;
 }
 
 //TODO: ADD SIGN IN WITH USERNAME && PHONE NUMBER
@@ -81,6 +82,9 @@ const Login = (props: IAppProps) => {
             onFinishFailed={onFinishFailed}
           >
             <h1 className="login__logo">OpenPaarty</h1>
+            {props.unauthogin && (
+              <Alert message="You need to login first" type="warning" />
+            )}
             <Form.Item
               label="Email"
               name="username"
@@ -142,6 +146,7 @@ const mapDispatchToProps = (dispatch: any) => ({
 const mapStateToProps = (state: any) => {
   return {
     currentUser: state.user.currentUser,
+    unauthogin: state.user.unauthogin,
   };
 };
 export default connect(mapStateToProps, mapDispatchToProps)(Login);

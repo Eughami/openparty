@@ -17,6 +17,7 @@ import firebase from 'firebase';
 import { Link, useHistory, useLocation, useRouteMatch } from 'react-router-dom';
 import { LIKED_POST_REACTION_ARRAY } from '../header';
 import AsyncMention from '../../mentions/mentions.component';
+import { signOutSuccess } from '../../../redux/user/user.actions';
 const { Search } = Input;
 
 interface IMobileHeaderProps {
@@ -50,6 +51,7 @@ const menu = (history: any) => (
         // where user was before loging out
         // Add a little delay just to be sure
         setTimeout(() => localStorage.removeItem('RAL'), 500);
+        // window.location.replace('/login');
       }}
       key="2"
       icon={<LogoutOutlined />}

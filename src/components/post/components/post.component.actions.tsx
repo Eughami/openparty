@@ -12,7 +12,7 @@ import firebase from 'firebase';
 
 interface IPostActionsProps {
   post: Post;
-  currentUser: firebase.User;
+  currentUser?: firebase.User;
 }
 
 export const PostActions = (props: IPostActionsProps) => {
@@ -28,6 +28,7 @@ export const PostActions = (props: IPostActionsProps) => {
   );
 
   useEffect(() => {
+    if (!currentUser) return;
     const un_sub = firebase
       .database()
       .ref('Postsv2')
@@ -60,7 +61,7 @@ export const PostActions = (props: IPostActionsProps) => {
               userLikePost,
               post.uid,
               post.id,
-              currentUser
+              currentUser!
             )
           }
           twoToneColor={userLikePost ? '#eb2f96' : '#ccc'}

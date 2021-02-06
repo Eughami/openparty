@@ -1,11 +1,11 @@
-// export const API_BASE_URL =
-//   'http://localhost:5000/openpaarty/us-central1/api/v1/';
-// export const API_BASE_URL_OPEN =
-//   'http://localhost:5000/openpaarty/us-central1/api1/v1/';
 export const API_BASE_URL =
-  'https://us-central1-openpaarty.cloudfunctions.net/api/v1/';
+  'http://localhost:5000/openpaarty/us-central1/api/v1/';
 export const API_BASE_URL_OPEN =
-  'https://us-central1-openpaarty.cloudfunctions.net/api1/v1/';
+  'http://localhost:5000/openpaarty/us-central1/api1/v1/';
+// export const API_BASE_URL =
+//   'https://us-central1-openpaarty.cloudfunctions.net/api/v1/';
+// export const API_BASE_URL_OPEN =
+//   'https://us-central1-openpaarty.cloudfunctions.net/api1/v1/';
 
 //post ping
 export const PING_ENDPOINT = 'ping';
@@ -87,4 +87,9 @@ export const GET_USER_FOLLOWINGS = 'users/account/:username/following';
 export const GET_USER_FOLLOWERS = 'users/account/:username/followers';
 
 export const INIT_CHAT = 'users/chat/init';
+
+export const GET_UNAUTH_POST = 'p';
+
+export const PROBE_IMAGE_OPEN_ENDPOINT = 'probe-image';
+
 // export const _ENDPOINT = ""

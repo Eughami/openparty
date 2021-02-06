@@ -37,6 +37,8 @@ import Inbox from './components/chats/inbox';
 import Followers from './components/followers';
 import Followings from './components/followings';
 import { QueryClient, QueryClientProvider } from 'react-query';
+import { saveRAL } from './utils/RAL';
+import ViewPostUnAuth from './components/viewPostUnAuth';
 
 // const currentUser = true
 
@@ -203,6 +205,7 @@ const App = (props: IAppProps) => {
               />
               <Route exact path="/account/edit" component={EditAccount} />
               <Route exact path="/account/activity" component={Activity} />
+              <Redirect to="/" />
             </Switch>
             {/* here the mobile navbar */}
             {xs && currentUserInfo && (
@@ -216,10 +219,11 @@ const App = (props: IAppProps) => {
             {/* some logic to catch the route before redirecting and saving to local storage*/}
             {window.location.pathname !== '/register' &&
               window.location.pathname !== '/login' &&
-              window.localStorage.setItem('RAL', window.location.pathname)}
+              saveRAL()}
             <Switch>
-              <Route exact path="/register" component={RegistrationForm} />
               <Route exact path="/login" component={Login} />
+              <Route exact path="/register" component={RegistrationForm} />
+              <Route exact path="/p/:postId" component={ViewPostUnAuth} />
               <Redirect to="/login" />
             </Switch>
           </>

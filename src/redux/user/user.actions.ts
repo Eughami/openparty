@@ -126,6 +126,12 @@ export const emailSignInStart = (
 
           const token = await user.user.getIdToken();
 
+          // clear alert box fon unauth users
+          dispatch({
+            type: 'SET_UNAUTH_LOGIN',
+            payload: false,
+          });
+
           // set the user token
           dispatch({
             type: UserActionTypes.SET_CURRENT_USER_TOKEN,

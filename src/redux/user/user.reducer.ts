@@ -16,6 +16,7 @@ interface LocalUserState {
   currentUserActualEligiblePostsLoading: boolean;
   error: any | null;
   commentId: null | string;
+  unauthogin: boolean;
 }
 const INITIAL_STATE: LocalUserState = {
   currentUser: null,
@@ -28,6 +29,7 @@ const INITIAL_STATE: LocalUserState = {
   currentUserViewing: null,
   currentUserActualEligiblePostsLoading: true,
   commentId: null,
+  unauthogin: false,
 };
 
 const userReducer = (
@@ -45,6 +47,11 @@ const userReducer = (
       return {
         ...state,
         commentId: action.payload,
+      };
+    case UserActionTypes.SET_UNAUTH_LOGIN:
+      return {
+        ...state,
+        unauthogin: action.payload,
       };
     case UserActionTypes.CLEAR_NOTIFICATION_ID:
       return {

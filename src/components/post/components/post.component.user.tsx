@@ -7,7 +7,7 @@ import { PostEventTime } from './post.component.event-time';
 
 interface IPostUserProps {
   post: Post;
-  currentUser: firebase.User;
+  currentUser?: firebase.User;
   style?: React.CSSProperties;
 }
 
@@ -55,7 +55,8 @@ export const PostUser = (props: IPostUserProps) => {
           sm={{ span: 1 }}
           xs={{ span: 1 }}
         >
-          {post.uid === currentUser.uid &&
+          {currentUser &&
+            post.uid === currentUser.uid &&
             (post.privacy as any) === 'hard-closed' && (
               <Tooltip title="Only you can see this post 🙈 ">
                 <span

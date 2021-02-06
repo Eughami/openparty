@@ -67,6 +67,7 @@ export interface IHeaderProps {
   currentUser?: firebase.User;
   currentUserInfo?: RegistrationObject;
   currentUserToken?: string;
+  history?: any;
 }
 
 //We can also use gifs 👀
@@ -373,6 +374,7 @@ const Header = (props: IHeaderProps) => {
           // where user was before loging out
           // Add a little delay just to be sure
           setTimeout(() => localStorage.removeItem('RAL'), 500);
+          // window.location.replace('/login');
         }}
         key="3"
         icon={<LogoutOutlined size={25} />}
