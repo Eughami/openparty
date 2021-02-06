@@ -44,7 +44,13 @@ const menu = (history: any) => (
     </Menu.Item>
     <hr />
     <Menu.Item
-      onClick={() => firebase.auth().signOut()}
+      onClick={() => {
+        firebase.auth().signOut();
+        // clear RAL from localStorage we don't want to save
+        // where user was before loging out
+        // Add a little delay just to be sure
+        setTimeout(() => localStorage.removeItem('RAL'), 500);
+      }}
       key="2"
       icon={<LogoutOutlined />}
     >

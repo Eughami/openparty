@@ -66,7 +66,13 @@ const Navbar = (props: INavbarProps) => {
               <span>
                 <LogoutOutlined
                   size={25}
-                  onClick={() => firebase.auth().signOut()}
+                  onClick={() => {
+                    firebase.auth().signOut();
+                    // clear RAL from localStorage we don't want to save
+                    // where user was before loging out
+                    // Add a little delay just to be sure
+                    setTimeout(() => localStorage.removeItem('RAL'), 500);
+                  }}
                 />
               </span>
             </Col>

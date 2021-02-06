@@ -152,6 +152,10 @@ const App = (props: IAppProps) => {
     );
   }
 
+  const handleRouteRedirect = (route: string) => {
+    console.log('route shit ', route);
+  };
+
   return (
     <div className="App">
       <QueryClientProvider client={queryClient}>
@@ -208,11 +212,17 @@ const App = (props: IAppProps) => {
             )}
           </div>
         ) : (
-          <Switch>
-            <Route exact path="/register" component={RegistrationForm} />
-            <Route exact path="/login" component={Login} />
-            <Redirect to="/login" />
-          </Switch>
+          <>
+            {/* some logic to catch the route before redirecting and saving to local storage*/}
+            {window.location.pathname !== '/register' &&
+              window.location.pathname !== '/login' &&
+              window.localStorage.setItem('RAL', window.location.pathname)}
+            <Switch>
+              <Route exact path="/register" component={RegistrationForm} />
+              <Route exact path="/login" component={Login} />
+              <Redirect to="/login" />
+            </Switch>
+          </>
         )}
       </QueryClientProvider>
     </div>
