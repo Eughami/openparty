@@ -30,6 +30,12 @@ export const googleSignInStart = (history: any) => (dispatch: any) =>
             reject('Unknown error occurred');
             return;
           }
+          // clear alert box fon unauth users
+          dispatch({
+            type: 'SET_UNAUTH_LOGIN',
+            payload: false,
+          });
+
           // does not matter what's next user is logged in at this point
 
           const token = await user.user.getIdToken();

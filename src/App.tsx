@@ -197,6 +197,7 @@ const App = (props: IAppProps) => {
               />
               <Route exact path="/:username/followers" component={Followers} />
               <Route exact path="/t/:tag" component={Tags} />
+              <Redirect path="/p/:postId" to="/post/:postId" />
               <Route exact path="/post/:postId" component={ViewPost} />
               <Route
                 exact
