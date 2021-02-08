@@ -66,7 +66,7 @@ interface IRenderPostCardProps {
 
 const { Option } = Select;
 
-const fallbackCopyTextToClipboard = (text: string) => {
+export const fallbackCopyTextToClipboard = (text: string) => {
   var textArea = document.createElement('textarea');
   textArea.value = text;
 
@@ -82,7 +82,7 @@ const fallbackCopyTextToClipboard = (text: string) => {
   try {
     var successful = document.execCommand('copy');
     if (successful) {
-      message.info('Post link copied to clipboard');
+      message.info('Post link copied to clipboard', 5);
     } else {
       message.error('Unable to copy post link at this time');
     }
@@ -286,7 +286,7 @@ const RenderPostCard = (props: IRenderPostCardProps) => {
             <Button
               onClick={() =>
                 fallbackCopyTextToClipboard(
-                  `https://openpaarty.web.app/post/${post.id}`
+                  `https://openpaarty.web.app/p/${post.id}`
                 )
               }
               style={{ fontWeight: 'bold' }}
@@ -334,7 +334,7 @@ const RenderPostCard = (props: IRenderPostCardProps) => {
           <Button
             onClick={() =>
               fallbackCopyTextToClipboard(
-                `https://openpaarty.web.app/post/${post.id}`
+                `https://openpaarty.web.app/p/${post.id}`
               )
             }
             style={{ fontWeight: 'bold' }}

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useHistory } from 'react-router-dom';
 import { Post } from '../../interfaces/user.interface';
-import { Row } from 'antd';
+import { message, Row } from 'antd';
 import {
   ShareAltOutlined,
   FireTwoTone,
@@ -9,6 +9,7 @@ import {
 } from '@ant-design/icons';
 import { handlePostLike } from '../post.actions';
 import firebase from 'firebase';
+import { fallbackCopyTextToClipboard } from '../../profile/components/profile.posts.component';
 
 interface IPostActionsProps {
   post: Post;
@@ -70,7 +71,14 @@ export const PostActions = (props: IPostActionsProps) => {
       <span style={{ fontSize: '25px' }}>
         <CommentOutlined onClick={() => history.push(`/post/${post.id}`)} />
       </span>
-      <span style={{ fontSize: '25px' }}>
+      <span
+        style={{ fontSize: '25px' }}
+        onClick={() => {
+          fallbackCopyTextToClipboard(
+            `https://openpaarty.web.app/p/${post.id}`
+          );
+        }}
+      >
         <ShareAltOutlined />
       </span>
     </Row>
